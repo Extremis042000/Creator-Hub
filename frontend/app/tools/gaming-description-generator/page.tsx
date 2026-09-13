@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdSlot from "@/components/AdSlot";
 import JsonLd from "@/components/JsonLd";
 import DescriptionGeneratorForm from "@/components/tools/DescriptionGeneratorForm";
 import { buildMetadata, faqJsonLd, toolJsonLd } from "@/lib/seo";
@@ -85,6 +86,8 @@ export default function DescriptionGeneratorPage() {
           ))}
         </div>
       </section>
+
+      <AdSlot slotId="tool-page-bottom" />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import AdSenseScript from "@/components/AdSenseScript";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
@@ -29,7 +30,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -38,6 +39,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="min-h-screen bg-bg-canvas text-text-primary antialiased">
         <GoogleAnalytics />
+        <AdSenseScript />
         <div className="flex min-h-screen flex-col">
           <SiteHeader />
           <main className="flex-1">{children}</main>

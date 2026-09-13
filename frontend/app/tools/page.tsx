@@ -1,3 +1,4 @@
+import AdSlot from "@/components/AdSlot";
 import ToolCard from "@/components/ToolCard";
 import ComingSoonToolCard from "@/components/ComingSoonToolCard";
 import { buildMetadata } from "@/lib/seo";
@@ -39,6 +40,8 @@ export default async function ToolsDirectoryPage() {
           <ToolCard key={tool.slug} tool={tool} />
         ))}
       </div>
+
+      <AdSlot slotId="tools-directory-bottom" />
     </div>
   );
 }

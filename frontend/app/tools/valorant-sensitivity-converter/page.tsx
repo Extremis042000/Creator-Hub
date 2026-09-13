@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdSlot from "@/components/AdSlot";
 import JsonLd from "@/components/JsonLd";
 import SensitivityConverterForm from "@/components/tools/SensitivityConverterForm";
 import { buildMetadata, faqJsonLd, toolJsonLd } from "@/lib/seo";
@@ -84,6 +85,8 @@ export default function SensitivityConverterPage() {
           ))}
         </div>
       </section>
+
+      <AdSlot slotId="tool-page-bottom" />
     </div>
   );
 }

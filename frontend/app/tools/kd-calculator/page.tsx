@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdSlot from "@/components/AdSlot";
 import JsonLd from "@/components/JsonLd";
 import KdCalculatorForm from "@/components/tools/KdCalculatorForm";
 import { buildMetadata, faqJsonLd, toolJsonLd } from "@/lib/seo";
@@ -88,6 +89,8 @@ export default function KdCalculatorPage() {
           ))}
         </div>
       </section>
+
+      <AdSlot slotId="tool-page-bottom" />
     </div>
   );
 }
