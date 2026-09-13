@@ -2,8 +2,10 @@ import Link from "next/link";
 import AdSlot from "@/components/AdSlot";
 import JsonLd from "@/components/JsonLd";
 import BgmiSensitivityForm from "@/components/tools/BgmiSensitivityForm";
+import PremiumToolGate from "@/components/tools/PremiumToolGate";
 import { buildMetadata, faqJsonLd, toolJsonLd } from "@/lib/seo";
 import { TOOLS } from "@/lib/tools";
+import { fetchPublicTools } from "@/lib/api";
 
 const TITLE = "BGMI Sensitivity Helper";
 const DESCRIPTION =
@@ -27,8 +29,10 @@ const FAQS = [
   },
 ];
 
-export default function BgmiSensitivityPage() {
+export default async function BgmiSensitivityPage() {
   const relatedTools = TOOLS.filter((t) => t.slug !== "bgmi-sensitivity-helper").slice(0, 3);
+  const publicTools = await fetchPublicTools();
+  const premiumOnly = publicTools.find((t) => t.slug === "bgmi-sensitivity-helper")?.premiumOnly ?? false;
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
@@ -46,7 +50,9 @@ export default function BgmiSensitivityPage() {
       </p>
 
       <div className="mt-8">
-        <BgmiSensitivityForm />
+        <PremiumToolGate premiumOnly={premiumOnly}>
+          <BgmiSensitivityForm />
+        </PremiumToolGate>
       </div>
 
       <section className="mt-16">

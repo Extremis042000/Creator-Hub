@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import com.extremis.hub.admin.AdminAccessService;
 import com.extremis.hub.domain.Profile;
 import com.extremis.hub.domain.User;
+import com.extremis.hub.premium.PremiumAccessService;
 import com.extremis.hub.repository.ProfileRepository;
 import com.extremis.hub.repository.UserRepository;
 import java.time.Instant;
@@ -25,6 +26,7 @@ class AuthServiceTest {
     @Mock private UserRepository userRepository;
     @Mock private ProfileRepository profileRepository;
     @Mock private AdminAccessService adminAccessService;
+    @Mock private PremiumAccessService premiumAccessService;
 
     private AuthService authService;
 
@@ -35,7 +37,8 @@ class AuthServiceTest {
         JwtService jwtService = new JwtService(jwtProperties);
         jwtService.init();
         authService = new AuthService(
-            googleTokenVerifierService, userRepository, profileRepository, jwtService, adminAccessService);
+            googleTokenVerifierService, userRepository, profileRepository, jwtService, adminAccessService,
+            premiumAccessService);
     }
 
     @Test

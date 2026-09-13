@@ -6,6 +6,7 @@ import AdminFeatureFlags from "@/components/admin/AdminFeatureFlags";
 import AdminProductsTable from "@/components/admin/AdminProductsTable";
 import AdminToolsTable from "@/components/admin/AdminToolsTable";
 import AdminUsersPanel from "@/components/admin/AdminUsersPanel";
+import AdminPremiumUsersPanel from "@/components/admin/AdminPremiumUsersPanel";
 import { Card } from "@/components/ui/Card";
 import {
   fetchAdminAffiliateProducts,
@@ -13,12 +14,14 @@ import {
   fetchAdmins,
   fetchAdminProducts,
   fetchAdminTools,
+  fetchPremiumUsers,
   ApiError,
   type AdminAffiliateProduct,
   type AdminFeatureFlag,
   type AdminProduct,
   type AdminTool,
   type AdminUserSummary,
+  type AdminPremiumUser,
 } from "@/lib/api";
 import { getToken } from "@/lib/auth";
 
@@ -29,6 +32,7 @@ export default function AdminPage() {
   const [tools, setTools] = useState<AdminTool[]>([]);
   const [flags, setFlags] = useState<AdminFeatureFlag[]>([]);
   const [admins, setAdmins] = useState<AdminUserSummary[]>([]);
+  const [premiumUsers, setPremiumUsers] = useState<AdminPremiumUser[]>([]);
   const [affiliateProducts, setAffiliateProducts] = useState<AdminAffiliateProduct[]>([]);
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [token, setToken] = useState<string | null>(null);
@@ -45,13 +49,15 @@ export default function AdminPage() {
       fetchAdminTools(t),
       fetchAdminFeatureFlags(t),
       fetchAdmins(t),
+      fetchPremiumUsers(t),
       fetchAdminAffiliateProducts(t),
       fetchAdminProducts(t),
     ])
-      .then(([toolsResult, flagsResult, adminsResult, affiliateProductsResult, productsResult]) => {
+      .then(([toolsResult, flagsResult, adminsResult, premiumUsersResult, affiliateProductsResult, productsResult]) => {
         setTools(toolsResult);
         setFlags(flagsResult);
         setAdmins(adminsResult);
+        setPremiumUsers(premiumUsersResult);
         setAffiliateProducts(affiliateProductsResult);
         setProducts(productsResult);
         setState("ready");
@@ -132,6 +138,11 @@ export default function AdminPage() {
       <Card className="mt-6">
         <h2 className="mb-4 font-semibold">Admins</h2>
         <AdminUsersPanel initialAdmins={admins} token={token} />
+      </Card>
+
+      <Card className="mt-6">
+        <h2 className="mb-4 font-semibold">Premium access</h2>
+        <AdminPremiumUsersPanel initialPremiumUsers={premiumUsers} token={token} />
       </Card>
     </div>
   );

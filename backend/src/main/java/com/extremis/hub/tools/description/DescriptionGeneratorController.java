@@ -1,9 +1,11 @@
 package com.extremis.hub.tools.description;
 
 import com.extremis.hub.domain.ToolType;
+import com.extremis.hub.premium.PremiumAccessService;
 import com.extremis.hub.results.SharedResultService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,9 +18,11 @@ public class DescriptionGeneratorController {
 
     private final DescriptionGeneratorService descriptionGeneratorService;
     private final SharedResultService sharedResultService;
+    private final PremiumAccessService premiumAccessService;
 
     @PostMapping
-    public DescriptionGeneratorResponse generate(@Valid @RequestBody DescriptionGeneratorRequest request) {
+    public DescriptionGeneratorResponse generate(@Valid @RequestBody DescriptionGeneratorRequest request, Authentication authentication) {
+        premiumAccessService.requireAccessIfPremium(ToolType.DESCRIPTION_GENERATOR, authentication);
         DescriptionGeneratorResponse response = descriptionGeneratorService.generate(request);
 
         if (request.isSave()) {

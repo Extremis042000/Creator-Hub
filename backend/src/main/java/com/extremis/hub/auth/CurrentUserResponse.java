@@ -17,4 +17,10 @@ public class CurrentUserResponse {
     // KdCalculatorResponse); @JsonProperty pins the wire name.
     @JsonProperty("isAdmin")
     boolean adminFlag;
+
+    // Doesn't collide with the isXxx-stripping gotcha above (this
+    // field doesn't start with "is"), but @JsonProperty is added
+    // anyway to pin the wire name explicitly and consistently.
+    @JsonProperty("hasPremiumAccess")
+    boolean hasPremiumAccess;
 }

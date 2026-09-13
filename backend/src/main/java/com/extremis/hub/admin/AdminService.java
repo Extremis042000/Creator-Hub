@@ -8,6 +8,8 @@ import com.extremis.hub.domain.ProductCategory;
 import com.extremis.hub.domain.Profile;
 import com.extremis.hub.domain.Tool;
 import com.extremis.hub.domain.User;
+import com.extremis.hub.domain.UserEntitlement;
+import com.extremis.hub.premium.PremiumAccessService;
 import com.extremis.hub.repository.AdminGrantRepository;
 import com.extremis.hub.repository.AffiliateProductRepository;
 import com.extremis.hub.repository.FeatureFlagRepository;
@@ -15,9 +17,11 @@ import com.extremis.hub.repository.ProductCategoryRepository;
 import com.extremis.hub.repository.ProductRepository;
 import com.extremis.hub.repository.ProfileRepository;
 import com.extremis.hub.repository.ToolRepository;
+import com.extremis.hub.repository.UserEntitlementRepository;
 import com.extremis.hub.repository.UserRepository;
 import com.extremis.hub.web.BusinessRuleViolationException;
 import com.extremis.hub.web.ResourceNotFoundException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -46,6 +50,7 @@ public class AdminService {
     private final AffiliateProductRepository affiliateProductRepository;
     private final ProductRepository productRepository;
     private final ProductCategoryRepository productCategoryRepository;
+    private final UserEntitlementRepository userEntitlementRepository;
 
     /**
      * Every admin endpoint calls this first. Deliberately mirrors the
@@ -259,6 +264,50 @@ public class AdminService {
             throw new ResourceNotFoundException("This user is not an admin.");
         }
         adminGrantRepository.deleteById(userId);
+    }
+
+    /**
+     * No real subscription billing exists yet (see
+     * PremiumAccessService) -- this is the only way a user gets
+     * premium access today. Idempotent, mirrors grantAdmin exactly.
+     */
+    @Transactional
+    public void grantPremium(String email) {
+        User target = userRepository.findByEmail(email)
+            .orElseThrow(() -> new BusinessRuleViolationException(
+                "That user must sign in at least once before being granted premium access."));
+
+        if (userEntitlementRepository
+                .findByUserIdAndEntitlementKey(target.getId(), PremiumAccessService.PREMIUM_ENTITLEMENT_KEY)
+                .isPresent()) {
+            return; // already granted -- idempotent, not an error
+        }
+
+        UserEntitlement entitlement = new UserEntitlement();
+        entitlement.setUser(target);
+        entitlement.setEntitlementKey(PremiumAccessService.PREMIUM_ENTITLEMENT_KEY);
+        entitlement.setSource("admin-grant");
+        entitlement.setGrantedAt(Instant.now());
+        userEntitlementRepository.save(entitlement);
+    }
+
+    @Transactional
+    public void revokePremium(UUID userId) {
+        UserEntitlement entitlement = userEntitlementRepository
+            .findByUserIdAndEntitlementKey(userId, PremiumAccessService.PREMIUM_ENTITLEMENT_KEY)
+            .orElseThrow(() -> new ResourceNotFoundException("This user doesn't have premium access."));
+        userEntitlementRepository.delete(entitlement);
+    }
+
+    public List<AdminPremiumUserResponse> listPremiumUsers() {
+        return userEntitlementRepository.findAllByEntitlementKey(PremiumAccessService.PREMIUM_ENTITLEMENT_KEY).stream()
+            .map(e -> AdminPremiumUserResponse.builder()
+                .userId(e.getUser().getId())
+                .email(e.getUser().getEmail())
+                .displayName(displayNameFor(e.getUser()))
+                .grantedAt(e.getGrantedAt())
+                .build())
+            .toList();
     }
 
     private String displayNameFor(User user) {

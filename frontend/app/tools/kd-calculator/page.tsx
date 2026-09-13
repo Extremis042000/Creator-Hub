@@ -2,8 +2,10 @@ import Link from "next/link";
 import AdSlot from "@/components/AdSlot";
 import JsonLd from "@/components/JsonLd";
 import KdCalculatorForm from "@/components/tools/KdCalculatorForm";
+import PremiumToolGate from "@/components/tools/PremiumToolGate";
 import { buildMetadata, faqJsonLd, toolJsonLd } from "@/lib/seo";
 import { TOOLS } from "@/lib/tools";
+import { fetchPublicTools } from "@/lib/api";
 
 const TITLE = "KD Ratio Calculator";
 const DESCRIPTION =
@@ -31,8 +33,10 @@ const FAQS = [
   },
 ];
 
-export default function KdCalculatorPage() {
+export default async function KdCalculatorPage() {
   const relatedTools = TOOLS.filter((t) => t.slug !== "kd-calculator").slice(0, 3);
+  const publicTools = await fetchPublicTools();
+  const premiumOnly = publicTools.find((t) => t.slug === "kd-calculator")?.premiumOnly ?? false;
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
@@ -50,7 +54,9 @@ export default function KdCalculatorPage() {
       </p>
 
       <div className="mt-8">
-        <KdCalculatorForm />
+        <PremiumToolGate premiumOnly={premiumOnly}>
+          <KdCalculatorForm />
+        </PremiumToolGate>
       </div>
 
       <section className="mt-16">

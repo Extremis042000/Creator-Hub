@@ -341,6 +341,7 @@ export type CurrentUser = {
   email: string;
   displayName: string | null;
   isAdmin: boolean;
+  hasPremiumAccess: boolean;
 };
 
 export type AuthResponse = {
@@ -572,4 +573,23 @@ export function grantAdmin(token: string, email: string): Promise<void> {
 
 export function revokeAdmin(token: string, userId: string): Promise<void> {
   return authedRequestNoContent("DELETE", `/api/v1/admin/admins/${userId}`, token);
+}
+
+export type AdminPremiumUser = {
+  userId: string;
+  email: string;
+  displayName: string | null;
+  grantedAt: string;
+};
+
+export function fetchPremiumUsers(token: string): Promise<AdminPremiumUser[]> {
+  return authedRequest<AdminPremiumUser[]>("GET", "/api/v1/admin/premium-grants", token);
+}
+
+export function grantPremium(token: string, email: string): Promise<void> {
+  return authedRequestNoContent("POST", "/api/v1/admin/premium-grants", token, { email });
+}
+
+export function revokePremium(token: string, userId: string): Promise<void> {
+  return authedRequestNoContent("DELETE", `/api/v1/admin/premium-grants/${userId}`, token);
 }

@@ -1,9 +1,11 @@
 package com.extremis.hub.tools.bgmi;
 
 import com.extremis.hub.domain.ToolType;
+import com.extremis.hub.premium.PremiumAccessService;
 import com.extremis.hub.results.SharedResultService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,9 +18,11 @@ public class BgmiSensitivityController {
 
     private final BgmiSensitivityService bgmiSensitivityService;
     private final SharedResultService sharedResultService;
+    private final PremiumAccessService premiumAccessService;
 
     @PostMapping
-    public BgmiSensitivityResponse recommend(@Valid @RequestBody BgmiSensitivityRequest request) {
+    public BgmiSensitivityResponse recommend(@Valid @RequestBody BgmiSensitivityRequest request, Authentication authentication) {
+        premiumAccessService.requireAccessIfPremium(ToolType.BGMI_SENSITIVITY_HELPER, authentication);
         BgmiSensitivityResponse response = bgmiSensitivityService.recommend(request);
 
         if (request.isSave()) {

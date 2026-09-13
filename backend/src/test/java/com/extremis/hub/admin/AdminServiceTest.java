@@ -19,6 +19,7 @@ import com.extremis.hub.repository.ProductCategoryRepository;
 import com.extremis.hub.repository.ProductRepository;
 import com.extremis.hub.repository.ProfileRepository;
 import com.extremis.hub.repository.ToolRepository;
+import com.extremis.hub.repository.UserEntitlementRepository;
 import com.extremis.hub.repository.UserRepository;
 import com.extremis.hub.web.BusinessRuleViolationException;
 import com.extremis.hub.web.ResourceNotFoundException;
@@ -44,6 +45,7 @@ class AdminServiceTest {
     @Mock private AffiliateProductRepository affiliateProductRepository;
     @Mock private ProductRepository productRepository;
     @Mock private ProductCategoryRepository productCategoryRepository;
+    @Mock private UserEntitlementRepository userEntitlementRepository;
 
     private AdminAccessProperties adminAccessProperties;
     private AdminService adminService;
@@ -56,7 +58,7 @@ class AdminServiceTest {
         adminService = new AdminService(
             adminAccessProperties, adminAccessService, userRepository, profileRepository, toolRepository,
             featureFlagRepository, adminGrantRepository, affiliateProductRepository, productRepository,
-            productCategoryRepository);
+            productCategoryRepository, userEntitlementRepository);
     }
 
     private Authentication authFor(UUID userId) {

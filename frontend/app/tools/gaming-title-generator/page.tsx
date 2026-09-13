@@ -2,8 +2,10 @@ import Link from "next/link";
 import AdSlot from "@/components/AdSlot";
 import JsonLd from "@/components/JsonLd";
 import TitleGeneratorForm from "@/components/tools/TitleGeneratorForm";
+import PremiumToolGate from "@/components/tools/PremiumToolGate";
 import { buildMetadata, faqJsonLd, toolJsonLd } from "@/lib/seo";
 import { TOOLS } from "@/lib/tools";
+import { fetchPublicTools } from "@/lib/api";
 
 const TITLE = "Gaming YouTube Title Generator";
 const DESCRIPTION =
@@ -27,8 +29,10 @@ const FAQS = [
   },
 ];
 
-export default function TitleGeneratorPage() {
+export default async function TitleGeneratorPage() {
   const relatedTools = TOOLS.filter((t) => t.slug !== "gaming-title-generator").slice(0, 3);
+  const publicTools = await fetchPublicTools();
+  const premiumOnly = publicTools.find((t) => t.slug === "gaming-title-generator")?.premiumOnly ?? false;
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
@@ -46,7 +50,9 @@ export default function TitleGeneratorPage() {
       </p>
 
       <div className="mt-8">
-        <TitleGeneratorForm />
+        <PremiumToolGate premiumOnly={premiumOnly}>
+          <TitleGeneratorForm />
+        </PremiumToolGate>
       </div>
 
       <section className="mt-16">

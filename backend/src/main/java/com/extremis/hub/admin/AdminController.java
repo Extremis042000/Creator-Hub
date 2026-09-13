@@ -114,4 +114,25 @@ public class AdminController {
         adminService.revokeAdmin(userId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/premium-grants")
+    public List<AdminPremiumUserResponse> listPremiumUsers(Authentication authentication) {
+        adminService.requireAdmin(authentication);
+        return adminService.listPremiumUsers();
+    }
+
+    @PostMapping("/premium-grants")
+    public ResponseEntity<Void> grantPremium(
+            @Valid @RequestBody GrantPremiumRequest request, Authentication authentication) {
+        adminService.requireAdmin(authentication);
+        adminService.grantPremium(request.getEmail());
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/premium-grants/{userId}")
+    public ResponseEntity<Void> revokePremium(@PathVariable UUID userId, Authentication authentication) {
+        adminService.requireAdmin(authentication);
+        adminService.revokePremium(userId);
+        return ResponseEntity.noContent().build();
+    }
 }

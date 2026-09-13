@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type MouseEvent } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import { Card } from "./ui/Card";
 import type { ToolSummary } from "@/lib/tools";
+import { fetchCurrentUser } from "@/lib/api";
+import { getToken } from "@/lib/auth";
 
 export default function ToolCard({
   tool,
@@ -12,6 +14,20 @@ export default function ToolCard({
 }) {
   const [popupOpen, setPopupOpen] = useState(false);
   const [popupVisible, setPopupVisible] = useState(false);
+  // Defaults to locked until the entitlement check resolves -- fail
+  // safe, never briefly show an unlocked card to a non-entitled user.
+  const [entitled, setEntitled] = useState(false);
+
+  useEffect(() => {
+    if (!tool.premiumOnly) return;
+    const token = getToken();
+    if (!token) return;
+    fetchCurrentUser(token).then((user) => {
+      if (user?.hasPremiumAccess) setEntitled(true);
+    });
+  }, [tool.premiumOnly]);
+
+  const locked = Boolean(tool.premiumOnly) && !entitled;
 
   function openPopup() {
     setPopupOpen(true);
@@ -24,7 +40,7 @@ export default function ToolCard({
   }
 
   function handleClick(e: MouseEvent<HTMLAnchorElement>) {
-    if (tool.premiumOnly) {
+    if (locked) {
       e.preventDefault();
       openPopup();
     }
@@ -47,7 +63,7 @@ export default function ToolCard({
           <h3 className="text-lg font-semibold text-text-primary">{tool.name}</h3>
           <p className="text-sm text-text-secondary">{tool.description}</p>
           <span className="mt-auto flex items-center gap-1.5 text-sm font-medium text-brand-accent group-hover:underline">
-            {tool.premiumOnly && <span aria-hidden="true">🔒</span>}
+            {locked && <span aria-hidden="true">🔒</span>}
             Try it &rarr;
           </span>
         </Card>

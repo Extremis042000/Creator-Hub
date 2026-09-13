@@ -1,9 +1,11 @@
 package com.extremis.hub.tools.title;
 
 import com.extremis.hub.domain.ToolType;
+import com.extremis.hub.premium.PremiumAccessService;
 import com.extremis.hub.results.SharedResultService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,9 +18,11 @@ public class TitleGeneratorController {
 
     private final TitleGeneratorService titleGeneratorService;
     private final SharedResultService sharedResultService;
+    private final PremiumAccessService premiumAccessService;
 
     @PostMapping
-    public TitleGeneratorResponse generate(@Valid @RequestBody TitleGeneratorRequest request) {
+    public TitleGeneratorResponse generate(@Valid @RequestBody TitleGeneratorRequest request, Authentication authentication) {
+        premiumAccessService.requireAccessIfPremium(ToolType.TITLE_GENERATOR, authentication);
         TitleGeneratorResponse response = titleGeneratorService.generate(request);
 
         if (request.isSave()) {

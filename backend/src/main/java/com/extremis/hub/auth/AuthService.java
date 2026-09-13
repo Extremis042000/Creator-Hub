@@ -3,6 +3,7 @@ package com.extremis.hub.auth;
 import com.extremis.hub.admin.AdminAccessService;
 import com.extremis.hub.domain.Profile;
 import com.extremis.hub.domain.User;
+import com.extremis.hub.premium.PremiumAccessService;
 import com.extremis.hub.repository.ProfileRepository;
 import com.extremis.hub.repository.UserRepository;
 import com.extremis.hub.web.ResourceNotFoundException;
@@ -26,6 +27,7 @@ public class AuthService {
     private final ProfileRepository profileRepository;
     private final JwtService jwtService;
     private final AdminAccessService adminAccessService;
+    private final PremiumAccessService premiumAccessService;
 
     @Transactional
     public AuthResponse signInWithGoogle(String googleIdToken) {
@@ -67,6 +69,7 @@ public class AuthService {
                 .email(user.getEmail())
                 .displayName(profile.getDisplayName())
                 .adminFlag(adminAccessService.isAdmin(user))
+                .hasPremiumAccess(premiumAccessService.hasPremiumAccess(user.getId()))
                 .build())
             .build();
     }
@@ -82,6 +85,7 @@ public class AuthService {
             .email(user.getEmail())
             .displayName(displayName)
             .adminFlag(adminAccessService.isAdmin(user))
+            .hasPremiumAccess(premiumAccessService.hasPremiumAccess(userId))
             .build();
     }
 
