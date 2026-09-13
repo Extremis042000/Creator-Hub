@@ -1,0 +1,79 @@
+spring:
+  application:
+    name: hub-backend
+
+  # --- Database / JPA / Flyway: LIVE as of Phase 5 ---
+  # Credentials come from real environment variables (DATABASE_URL,
+  # DATABASE_USERNAME, DATABASE_PASSWORD), never hardcoded here — see
+  # backend/.env.example. Nothing secret is committed; backend/.env is
+  # gitignored and loaded by run-local.ps1.
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate # Flyway owns the schema; Hibernate only validates it matches
+    open-in-view: false
+
+  flyway:
+    locations: classpath:db/migration,classpath:com/extremis/hub/migration
+
+extremis:
+  cors:
+    allowed-origins:
+      - http://localhost:3000
+  auth:
+    google:
+      # Founder-provided (Google Cloud Console) — see .env.example.
+      # Left unset (empty) is fine: sign-in simply always reports
+      # "not verified" until this is set, everything else keeps
+      # working. Do NOT default this to a real-looking value.
+      client-id: ${GOOGLE_CLIENT_ID:}
+    jwt:
+      # Required, no default — matches DATABASE_URL's pattern. The
+      # app deliberately fails to start without this rather than
+      # silently signing tokens with a placeholder secret.
+      secret: ${JWT_SECRET}
+      expiration-minutes: 10080 # 7 days
+  admin:
+    # Comma-separated allowlist (env var ADMIN_EMAILS) — see
+    # AdminAccessProperties for why this is an env var, not a
+    # database-backed role, for Phase 17. Left unset means no admin
+    # access at all, which is the safe default.
+    emails: ${ADMIN_EMAILS:}
+  digital-products:
+    # Never web-exposed — see DigitalProductProperties and DownloadController.
+    secure-files-dir: ${SECURE_FILES_DIR:secure-files}
+    # Required, no default — same pattern as JWT_SECRET (fails fast
+    # rather than silently signing download tokens with a placeholder).
+    download-signing-secret: ${DOWNLOAD_SIGNING_SECRET}
+    download-link-expiry-minutes: 5
+    # Kill switch — flip to false once Phase 20 lands a real
+    # PaymentProvider, so a free "test purchase" never coexists with
+    # real payments. See DigitalProductService#testPurchase.
+    test-purchases-enabled: ${TEST_PURCHASES_ENABLED:true}
+  payment:
+    cashfree:
+      # Left blank = PaymentProviderConfig registers no bean, so
+      # /api/v1/checkout/sessions keeps returning "not set up yet" and
+      # the free test-mode purchase flow above remains the only path.
+      # Fill in once the founder completes Cashfree KYC.
+      client-id: ${CASHFREE_CLIENT_ID:}
+      client-secret: ${CASHFREE_CLIENT_SECRET:}
+      sandbox: ${CASHFREE_SANDBOX:true}
+      api-version: ${CASHFREE_API_VERSION:2023-08-01}
+      notify-url: ${CASHFREE_NOTIFY_URL:http://localhost:8080/api/v1/webhooks/payment}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+server:
+  port: 8080

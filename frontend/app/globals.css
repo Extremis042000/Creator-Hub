@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens from docs/09-phase3-ui-ux.md §1.2/§1.3. Dark-only —
+ * the whole product ships dark-only for MVP, no light theme.
+ */
+@theme {
+  --color-bg-canvas: #0a0b0f;
+  --color-bg-surface: #12141a;
+  --color-bg-surface-alt: #191b22;
+  --color-bg-elevated: #20232c;
+
+  --color-brand-primary: #ff3b3b;
+  --color-brand-primary-hover: #ff5c5c;
+  --color-brand-accent: #3bd6ff;
+
+  --color-text-primary: #f4f5f7;
+  --color-text-secondary: #9ca0ab;
+  --color-text-muted: #5c6070;
+
+  --color-status-high: #33d17a;
+  --color-status-medium: #ffb020;
+  --color-status-low: #ff8a3d;
+  --color-status-none: #6b7280;
+
+  --color-border-subtle: #262933;
+  --color-border-strong: #383c47;
+
+  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+}
+
+body {
+  background: var(--color-bg-canvas);
+  color: var(--color-text-primary);
+}
+
+/* Homepage "Coming soon" teaser ornament -- see components/HomeComingSoonCard.tsx */
+@keyframes shimmer-sweep {
+  0% { transform: translateX(-150%); }
+  100% { transform: translateX(250%); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 176, 32, 0.25); }
+  50% { box-shadow: 0 0 28px 6px rgba(255, 176, 32, 0.35); }
+}
+
+@keyframes float-badge {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

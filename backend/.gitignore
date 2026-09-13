@@ -1,0 +1,40 @@
+HELP.md
+target/
+.env
+
+# Purchased product files -- never committed, never web-exposed (see
+# DigitalProductProperties, DownloadController). Real product files
+# go here manually for now (no upload endpoint yet).
+secure-files/*
+!secure-files/.gitkeep
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/

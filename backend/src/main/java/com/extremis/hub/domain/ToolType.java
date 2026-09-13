@@ -1,0 +1,9 @@
+package com.extremis.hub.domain;
+
+public enum ToolType {
+    KD_CALCULATOR,
+    VALORANT_SENSITIVITY_CONVERTER,
+    BGMI_SENSITIVITY_HELPER,
+    TITLE_GENERATOR,
+    DESCRIPTION_GENERATOR
+}

@@ -1,0 +1,16 @@
+# Root-level secrets written by the Neon CLI (neon link / neon config) —
+# contains live database and object-storage credentials, never commit.
+.env.local
+.env
+.env.*.local
+
+# .neon holds only non-secret IDs (org/project/branch) — safe to commit,
+# listed here only so it's not missed if that ever changes upstream.
+.mcp.json
+
+# Google Cloud Console's raw OAuth client-secret download — contains a
+# real client_secret credential, never commit it. The app itself never
+# reads this file (Google ID-token verification only needs the client
+# ID for audience checks, not the secret) — it's a leftover download
+# from OAuth setup, safe to keep locally but never in version control.
+client_secret_*.json

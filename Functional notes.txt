@@ -1,0 +1,48 @@
+What you need to do: install Node.js (LTS) — https://nodejs.org or winget install OpenJS.NodeJS.LTS — then run cd frontend; npm install; npm run dev and separately cd backend; .\mvnw.cmd spring-boot:run, and you should see "Backend: connected" in the homepage footer.
+
+Set up this Neon project in the current working directory.
+
+1. `npm i -g neon@latest && neon login`
+2. `neon skills -y`
+3. `neon mcp -y`
+4. `neon link --project-id icy-hall-62363361 --branch production -y`
+5. `neon config init`
+6. Update `neon.ts`:
+
+```ts
+import { defineConfig } from "@neon/config/v1";
+
+export default defineConfig({
+  auth: true,
+  preview: {
+    // Upgrade to a paid plan to enable AI Gateway for your project.
+    // aiGateway: true,
+    buckets: {
+      uploads: { access: "private" },
+    },
+    functions: {
+      api: { name: "api", source: "./hello.ts" },
+    },
+  },
+});
+```
+
+and `hello.ts`:
+
+```ts
+export default async function hello(): Promise<Response> {
+  return new Response("Hello from Neon Functions");
+}
+```
+
+7. `neon deploy`
+
+Write(.env)
+Wrote 3 lines to .env
+DATABASE_URL=jdbc:postgresql://ep-damp-salad-ayi4wr1z-pooler.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require&prepareThreshold=0
+DATABASE_USERNAME=neondb_owner
+DATABASE_PASSWORD=npg_iwbIn0mu3tqL
+
+you actually want Neon's Functions/buckets/Auth platform added, since it conflicts with our current backend plan.
+
+Google Project ID : creator-hub-04122000
