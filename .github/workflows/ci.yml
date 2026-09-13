@@ -12,20 +12,28 @@ jobs:
     defaults:
       run:
         working-directory: backend
-    env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
-      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      DOWNLOAD_SIGNING_SECRET: ${{ secrets.DOWNLOAD_SIGNING_SECRET }}
-      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-      ADMIN_EMAILS: ${{ secrets.ADMIN_EMAILS }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "21"
+      # All backend secrets are stored as one combined dotenv-style
+      # secret (CREATOR_HUB_SECRETS, "KEY=value" per line) rather than
+      # separate named secrets -- parse it here into real env vars for
+      # later steps, masking each value individually so nothing ever
+      # appears unredacted in the log even though the source secret is
+      # one multi-line blob.
+      - name: Load secrets
+        run: |
+          while IFS='=' read -r key value; do
+            key=$(printf '%s' "$key" | tr -d '\r' | xargs)
+            value=$(printf '%s' "$value" | tr -d '\r')
+            if [ -n "$key" ] && [ "${key:0:1}" != "#" ]; then
+              echo "::add-mask::$value"
+              echo "$key=$value" >> "$GITHUB_ENV"
+            fi
+          done <<< "${{ secrets.CREATOR_HUB_SECRETS }}"
       - run: ./mvnw -B test
 
   frontend:
