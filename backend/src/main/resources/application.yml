@@ -24,6 +24,7 @@ extremis:
   cors:
     allowed-origins:
       - http://localhost:3000
+      - https://extremis-creator-hub.surya-chowdhury0412.workers.dev
   auth:
     google:
       # Founder-provided (Google Cloud Console) — see .env.example.
