@@ -6,3 +6,8 @@ npm-debug.log*
 .DS_Store
 *.tsbuildinfo
 next-env.d.ts
+
+# Cloudflare Workers build output / local wrangler state
+.open-next
+.wrangler
+.dev.vars
