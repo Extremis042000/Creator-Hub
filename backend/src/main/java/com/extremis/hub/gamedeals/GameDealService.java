@@ -50,12 +50,15 @@ public class GameDealService {
     @Scheduled(fixedRate = 6, timeUnit = TimeUnit.HOURS)
     void refresh() {
         try {
-            // CheapShark's edge protection 403s requests with no browser-like
-            // User-Agent (confirmed while testing their /redirect endpoint
-            // manually) -- Java's default HTTP client User-Agent gets blocked.
+            // CheapShark's edge protection rejects requests with no User-Agent
+            // (Java's default gets blocked) -- earlier this was worked around
+            // with a browser-spoofing UA, but CheapShark's anti-abuse system
+            // now explicitly rejects browser-looking UAs from server IPs too
+            // (seen live from Render's IPs) and asks for a descriptive,
+            // honest one instead -- exactly their own suggested format.
             CheapSharkDeal[] deals = restClient.get()
                 .uri(DEALS_URL)
-                .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36")
+                .header("User-Agent", "ExtremisCreatorHub/1.0 (surya.chowdhury0412@gmail.com)")
                 .retrieve()
                 .body(CheapSharkDeal[].class);
             if (deals != null) {
