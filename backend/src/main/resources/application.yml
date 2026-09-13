@@ -76,6 +76,15 @@ management:
     health:
       show-details: never
 
+# Error tracking (Phase 24). Left blank = the SDK stays fully inert --
+# no events sent, no startup behavior change -- until the founder's
+# real Sentry DSN is set. send-default-pii off by default (privacy).
+sentry:
+  dsn: ${SENTRY_DSN:}
+  environment: ${SENTRY_ENVIRONMENT:development}
+  send-default-pii: false
+  traces-sample-rate: ${SENTRY_TRACES_SAMPLE_RATE:0.1}
+
 server:
   # Render (and most PaaS hosts) assign a dynamic port via $PORT --
   # defaults to 8080 for local dev where that's unset.
