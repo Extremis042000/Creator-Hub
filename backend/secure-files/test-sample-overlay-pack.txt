@@ -1,0 +1,8 @@
+EXTREMIS Creator Hub — TEST Sample Overlay Pack
+
+This is placeholder test content used to verify the purchase → entitlement →
+secure signed download flow (Phase 19). It is not a real product.
+
+Once you have a real digital product ready, replace this file (and the
+matching "TEST — Sample Overlay Pack" entry in the admin panel) with your
+actual content.

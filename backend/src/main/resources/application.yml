@@ -76,4 +76,6 @@ management:
       show-details: never
 
 server:
-  port: 8080
+  # Render (and most PaaS hosts) assign a dynamic port via $PORT --
+  # defaults to 8080 for local dev where that's unset.
+  port: ${PORT:8080}

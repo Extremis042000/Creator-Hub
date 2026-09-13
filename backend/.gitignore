@@ -7,6 +7,10 @@ target/
 # go here manually for now (no upload endpoint yet).
 secure-files/*
 !secure-files/.gitkeep
+# Explicitly non-secret placeholder used to verify the purchase/download
+# flow end-to-end (Phase 19) -- committed on purpose so it's present in
+# every environment (CI, deployed backend), not just this machine.
+!secure-files/test-sample-overlay-pack.txt
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/

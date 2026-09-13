@@ -1,0 +1,6 @@
+target/
+secure-files/*
+!secure-files/.gitkeep
+!secure-files/test-sample-overlay-pack.txt
+.env
+.mvn/wrapper/maven-wrapper.jar
