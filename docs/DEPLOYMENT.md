@@ -77,6 +77,33 @@ account ID + API token configured for `wrangler` (see `ENV_VARS.md`).
 setting them after the fact requires a rebuild+redeploy, not just an
 env var change.
 
+**Critical: `frontend/.env.production.local` must exist with real
+production values before running `npm run deploy`.** `.env.local`
+correctly holds `http://localhost:8080` for local dev, but Next.js
+loads `.env.local` for every build mode including production unless a
+more specific file overrides it. On 2026-09-14 two production deploys
+were run without this file, so the live site silently baked in
+`http://localhost:8080` as its backend URL — breaking login and every
+backend-dependent feature for every real visitor (SSR *and*
+client-side), while `git push`/CI stayed green throughout since
+nothing about this is visible to `tsc` or the test suite. Root cause:
+`next build`'s env precedence is `.env.production.local` >
+`.env.local` > `.env`, and no `.env.production.local` existed yet.
+
+Fix, and the permanent guard against a repeat: `.env.production.local`
+(gitignored, matches `.env*.local` — recreate it if missing, e.g. on a
+fresh clone or a new machine) with:
+```
+NEXT_PUBLIC_API_BASE_URL=https://extremis-creator-hub-backend.onrender.com
+NEXT_PUBLIC_SITE_URL=https://extremis-creator-hub.surya-chowdhury0412.workers.dev
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=<same value as backend's GOOGLE_CLIENT_ID>
+```
+With this file present, `next build`'s own "Environments:" log line
+(printed at the start of every build) will list
+`.env.production.local, .env.local` — if it only lists `.env.local`,
+the file is missing and the next deploy will repeat this incident.
+**Always check that log line before trusting a deploy.**
+
 **Known limitation — Windows only:** `opennextjs-cloudflare build`
 does not fully work on Windows for every dependency tree. It has
 succeeded reliably for this project's own dependencies, but adding
@@ -130,7 +157,16 @@ as separate named secrets.
    a browser.
 2. `npx tsc --noEmit`.
 3. Commit, push to `main` (CI typechecks; doesn't deploy).
-4. `npm run deploy` from a machine where Cloudflare credentials are
+4. Confirm `frontend/.env.production.local` exists with real values
+   (see above) — check `next build`'s own "Environments:" log line
+   during the deploy, don't just assume it's there.
+5. `npm run deploy` from a machine where Cloudflare credentials are
    configured.
-5. Hit the production URL and confirm the change is live (Cloudflare's
-   edge cache/propagation is fast, but always verify rather than assume).
+6. Hit the production URL and confirm the change is live — and
+   critically, confirm it's showing **real backend data**, not just a
+   200 status. A static page returning 200 proves nothing about
+   backend connectivity (this is exactly how the 2026-09-14 incident
+   above went undetected for two deploys). Check a page that does an
+   SSR backend fetch (e.g. the homepage's "Hot Game Deals" section, or
+   a tool's premium badge) actually shows real fetched content, and
+   spot-check one client bundle chunk for the real backend hostname.
