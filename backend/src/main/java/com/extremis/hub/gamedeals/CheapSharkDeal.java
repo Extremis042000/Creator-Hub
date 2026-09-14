@@ -6,10 +6,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 record CheapSharkDeal(
     String title,
+    String dealID,
     String salePrice,
     String normalPrice,
     String savings,
     String thumb,
     String steamAppID,
-    String steamRatingPercent) {
+    String steamRatingPercent,
+    String steamRatingCount,
+    String storeID) {
 }

@@ -13,7 +13,17 @@ export default function AffiliateProductCard({ product }: { product: PublicAffil
   }, [product.id]);
 
   return (
-    <Card className="flex h-full flex-col gap-2">
+    <Card className="flex h-full flex-col gap-2 overflow-hidden">
+      {product.imageUrl && (
+        <div className="-mx-5 -mt-5 overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={product.imageUrl}
+            alt={product.name}
+            className="h-28 w-full object-cover"
+          />
+        </div>
+      )}
       {product.category && (
         <span className="w-fit rounded-full border border-border-strong px-2 py-0.5 text-xs uppercase tracking-wide text-text-secondary">
           {product.category}

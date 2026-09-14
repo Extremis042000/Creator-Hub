@@ -41,4 +41,8 @@ public class AdminAffiliateProductRequest {
 
     @Size(max = 1000, message = "must be at most 1000 characters")
     private String disclosureText;
+
+    @Size(max = 2048, message = "must be at most 2048 characters")
+    @Pattern(regexp = "^$|^https?://.+", message = "must be a valid http(s) URL")
+    private String imageUrl;
 }

@@ -16,5 +16,6 @@ public class AdminAffiliateProductResponse {
     String merchant;
     String region;
     String disclosureText;
+    String imageUrl;
     boolean active;
 }

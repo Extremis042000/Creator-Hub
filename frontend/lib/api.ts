@@ -67,6 +67,7 @@ export type PublicAffiliateProduct = {
   priceInfo: string | null;
   merchant: string | null;
   disclosureText: string | null;
+  imageUrl: string | null;
 };
 
 /** Fails soft to an empty list -- a backend hiccup shouldn't take down the whole /gear page. */
@@ -99,7 +100,8 @@ export type GameDeal = {
   savingsPercent: number;
   thumbnailUrl: string;
   steamRatingPercent: number | null;
-  steamStoreUrl: string;
+  storeName: string;
+  dealUrl: string;
 };
 
 /** Fails soft to an empty list -- a backend/CheapShark hiccup shouldn't break the page. */
@@ -340,6 +342,7 @@ export type CurrentUser = {
   id: string;
   email: string;
   displayName: string | null;
+  avatarUrl: string | null;
   isAdmin: boolean;
   hasPremiumAccess: boolean;
 };
@@ -534,6 +537,7 @@ export type AdminAffiliateProduct = {
   merchant: string | null;
   region: string | null;
   disclosureText: string | null;
+  imageUrl: string | null;
   active: boolean;
 };
 
@@ -546,6 +550,7 @@ export type AdminAffiliateProductInput = {
   merchant: string | null;
   region: string | null;
   disclosureText: string | null;
+  imageUrl: string | null;
 };
 
 export function fetchAdminAffiliateProducts(token: string): Promise<AdminAffiliateProduct[]> {

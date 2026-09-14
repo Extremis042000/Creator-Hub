@@ -41,6 +41,9 @@ public class AffiliateProduct extends Auditable {
 
     private String region;
 
+    @Column(length = 2048)
+    private String imageUrl;
+
     @Column(length = 1000)
     private String disclosureText;
 

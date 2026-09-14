@@ -44,7 +44,7 @@ class AuthServiceTest {
     @Test
     void firstSignIn_createsNewUserAndProfile() {
         var verified = new GoogleTokenVerifierService.VerifiedGoogleUser(
-            "google-subject-123", "player@example.com", "Player One");
+            "google-subject-123", "player@example.com", "Player One", null);
         when(googleTokenVerifierService.verify("valid-token")).thenReturn(Optional.of(verified));
         when(userRepository.findByGoogleSubjectId("google-subject-123")).thenReturn(Optional.empty());
         when(userRepository.findByEmail("player@example.com")).thenReturn(Optional.empty());
@@ -72,7 +72,7 @@ class AuthServiceTest {
         existingUser.setGoogleSubjectId("google-subject-123");
 
         var verified = new GoogleTokenVerifierService.VerifiedGoogleUser(
-            "google-subject-123", "player@example.com", "Player One");
+            "google-subject-123", "player@example.com", "Player One", null);
         when(googleTokenVerifierService.verify("valid-token")).thenReturn(Optional.of(verified));
         when(userRepository.findByGoogleSubjectId("google-subject-123")).thenReturn(Optional.of(existingUser));
         when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
@@ -104,7 +104,7 @@ class AuthServiceTest {
         deletedUser.setDeletedAt(Instant.now().minusSeconds(3600));
 
         var verified = new GoogleTokenVerifierService.VerifiedGoogleUser(
-            "google-subject-123", "player@example.com", "Player One");
+            "google-subject-123", "player@example.com", "Player One", null);
         when(googleTokenVerifierService.verify("valid-token")).thenReturn(Optional.of(verified));
         when(userRepository.findByGoogleSubjectId("google-subject-123")).thenReturn(Optional.of(deletedUser));
         when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
@@ -117,9 +117,51 @@ class AuthServiceTest {
     }
 
     @Test
+    void signIn_includesAvatarUrl_fromGooglePictureClaim() {
+        var verified = new GoogleTokenVerifierService.VerifiedGoogleUser(
+            "google-subject-123", "player@example.com", "Player One", "https://example.com/photo.jpg");
+        when(googleTokenVerifierService.verify("valid-token")).thenReturn(Optional.of(verified));
+        when(userRepository.findByGoogleSubjectId("google-subject-123")).thenReturn(Optional.empty());
+        when(userRepository.findByEmail("player@example.com")).thenReturn(Optional.empty());
+        when(userRepository.save(any())).thenAnswer(inv -> {
+            User user = inv.getArgument(0);
+            user.setId(UUID.randomUUID());
+            return user;
+        });
+        when(profileRepository.findByUserId(any())).thenReturn(Optional.empty());
+        when(profileRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        AuthResponse response = authService.signInWithGoogle("valid-token");
+
+        assertThat(response.getUser().getAvatarUrl()).isEqualTo("https://example.com/photo.jpg");
+    }
+
+    @Test
+    void signIn_leavesAvatarUrlNull_whenGoogleOmitsPictureClaim() {
+        // Google's picture claim can legitimately be absent -- must not
+        // overwrite an existing avatar with null, and must not crash.
+        var verified = new GoogleTokenVerifierService.VerifiedGoogleUser(
+            "google-subject-123", "player@example.com", "Player One", null);
+        when(googleTokenVerifierService.verify("valid-token")).thenReturn(Optional.of(verified));
+        when(userRepository.findByGoogleSubjectId("google-subject-123")).thenReturn(Optional.empty());
+        when(userRepository.findByEmail("player@example.com")).thenReturn(Optional.empty());
+        when(userRepository.save(any())).thenAnswer(inv -> {
+            User user = inv.getArgument(0);
+            user.setId(UUID.randomUUID());
+            return user;
+        });
+        when(profileRepository.findByUserId(any())).thenReturn(Optional.empty());
+        when(profileRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        AuthResponse response = authService.signInWithGoogle("valid-token");
+
+        assertThat(response.getUser().getAvatarUrl()).isNull();
+    }
+
+    @Test
     void signIn_includesAdminFlag_fromAdminAccessService() {
         var verified = new GoogleTokenVerifierService.VerifiedGoogleUser(
-            "google-subject-123", "admin@example.com", "Admin Person");
+            "google-subject-123", "admin@example.com", "Admin Person", null);
         when(googleTokenVerifierService.verify("valid-token")).thenReturn(Optional.of(verified));
         when(userRepository.findByGoogleSubjectId("google-subject-123")).thenReturn(Optional.empty());
         when(userRepository.findByEmail("admin@example.com")).thenReturn(Optional.empty());

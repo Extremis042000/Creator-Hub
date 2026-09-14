@@ -12,6 +12,15 @@ public class GameDealResponse {
     int savingsPercent;
     String thumbnailUrl;
     Integer steamRatingPercent;
-    /** Always the real, official Steam store page -- never a third-party redirect. */
-    String steamStoreUrl;
+    /** e.g. "Steam", "Epic Games Store" -- which store this specific deal is on. */
+    String storeName;
+    /**
+     * The real purchase link. For Steam deals, a direct link to the
+     * official Steam store page. For other stores (e.g. Epic), Steam
+     * app IDs don't map to their URLs, so this is CheapShark's own
+     * documented redirect endpoint (cheapshark.com/redirect?dealID=...),
+     * which forwards straight to that store's real page for this deal --
+     * not a third-party ad redirect, CheapShark's own official mechanism.
+     */
+    String dealUrl;
 }

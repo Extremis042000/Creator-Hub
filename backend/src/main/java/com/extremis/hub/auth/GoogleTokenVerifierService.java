@@ -38,7 +38,7 @@ public class GoogleTokenVerifierService {
             .build();
     }
 
-    public record VerifiedGoogleUser(String subject, String email, String name) {}
+    public record VerifiedGoogleUser(String subject, String email, String name, String pictureUrl) {}
 
     public Optional<VerifiedGoogleUser> verify(String idTokenString) {
         if (verifier == null) {
@@ -51,7 +51,11 @@ public class GoogleTokenVerifierService {
             }
             GoogleIdToken.Payload payload = idToken.getPayload();
             String name = (String) payload.get("name");
-            return Optional.of(new VerifiedGoogleUser(payload.getSubject(), payload.getEmail(), name));
+            // Standard OIDC claim, present whenever Google's default
+            // sign-in scope (openid email profile) is used -- no extra
+            // scope config needed on the frontend for this.
+            String pictureUrl = (String) payload.get("picture");
+            return Optional.of(new VerifiedGoogleUser(payload.getSubject(), payload.getEmail(), name, pictureUrl));
         } catch (GeneralSecurityException | java.io.IOException | IllegalArgumentException e) {
             return Optional.empty();
         }

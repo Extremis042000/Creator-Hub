@@ -20,6 +20,7 @@ const EMPTY_FORM: AdminAffiliateProductInput = {
   merchant: "",
   region: "",
   disclosureText: "",
+  imageUrl: "",
 };
 
 function toInput(product: AdminAffiliateProduct): AdminAffiliateProductInput {
@@ -32,6 +33,7 @@ function toInput(product: AdminAffiliateProduct): AdminAffiliateProductInput {
     merchant: product.merchant ?? "",
     region: product.region ?? "",
     disclosureText: product.disclosureText ?? "",
+    imageUrl: product.imageUrl ?? "",
   };
 }
 
@@ -101,6 +103,14 @@ function ProductFields({
           id={`${idPrefix}-disclosureText`}
           value={form.disclosureText ?? ""}
           onChange={(e) => set("disclosureText", e.target.value)}
+        />
+      </Field>
+      <Field label="Image URL (optional)" htmlFor={`${idPrefix}-imageUrl`}>
+        <Input
+          id={`${idPrefix}-imageUrl`}
+          value={form.imageUrl ?? ""}
+          onChange={(e) => set("imageUrl", e.target.value)}
+          placeholder="https://... (a real product photo, e.g. from the merchant's own listing)"
         />
       </Field>
     </div>

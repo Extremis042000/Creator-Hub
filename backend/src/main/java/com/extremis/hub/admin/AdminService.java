@@ -138,6 +138,7 @@ public class AdminService {
         product.setMerchant(request.getMerchant());
         product.setRegion(request.getRegion());
         product.setDisclosureText(request.getDisclosureText());
+        product.setImageUrl(request.getImageUrl());
     }
 
     public List<AdminProductResponse> listProducts() {
@@ -344,6 +345,7 @@ public class AdminService {
             .merchant(product.getMerchant())
             .region(product.getRegion())
             .disclosureText(product.getDisclosureText())
+            .imageUrl(product.getImageUrl())
             .active(product.isActive())
             .build();
     }

@@ -31,6 +31,7 @@ public class AffiliateService {
                 .priceInfo(p.getPriceInfo())
                 .merchant(p.getMerchant())
                 .disclosureText(p.getDisclosureText())
+                .imageUrl(p.getImageUrl())
                 .build())
             .toList();
     }

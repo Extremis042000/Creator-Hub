@@ -58,6 +58,12 @@ public class AuthService {
         if (verified.name() != null) {
             profile.setDisplayName(verified.name());
         }
+        // Refreshed on every sign-in -- Google's own picture URL, not
+        // copied into our own storage, so it stays current if the user
+        // changes their Google avatar.
+        if (verified.pictureUrl() != null) {
+            profile.setAvatarUrl(verified.pictureUrl());
+        }
         profileRepository.save(profile);
 
         String token = jwtService.issueToken(user.getId(), user.getEmail());
@@ -68,6 +74,7 @@ public class AuthService {
                 .id(user.getId())
                 .email(user.getEmail())
                 .displayName(profile.getDisplayName())
+                .avatarUrl(profile.getAvatarUrl())
                 .adminFlag(adminAccessService.isAdmin(user))
                 .hasPremiumAccess(premiumAccessService.hasPremiumAccess(user.getId()))
                 .build())
@@ -77,13 +84,12 @@ public class AuthService {
     public CurrentUserResponse getCurrentUser(UUID userId) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ResourceNotFoundException("User not found."));
-        String displayName = profileRepository.findByUserId(userId)
-            .map(Profile::getDisplayName)
-            .orElse(null);
+        Profile profile = profileRepository.findByUserId(userId).orElse(null);
         return CurrentUserResponse.builder()
             .id(user.getId())
             .email(user.getEmail())
-            .displayName(displayName)
+            .displayName(profile != null ? profile.getDisplayName() : null)
+            .avatarUrl(profile != null ? profile.getAvatarUrl() : null)
             .adminFlag(adminAccessService.isAdmin(user))
             .hasPremiumAccess(premiumAccessService.hasPremiumAccess(userId))
             .build();

@@ -20,4 +20,5 @@ public class PublicAffiliateProductResponse {
     String priceInfo;
     String merchant;
     String disclosureText;
+    String imageUrl;
 }

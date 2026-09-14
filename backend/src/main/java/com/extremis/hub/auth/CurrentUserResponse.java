@@ -11,6 +11,7 @@ public class CurrentUserResponse {
     UUID id;
     String email;
     String displayName;
+    String avatarUrl;
 
     // Field named to avoid Lombok/Jackson's "is"-prefix stripping
     // ambiguity on boolean getters (same issue hit in

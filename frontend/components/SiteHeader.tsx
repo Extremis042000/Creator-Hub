@@ -12,14 +12,11 @@ export default function SiteHeader() {
           <Link href="/tools" className="hover:text-text-primary">
             Tools
           </Link>
-          <Link href="/deals" className="hover:text-text-primary">
-            Deals
-          </Link>
-          <Link href="/gear" className="hover:text-text-primary">
-            Gear
-          </Link>
           <Link href="/store" className="hover:text-text-primary">
             Store
+          </Link>
+          <Link href="/deals" className="hover:text-text-primary">
+            Deals
           </Link>
           <Link href="/pricing" className="hover:text-text-primary">
             Pricing

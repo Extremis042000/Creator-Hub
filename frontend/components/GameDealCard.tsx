@@ -47,18 +47,20 @@ export default function GameDealCard({ deal, compact = false }: { deal: GameDeal
       </div>
 
       {!compact && deal.steamRatingPercent !== null && (
-        <p className="text-xs text-text-secondary">⭐ {deal.steamRatingPercent}% positive on Steam</p>
+        <p className="text-xs text-text-secondary">
+          ⭐ {deal.steamRatingPercent}% positive on Steam · {deal.storeName}
+        </p>
       )}
 
       <a
-        href={deal.steamStoreUrl}
+        href={deal.dealUrl}
         target="_blank"
         rel="noopener"
         className={`mt-auto inline-flex items-center justify-center rounded-md bg-brand-primary font-semibold text-white transition-colors hover:bg-brand-primary-hover ${
           compact ? "px-2 py-1.5 text-xs" : "px-3 py-2 text-sm"
         }`}
       >
-        {compact ? "Get Deal →" : "Get This Deal →"}
+        {compact ? "Get Deal →" : `Get on ${deal.storeName} →`}
       </a>
     </Card>
   );

@@ -33,38 +33,40 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="mx-auto max-w-6xl px-4 py-20 text-center">
-        <h1 className="mx-auto max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">
-          Free tools for competitive players &amp; gaming creators
-        </h1>
-        <p className="mx-auto mt-4 max-w-xl text-text-secondary">
-          Free tools built for players who compete and creators who grind — no signup, ever.
-        </p>
-        <Link
-          href="/tools"
-          className="mt-8 inline-block rounded-md bg-brand-primary px-6 py-3 font-semibold text-white transition-colors hover:bg-brand-primary-hover"
-        >
-          Browse all tools &rarr;
-        </Link>
-      </section>
-
-      {topDeals.length > 0 && (
-        <section>
-          <div className="mx-auto max-w-6xl px-4 py-8">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-text-secondary">🔥 Hot Game Deals</h2>
-              <Link href="/deals" className="text-xs font-medium text-brand-accent hover:underline">
-                See all deals &rarr;
-              </Link>
-            </div>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {topDeals.map((deal) => (
-                <GameDealCard key={deal.steamStoreUrl} deal={deal} compact />
-              ))}
-            </div>
+      <section className="mx-auto max-w-6xl px-4 py-20">
+        <div className={`grid gap-10 ${topDeals.length > 0 ? "lg:grid-cols-2 lg:items-center" : ""}`}>
+          <div className="text-center lg:text-left">
+            <h1 className="mx-auto max-w-xl text-4xl font-bold tracking-tight sm:text-5xl lg:mx-0">
+              Free tools for competitive players &amp; gaming creators
+            </h1>
+            <p className="mx-auto mt-4 max-w-xl text-text-secondary lg:mx-0">
+              Free tools built for players who compete and creators who grind — no signup, ever.
+            </p>
+            <Link
+              href="/tools"
+              className="mt-8 inline-block rounded-md bg-brand-primary px-6 py-3 font-semibold text-white transition-colors hover:bg-brand-primary-hover"
+            >
+              Browse all tools &rarr;
+            </Link>
           </div>
-        </section>
-      )}
+
+          {topDeals.length > 0 && (
+            <div>
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-semibold text-text-secondary">🔥 Hot Game Deals</h2>
+                <Link href="/deals" className="text-xs font-medium text-brand-accent hover:underline">
+                  See all deals &rarr;
+                </Link>
+              </div>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                {topDeals.map((deal) => (
+                  <GameDealCard key={deal.dealUrl} deal={deal} compact />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
 
       {comingSoonKeys.length > 0 && (
         <section className="border-t border-border-subtle">
