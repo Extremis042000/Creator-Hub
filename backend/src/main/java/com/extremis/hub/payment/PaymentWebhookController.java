@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * All headers are forwarded as-is -- different providers need
- * different header names for their signature scheme (Cashfree needs
- * x-webhook-signature + x-webhook-timestamp), so this controller
- * doesn't hardcode any provider's specific header names; the active
- * PaymentProvider implementation picks out what it needs.
+ * different header names for their signature scheme (PhonePe needs
+ * just Authorization), so this controller doesn't hardcode any
+ * provider's specific header names; the active PaymentProvider
+ * implementation picks out what it needs.
  */
 @RestController
 @RequestMapping("/api/v1/webhooks")

@@ -17,11 +17,11 @@ own env var store, never committed.
 | `GOOGLE_CLIENT_ID` | Optional | blank | Google OAuth Client ID. Blank = sign-in reports "not verified"; nothing else depends on it. |
 | `ADMIN_EMAILS` | Optional | blank | Comma-separated bootstrap admin allowlist. Blank = no one has admin access. |
 | `SECURE_FILES_DIR` | Optional | `secure-files` | Where purchased product files live on disk (never a public path). |
-| `TEST_PURCHASES_ENABLED` | Optional | `true` | Kill switch for Phase 19's free test-mode purchases. **Set to `false` once real payments (Cashfree) are live.** |
-| `CASHFREE_CLIENT_ID` / `CASHFREE_CLIENT_SECRET` | Optional | blank | Both required together to activate real payments; either blank keeps checkout returning "not set up yet." |
-| `CASHFREE_SANDBOX` | Optional | `true` | Set to `false` only when ready to accept real money. |
-| `CASHFREE_API_VERSION` | Optional | `2023-08-01` | Verify still current in the Cashfree dashboard before going live. |
-| `CASHFREE_NOTIFY_URL` | Optional | `http://localhost:8080/api/v1/webhooks/payment` | Must be a real public URL for webhooks to ever reach the app. |
+| `TEST_PURCHASES_ENABLED` | Optional | `true` | Kill switch for Phase 19's free test-mode purchases. **Set to `false` once real payments (PhonePe) are live.** |
+| `PHONEPE_CLIENT_ID` / `PHONEPE_CLIENT_SECRET` | Optional | blank | Both required to activate real payments; either blank keeps checkout returning "not set up yet." |
+| `PHONEPE_CLIENT_VERSION` | Optional | blank | PhonePe's own client-version identifier, issued alongside the client id/secret — required together with them (see above). |
+| `PHONEPE_SANDBOX` | Optional | `true` | Set to `false` only when ready to accept real money. |
+| `PHONEPE_WEBHOOK_USERNAME` / `PHONEPE_WEBHOOK_PASSWORD` | Optional | blank | Set together in the PhonePe Business Dashboard when configuring the webhook URL there — also required for real checkout to activate (see `PaymentProviderConfig`). |
 | `SENTRY_DSN` | Optional | blank | Error tracking. Blank = Sentry SDK fully inert (verified: zero log output, zero behavior change). |
 | `SENTRY_ENVIRONMENT` | Optional | `development` | Set to `production` on Render. |
 | `SENTRY_TRACES_SAMPLE_RATE` | Optional | `0.1` | Lower (or `0`) if the free Sentry event quota gets tight. |

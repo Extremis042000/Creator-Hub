@@ -47,23 +47,36 @@ Overlay Pack," $0) — real sellable content (templates, overlays,
 presets) is a creative asset the founder produces; the platform only
 builds the infrastructure to sell and deliver it.
 
-## 4. Real payments (Cashfree) — built, blocked on founder KYC
+## 4. Real payments (PhonePe) — built, blocked on founder onboarding
 
 `PaymentProvider` interface + `CheckoutService` +
 `PaymentWebhookController`, fully built and unit-tested against
-Cashfree's real, documented API (order creation, webhook signature
-scheme). Registers as inert (`POST /api/v1/checkout/sessions` returns
-422 "not set up yet") until `CASHFREE_CLIENT_ID`/`CASHFREE_CLIENT_SECRET`
-are both set.
+PhonePe's real, documented Standard Checkout v2 API (OAuth token,
+order creation, webhook signature scheme). Registers as inert
+(`POST /api/v1/checkout/sessions` returns 422 "not set up yet") until
+`PHONEPE_CLIENT_ID`/`PHONEPE_CLIENT_SECRET`/`PHONEPE_CLIENT_VERSION`/
+`PHONEPE_WEBHOOK_USERNAME`/`PHONEPE_WEBHOOK_PASSWORD` are all set (see
+`ENV_VARS.md`). Chosen for its UPI-first pricing: ₹0 setup/AMC, 0%
+transaction fee on UPI (its dominant use case in India), ~2% on cards.
 
-**Blocked on:** the founder completing Cashfree's merchant KYC/
-onboarding — an identity/business attestation only the account holder
-can make, not something automatable. Two known gaps to close once
-real credentials exist: (1) Cashfree requires `customer_phone` at
-order creation and the app collects no phone number today; (2)
-`CASHFREE_NOTIFY_URL` must be a real public URL before webhooks work
-at all (already true — the production backend URL — just needs
-confirming once real credentials are wired in).
+**Simpler than the earlier Cashfree design in two real ways:** no
+customer phone number is needed at order creation (PhonePe's Create
+Payment API doesn't ask for one), and PhonePe returns a direct
+`redirectUrl` to its own hosted checkout page — the browser navigates
+there straight away, no client-side JS SDK step required.
+
+**One real constraint:** PhonePe Standard Checkout is INR-only —
+`CheckoutService`/`PhonePePaymentProvider` reject a non-INR order with
+a clear error rather than silently sending a wrong amount. `Product`
+rows priced for real sale need `currency = "INR"`.
+
+**Blocked on:** the founder completing PhonePe's merchant onboarding —
+an identity/business attestation only the account holder can make,
+not something automatable. The webhook URL, username, and password
+also need setting once in the PhonePe Business Dashboard
+(`https://<production backend URL>/api/v1/webhooks/payment`) —
+PhonePe echoes the username/password back (hashed) on every webhook
+delivery so the signature can be verified.
 
 ## 5. Display ads (Google AdSense) — built, blocked on AdSense approval
 

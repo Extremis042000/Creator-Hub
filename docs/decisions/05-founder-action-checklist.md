@@ -39,10 +39,12 @@ cookies for any of these:
 - **Affiliate programs:** apply to each merchant/network individually
   (e.g. gear retailers); approval criteria and timelines are set by
   each program.
-- **Payment provider KYC:** choose a provider (e.g. Razorpay for India
-  availability, or an alternative if better suited), complete business
-  verification/KYC, and provide API keys as environment variables. No
-  live payment path is enabled until this is done.
+- **Payment provider onboarding:** founder chose PhonePe (₹0 setup/AMC,
+  0% UPI transaction fee, ~2% on cards — best fit for a high-UPI-volume
+  Indian store). Complete PhonePe's merchant onboarding/business
+  verification, then provide the resulting client ID/secret/version and
+  webhook username/password as environment variables (see
+  `docs/ENV_VARS.md`). No live payment path is enabled until this is done.
 - **Bank/payout configuration:** set up payout details with the chosen
   payment provider.
 - **Domain purchase (optional, small cost):** the one part of this

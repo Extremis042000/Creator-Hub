@@ -68,4 +68,4 @@ phase plan and current status. All 5 MVP tools, authentication,
 affiliate links, a digital-product store (test-mode purchases),
 display ads, premium entitlements, and production hosting are live.
 Real payment processing is wired but disabled pending the founder's
-Cashfree KYC approval.
+PhonePe onboarding approval.

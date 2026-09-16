@@ -57,9 +57,10 @@ flags, products, deals).
   (`@Scheduled`), caches in-memory, serves `GET /api/v1/game-deals`.
   Content/engagement feature, not an affiliate-commission source.
 - `payment/` — `PaymentProvider` interface + `CheckoutService` +
-  `PaymentWebhookController`, provider-agnostic. `payment/cashfree/` is
-  the one concrete implementation, registered as a bean only when both
-  `CASHFREE_CLIENT_ID`/`CASHFREE_CLIENT_SECRET` are set.
+  `PaymentWebhookController`, provider-agnostic. `payment/phonepe/` is
+  the one concrete implementation, registered as a bean only when all
+  of `PHONEPE_CLIENT_ID`/`PHONEPE_CLIENT_SECRET`/`PHONEPE_CLIENT_VERSION`/
+  `PHONEPE_WEBHOOK_USERNAME`/`PHONEPE_WEBHOOK_PASSWORD` are set.
 - `digitalproducts/` (product catalog, test-mode purchase, signed
   download tokens), `featureflags/` (public flag list) — see
   `MONETIZATION.md` for how these fit together.
@@ -94,7 +95,7 @@ through.
 ## Recurring pattern: dual-switch, safe-by-default integrations
 
 Every third-party integration in this codebase (Google Analytics,
-AdSense, Cashfree, Sentry) follows the same rule: **fully inert until
+AdSense, PhonePe, Sentry) follows the same rule: **fully inert until
 explicitly configured, never a hard failure when it isn't.** Concretely:
 an env var holds a credential/DSN/ID; if it's blank, the feature does
 nothing (no script tag rendered, no bean registered, no events sent).

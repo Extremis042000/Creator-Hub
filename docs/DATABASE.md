@@ -87,13 +87,13 @@ for how downloads are actually served.
 **`orders`** / **`order_item`** / **`payment`** — one `orders` row per
 purchase attempt (`status`: `PENDING`/`PAID`/`FAILED`/`REFUNDED`), one
 `payment` row per order (`provider` is `"test"` for Phase 19's free
-test-mode purchases, or `"cashfree"` once real payments are enabled).
+test-mode purchases, or `"phonepe"` once real payments are enabled).
 
 **`user_entitlement`** — the generic entitlement table, reused across
 features by `entitlement_key`: `"premium-tools"` for Phase 22's
 site-wide premium access, or a specific product's id for a digital
 product purchase. `source` is `"test-purchase"`, `"admin-grant"`, or
-(once live) `"cashfree"`. `UNIQUE (user_id, entitlement_key)` — a user
+(once live) `"phonepe"`. `UNIQUE (user_id, entitlement_key)` — a user
 holds at most one grant per key; granting is idempotent.
 
 ## Direct access

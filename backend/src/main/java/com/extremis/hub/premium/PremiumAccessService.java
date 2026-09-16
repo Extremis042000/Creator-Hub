@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
  * /api/v1/tools/** endpoints never checked anything, so anyone could
  * call the API directly and bypass it entirely).
  *
- * No real subscription billing exists yet (Cashfree KYC still
+ * No real subscription billing exists yet (PhonePe onboarding still
  * pending, and even once live, Phase 20 only built one-time digital
  * product purchases, not recurring subscriptions) -- so today, the
  * only way a user gets this entitlement is an admin grant

@@ -19,7 +19,7 @@ Google Sign-In only — no password ever handled or stored by this app.
 deliberate MVP simplicity choice made when no endpoint yet handled
 payment or highly sensitive data. This has not been revisited since
 real payments landed (Phase 20) because real payments are still
-gated on the founder's Cashfree KYC and not yet live — worth
+gated on the founder's PhonePe onboarding and not yet live — worth
 revisiting before that goes live for real.
 
 Rotating `JWT_SECRET` invalidates every existing session (forces
@@ -80,12 +80,13 @@ that would help an attacker distinguish "wrong signature" from
 ## Payments
 
 `PaymentProvider` is an interface; no bean is registered at all until
-both `CASHFREE_CLIENT_ID`/`CASHFREE_CLIENT_SECRET` are set (a
+`PHONEPE_CLIENT_ID`/`PHONEPE_CLIENT_SECRET`/`PHONEPE_CLIENT_VERSION`/
+`PHONEPE_WEBHOOK_USERNAME`/`PHONEPE_WEBHOOK_PASSWORD` are all set (a
 deliberate plain-null check in `PaymentProviderConfig`, not
 `@ConditionalOnProperty`, which would wrongly treat an empty-string
-env var as "present"). Webhook signature verification
-(`x-webhook-signature`/`x-webhook-timestamp`, HMAC-SHA256 against
-Cashfree's own documented scheme) happens before any order state
+env var as "present"). Webhook signature verification (the
+`Authorization` header against PhonePe's own documented
+`SHA256(username:password)` scheme) happens before any order state
 changes; a duplicate webhook delivery is a silent no-op (idempotent),
 not a duplicate `payment` row.
 

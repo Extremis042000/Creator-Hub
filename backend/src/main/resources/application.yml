@@ -56,16 +56,20 @@ extremis:
     # real payments. See DigitalProductService#testPurchase.
     test-purchases-enabled: ${TEST_PURCHASES_ENABLED:true}
   payment:
-    cashfree:
+    phonepe:
       # Left blank = PaymentProviderConfig registers no bean, so
       # /api/v1/checkout/sessions keeps returning "not set up yet" and
       # the free test-mode purchase flow above remains the only path.
-      # Fill in once the founder completes Cashfree KYC.
-      client-id: ${CASHFREE_CLIENT_ID:}
-      client-secret: ${CASHFREE_CLIENT_SECRET:}
-      sandbox: ${CASHFREE_SANDBOX:true}
-      api-version: ${CASHFREE_API_VERSION:2023-08-01}
-      notify-url: ${CASHFREE_NOTIFY_URL:http://localhost:8080/api/v1/webhooks/payment}
+      # Fill in once the founder completes PhonePe onboarding.
+      client-id: ${PHONEPE_CLIENT_ID:}
+      client-secret: ${PHONEPE_CLIENT_SECRET:}
+      client-version: ${PHONEPE_CLIENT_VERSION:}
+      sandbox: ${PHONEPE_SANDBOX:true}
+      # These are set once in the PhonePe Business Dashboard when
+      # configuring the webhook URL -- PhonePe echoes them back per
+      # request, they're never sent by us, unlike Cashfree's notify-url.
+      webhook-username: ${PHONEPE_WEBHOOK_USERNAME:}
+      webhook-password: ${PHONEPE_WEBHOOK_PASSWORD:}
 
 management:
   endpoints:

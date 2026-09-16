@@ -1,34 +1,41 @@
 package com.extremis.hub.payment;
 
-import com.extremis.hub.payment.cashfree.CashfreePaymentProvider;
-import com.extremis.hub.payment.cashfree.CashfreeProperties;
+import com.extremis.hub.payment.phonepe.PhonePePaymentProvider;
+import com.extremis.hub.payment.phonepe.PhonePeProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Registers CashfreePaymentProvider only once real credentials are
+ * Registers PhonePePaymentProvider only once real credentials are
  * present -- deliberately NOT @ConditionalOnProperty, which treats an
  * env var set to an empty string as "present" and would wrongly
  * activate this with blank credentials. Returning null here is the
  * standard Spring idiom for "no bean" (a NullBean is registered), so
  * Optional<PaymentProvider> elsewhere correctly resolves to empty
- * until CASHFREE_CLIENT_ID and CASHFREE_CLIENT_SECRET are both set.
+ * until every required PhonePe credential is set. Webhook username/
+ * password are included in the gate too -- a provider that can create
+ * checkout sessions but can never verify a webhook would silently
+ * strand every real payment in PENDING forever.
  */
 @Configuration
 @RequiredArgsConstructor
 public class PaymentProviderConfig {
 
-    private final CashfreeProperties cashfreeProperties;
+    private final PhonePeProperties phonePeProperties;
     private final ObjectMapper objectMapper;
 
     @Bean
-    public PaymentProvider cashfreePaymentProvider() {
-        if (isBlank(cashfreeProperties.getClientId()) || isBlank(cashfreeProperties.getClientSecret())) {
+    public PaymentProvider phonePePaymentProvider() {
+        if (isBlank(phonePeProperties.getClientId())
+                || isBlank(phonePeProperties.getClientSecret())
+                || isBlank(phonePeProperties.getClientVersion())
+                || isBlank(phonePeProperties.getWebhookUsername())
+                || isBlank(phonePeProperties.getWebhookPassword())) {
             return null;
         }
-        return new CashfreePaymentProvider(cashfreeProperties, objectMapper);
+        return new PhonePePaymentProvider(phonePeProperties, objectMapper);
     }
 
     private boolean isBlank(String value) {
