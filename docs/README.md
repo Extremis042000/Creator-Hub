@@ -19,6 +19,7 @@
 - **[Business Blueprint](decisions/01-business-blueprint.md)** — monetization strategy and sequencing.
 - **[MVP Priority Matrix](decisions/04-mvp-priority-matrix.md)**
 - **[Founder Action Checklist](decisions/05-founder-action-checklist.md)** — steps only the founder can do (KYC, ad-program approvals, domain).
+- **[AI-Powered Generation Initiative](decisions/07-ai-generation-initiative.md)** — proposed, not started: replacing the Title/Description generators' hardcoded templates with real Claude output, modeled on the founder's "Triage Desk" project's Claude-integration pattern.
 
 ## architecture/
 Original planning-phase technical blueprint and system design (DB
