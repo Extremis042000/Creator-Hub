@@ -22,6 +22,10 @@ own env var store, never committed.
 | `PHONEPE_CLIENT_VERSION` | Optional | blank | PhonePe's own client-version identifier, issued alongside the client id/secret — required together with them (see above). |
 | `PHONEPE_SANDBOX` | Optional | `true` | Set to `false` only when ready to accept real money. |
 | `PHONEPE_WEBHOOK_USERNAME` / `PHONEPE_WEBHOOK_PASSWORD` | Optional | blank | Set together in the PhonePe Business Dashboard when configuring the webhook URL there — also required for real checkout to activate (see `PaymentProviderConfig`). |
+| `ANTHROPIC_API_KEY` | Optional | blank | Phase 26 AI generation. Blank = no AI bean registered, tools keep using their template engines. A business key from the Anthropic Console with billing enabled — not a personal Claude subscription login. |
+| `AI_GENERATION_ENABLED` | Optional | `true` | Kill switch: `false` turns AI off even with a key set. |
+| `ANTHROPIC_MODEL` | Optional | `claude-opus-5` | Cheaper tiers (e.g. `claude-sonnet-5`) are a founder cost decision, never a silent downgrade. |
+| `ANTHROPIC_EFFORT` | Optional | `low` | `low`/`medium`/`high`/`xhigh`/`max`; low suits short creative-text generation. |
 | `SENTRY_DSN` | Optional | blank | Error tracking. Blank = Sentry SDK fully inert (verified: zero log output, zero behavior change). |
 | `SENTRY_ENVIRONMENT` | Optional | `development` | Set to `production` on Render. |
 | `SENTRY_TRACES_SAMPLE_RATE` | Optional | `0.1` | Lower (or `0`) if the free Sentry event quota gets tight. |

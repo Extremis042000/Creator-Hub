@@ -21,6 +21,13 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
+		<!-- AI generation (Phase 26). Official Anthropic Java SDK; inert with no
+		     ANTHROPIC_API_KEY set, see AiProviderConfig. -->
+		<dependency>
+			<groupId>com.anthropic</groupId>
+			<artifactId>anthropic-java</artifactId>
+			<version>2.34.0</version>
+		</dependency>
 		<!-- Error tracking (Phase 24). Safe no-op with no SENTRY_DSN set,
 		     see application.yml sentry.dsn. -->
 		<dependency>

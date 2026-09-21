@@ -1,8 +1,10 @@
 # AI-Powered Generation — Ideation & Master Phases
 
-Status: **proposed, not started.** This is a planning document — nothing in this
-file has been implemented yet. It exists to record the ideation the founder asked
-for and give a concrete phase plan to approve before any code changes begin.
+Status: **Phase 26 built and deployed (inert — no API key yet); Phases 27-29
+proposed.** Implementation note: the direct API call is made through the
+**official Anthropic Java SDK** (`com.anthropic:anthropic-java`), not hand-rolled
+HTTP — that is the right client for a Java backend. Everywhere below that says
+"direct Messages API call" means that SDK.
 
 ## 1. Where this came from
 

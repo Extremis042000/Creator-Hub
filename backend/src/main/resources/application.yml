@@ -55,6 +55,15 @@ extremis:
     # PaymentProvider, so a free "test purchase" never coexists with
     # real payments. See DigitalProductService#testPurchase.
     test-purchases-enabled: ${TEST_PURCHASES_ENABLED:true}
+  ai:
+    # Phase 26. Blank key = AiProviderConfig registers no bean, so every
+    # AI-capable tool keeps using its existing template engine.
+    enabled: ${AI_GENERATION_ENABLED:true}
+    api-key: ${ANTHROPIC_API_KEY:}
+    model: ${ANTHROPIC_MODEL:claude-opus-5}
+    effort: ${ANTHROPIC_EFFORT:low}
+    timeout-seconds: 45
+    max-retries: 1
   payment:
     phonepe:
       # Left blank = PaymentProviderConfig registers no bean, so
