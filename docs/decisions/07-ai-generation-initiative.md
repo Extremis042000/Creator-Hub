@@ -144,3 +144,59 @@ Anthropic Console account with billing enabled, to get a real `ANTHROPIC_API_KEY
 Nothing in Phases 26-27 requires that key to exist yet — the whole thing is built
 inert-by-default and can be developed, tested (with a placeholder/sandbox check),
 and deployed before the key is ever supplied, exactly like PhonePe was.
+
+## 8. Provider decision: FreeModel (founder-chosen, 2026-09-22) — ideation & guardrails
+
+The founder chose **FreeModel** (`freemodel.online`) as the AI backend instead of a
+direct Anthropic key. The `AiGenerationProvider` interface was built for exactly this
+swap. What was verified (public site + its unauthenticated `GET /v1/models`, not the
+logged-in console):
+
+- **What it is:** an aggregator gateway. OpenAI-compatible endpoint
+  `https://freemodel.online/v1`, Anthropic-compatible `https://freemodel.online/api/gateway`,
+  `sk-` keys. "Auto" routing "tries free models first, and falls back automatically"
+  — i.e. the model behind a call can change from call to call. 490 model IDs are
+  listed publicly (the dashboard says ~3,000). Model IDs include `auto/*` combos and
+  explicit Claude IDs (`dva/claude-opus-5-low`, ...).
+- **Not stated anywhere public:** privacy/retention, commercial-use terms, rate
+  limits, SLA, per-model pricing (the model list has no price field).
+- **Where the "free" comes from is the real risk.** The `owned_by` field on the
+  model list shows upstreams such as `duckduckgo-web`, `felo-web`, `veoaifree-web`,
+  `cloudflare-playground`, `codex-app-server`, `devin-cli-agentic`, `auggie`,
+  `aihorde` (a volunteer network). Those are consumer web chat UIs, coding-agent
+  CLIs and community networks wrapped as an API — not official commercial APIs.
+  Such upstreams break or get blocked without notice, and routing paying customers'
+  inputs through them is ToS-uncertain and privacy-uncertain. Provenance of the
+  Claude IDs is unverified. (Similarly named sites — freemodel.dev / .app — exist;
+  one review says a free tier there ended in Sep 2026. Confirm the console's own
+  terms rather than assuming.)
+
+**Decision: proceed, but architect it as a swappable, low-trust backend.**
+
+1. **One generic `OpenAiCompatibleGenerationProvider`** (plain `RestClient` POST to
+   `{baseUrl}/chat/completions`; base URL, key, model, timeout all config). FreeModel
+   is one configuration of it; **Cloudflare Workers AI** (official, OpenAI-compatible,
+   10,000 free neurons/day on the account we already have, ToS-clean for the platform
+   — confirm Workers AI commercial terms) or OpenRouter are alternates by changing
+   three env vars, no code change. The Anthropic-SDK provider stays for a future
+   direct key. An `AI_PROVIDER` setting picks which one is live.
+2. **Templates are always the fallback** and the AI call is never on the critical
+   path: short timeout (~20s), zero/one retry, any error/empty/malformed output →
+   current template result. Free-first routing means variable latency; this makes it
+   harmless.
+3. **Pin a model, don't use `auto/*` for production quality.** Run a small bake-off
+   (same 5 title/description prompts across 3-4 candidate models) and pick by
+   measured output; `auto/*` can silently swap models and change brand quality.
+4. **Tolerant output handling** — arbitrary models ignore "JSON only": strip code
+   fences and `<think>` blocks, parse leniently, validate shape/length/banned-claim
+   rules, else fall back.
+5. **Data minimisation + disclosure:** send only the tool's own fields (game, topic,
+   tone, keywords, channel name); never account identifiers. Update the Privacy
+   Policy to disclose third-party AI processing before this goes live.
+6. **Key hygiene:** `FREEMODEL_API_KEY` only as a Render env var; never committed.
+7. **Premium gating stays** (Phase 27): with a free backend the *cost* argument
+   weakens, but quota exhaustion, abuse and the differentiation argument remain.
+
+Founder actions (see chat for the exact steps): create a key in the console; read the
+console's Guide/terms for commercial use, retention and limits; run one Playground
+test; confirm comfort with the risk above.
