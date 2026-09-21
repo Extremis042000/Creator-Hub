@@ -67,7 +67,7 @@ public class ClaudeGenerationProvider implements AiGenerationProvider {
             }
 
             return new AiGenerationResult(
-                text, response.usage().inputTokens(), response.usage().outputTokens());
+                text, response.usage().inputTokens(), response.usage().outputTokens(), properties.getModel());
         } catch (AiGenerationException e) {
             throw e;
         } catch (RuntimeException e) {

@@ -59,6 +59,16 @@ extremis:
     # Phase 26. Blank key = AiProviderConfig registers no bean, so every
     # AI-capable tool keeps using its existing template engine.
     enabled: ${AI_GENERATION_ENABLED:true}
+    provider: ${AI_PROVIDER:openai-compatible}
+    # openai-compatible provider (FreeModel today). No defaults on purpose:
+    # an unvetted third-party host must be named explicitly.
+    compat:
+      base-url: ${AI_API_BASE_URL:}
+      api-key: ${AI_API_KEY:}
+      model: ${AI_MODEL:}
+      timeout-seconds: 30
+      max-tokens-floor: 3000
+    # anthropic provider (direct, if a key is ever supplied):
     api-key: ${ANTHROPIC_API_KEY:}
     model: ${ANTHROPIC_MODEL:claude-opus-5}
     effort: ${ANTHROPIC_EFFORT:low}

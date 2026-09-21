@@ -27,7 +27,7 @@ public class AdminAiController {
     public Map<String, Object> ping(Authentication authentication) {
         adminService.requireAdmin(authentication);
         AiGenerationProvider provider = aiProvider.orElseThrow(() -> new BusinessRuleViolationException(
-            "AI generation isn't configured -- set ANTHROPIC_API_KEY (and leave AI_GENERATION_ENABLED on)."));
+            "AI generation isn't configured -- set AI_API_BASE_URL/AI_API_KEY/AI_MODEL (or ANTHROPIC_API_KEY with AI_PROVIDER=anthropic)."));
 
         long started = System.currentTimeMillis();
         AiGenerationResult result = provider.generate(new AiGenerationRequest(
@@ -36,6 +36,7 @@ public class AdminAiController {
         return Map.of(
             "provider", provider.getProviderName(),
             "model", provider.getModelName(),
+            "servedBy", result.servedBy() == null ? "unknown" : result.servedBy(),
             "reply", result.text(),
             "inputTokens", result.inputTokens(),
             "outputTokens", result.outputTokens(),

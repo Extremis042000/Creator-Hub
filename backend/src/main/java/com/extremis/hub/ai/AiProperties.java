@@ -15,7 +15,10 @@ public class AiProperties {
     /** Kill switch -- false leaves AI generation off even with a key set, no redeploy needed beyond an env change. */
     private boolean enabled = true;
 
-    /** Left blank until the founder supplies a real Anthropic API key -- see AiProviderConfig. */
+    /** "openai-compatible" (FreeModel etc., extremis.ai.compat.*) or "anthropic" (direct, below). */
+    private String provider = "openai-compatible";
+
+    /** Anthropic-direct only: left blank until the founder supplies a real Anthropic API key -- see AiProviderConfig. */
     private String apiKey;
 
     /**
