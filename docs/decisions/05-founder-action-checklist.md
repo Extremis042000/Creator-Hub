@@ -49,7 +49,11 @@ cookies for any of these:
   payment provider.
 - **Domain purchase (optional, small cost):** the one part of this
   plan that is not strictly $0 if the founder wants a custom domain
-  instead of a subdomain.
+  instead of a subdomain. **Done 2026-09-22** — `creator-hub.co.in`
+  purchased via GoDaddy; see `decisions/08-custom-domain-cutover.md`
+  for the cutover plan, including the two remaining founder-only steps
+  (adding the Cloudflare zone, switching GoDaddy's nameservers, and
+  later adding the new domain to Google OAuth's authorized origins).
 - **Legal/business compliance:** confirm any local business
   registration or tax obligations that apply once real revenue starts
   — outside the scope of what code can determine.
