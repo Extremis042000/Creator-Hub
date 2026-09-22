@@ -1,6 +1,7 @@
 package com.extremis.hub.ai;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,12 +56,18 @@ public class OpenAiCompatibleGenerationProvider implements AiGenerationProvider 
     public AiGenerationResult generate(AiGenerationRequest request) {
         int maxTokens = Math.max(request.maxOutputTokens(), properties.getMaxTokensFloor());
 
+        List<Map<String, String>> messages = new ArrayList<>();
+        messages.add(Map.of("role", "system", "content", request.systemPrompt()));
+        for (ConversationTurn turn : request.history()) {
+            messages.add(Map.of("role", turn.role() == ConversationTurn.Role.USER ? "user" : "assistant",
+                "content", turn.content()));
+        }
+        messages.add(Map.of("role", "user", "content", request.userPrompt()));
+
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("model", properties.getModel());
         body.put("max_tokens", maxTokens);
-        body.put("messages", List.of(
-            Map.of("role", "system", "content", request.systemPrompt()),
-            Map.of("role", "user", "content", request.userPrompt())));
+        body.put("messages", messages);
 
         OpenAiChatResponse response;
         try {

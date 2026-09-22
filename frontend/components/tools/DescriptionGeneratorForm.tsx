@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { CopyButton } from "@/components/ui/CopyButton";
 import { Field, Input } from "@/components/ui/Input";
+import RefineBox from "@/components/tools/RefineBox";
 import { trackEvent } from "@/lib/analytics";
 import {
   ApiError,
   generateDescription,
+  refineDescription,
   type ApiFieldError,
   type DescriptionGeneratorResponse,
 } from "@/lib/api";
@@ -115,6 +117,9 @@ export default function DescriptionGeneratorForm() {
                 </span>
               ))}
             </div>
+            {result.refineSessionId && (
+              <RefineBox sessionId={result.refineSessionId} onRefine={refineDescription} onResult={setResult} />
+            )}
           </>
         )}
       </Card>

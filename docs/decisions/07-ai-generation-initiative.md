@@ -1,7 +1,8 @@
 # AI-Powered Generation — Ideation & Master Phases
 
-Status: **Phase 26/26b/26c built, deployed, and live-verified (FreeModel free
-tier, single delegate); Phases 27-29 proposed.** Implementation note: the direct
+Status: **Phases 26/26b/26c/27/28 built, deployed, and live-verified; Phase 29
+(refine chat) built and tested, live verification pending; Phase 30 proposed.**
+Implementation note: the direct
 Anthropic path uses the **official Anthropic Java SDK**
 (`com.anthropic:anthropic-java`); the openai-compatible path (the one actually
 live today) is a plain `RestClient` call, since arbitrary gateways don't ship a

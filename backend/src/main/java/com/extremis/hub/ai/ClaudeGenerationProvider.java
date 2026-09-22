@@ -43,13 +43,19 @@ public class ClaudeGenerationProvider implements AiGenerationProvider {
     @Override
     public AiGenerationResult generate(AiGenerationRequest request) {
         try {
-            MessageCreateParams params = MessageCreateParams.builder()
+            MessageCreateParams.Builder builder = MessageCreateParams.builder()
                 .model(properties.getModel())
                 .maxTokens((long) request.maxOutputTokens())
                 .system(request.systemPrompt())
-                .outputConfig(OutputConfig.builder().effort(effort()).build())
-                .addUserMessage(request.userPrompt())
-                .build();
+                .outputConfig(OutputConfig.builder().effort(effort()).build());
+            for (ConversationTurn turn : request.history()) {
+                if (turn.role() == ConversationTurn.Role.USER) {
+                    builder.addUserMessage(turn.content());
+                } else {
+                    builder.addAssistantMessage(turn.content());
+                }
+            }
+            MessageCreateParams params = builder.addUserMessage(request.userPrompt()).build();
 
             Message response = client.messages().create(params);
 

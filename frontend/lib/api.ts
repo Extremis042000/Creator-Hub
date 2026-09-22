@@ -321,10 +321,17 @@ export type TitleGeneratorResponse = {
   titles: string[];
   shortFormTitles: string[];
   shareToken: string | null;
+  /** Phase 29: present only when AI generated this result -- pass it to refineTitles() to iterate ("make it punchier"). */
+  refineSessionId: string | null;
 };
 
 export function generateTitles(request: TitleGeneratorRequest): Promise<TitleGeneratorResponse> {
   return postJson<TitleGeneratorResponse>("/api/v1/tools/gaming-title-generator", request);
+}
+
+/** Requires premium (same as the AI path on generate()) -- there's no template fallback for "refine this result". */
+export function refineTitles(sessionId: string, message: string): Promise<TitleGeneratorResponse> {
+  return postJson<TitleGeneratorResponse>("/api/v1/tools/gaming-title-generator/refine", { sessionId, message });
 }
 
 export type SocialLink = { platform: string; url: string };
@@ -343,6 +350,8 @@ export type DescriptionGeneratorResponse = {
   seoKeywordsSection: string;
   hashtags: string[];
   shareToken: string | null;
+  /** Phase 29: present only when AI generated this result -- pass it to refineDescription() to iterate ("make it shorter"). */
+  refineSessionId: string | null;
 };
 
 export function generateDescription(
@@ -352,6 +361,14 @@ export function generateDescription(
     "/api/v1/tools/gaming-description-generator",
     request,
   );
+}
+
+/** Requires premium (same as the AI path on generate()) -- there's no template fallback for "refine this result". */
+export function refineDescription(sessionId: string, message: string): Promise<DescriptionGeneratorResponse> {
+  return postJson<DescriptionGeneratorResponse>("/api/v1/tools/gaming-description-generator/refine", {
+    sessionId,
+    message,
+  });
 }
 
 export type CurrentUser = {

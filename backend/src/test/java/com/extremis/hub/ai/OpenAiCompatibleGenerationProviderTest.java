@@ -82,6 +82,30 @@ class OpenAiCompatibleGenerationProviderTest {
     }
 
     @Test
+    void phase29HistoryTurnsAreSentInOrderBetweenSystemAndTheFinalUserMessage() {
+        responseJson = "{\"choices\":[{\"message\":{\"content\":\"ok\"}}]}";
+
+        provider("/v1").generate(new AiGenerationRequest("sys prompt",
+            java.util.List.of(
+                new ConversationTurn(ConversationTurn.Role.ASSISTANT, "first assistant turn"),
+                new ConversationTurn(ConversationTurn.Role.USER, "first refine instruction")),
+            "second refine instruction", 900));
+
+        // Map.of's own field iteration order is unspecified, so this only asserts relative
+        // message ORDER (system, then each history turn in order, then the final user
+        // prompt) -- not the field order within any one message object.
+        String body = seenBody.get();
+        int sysIdx = body.indexOf("sys prompt");
+        int assistantIdx = body.indexOf("first assistant turn");
+        int userIdx = body.indexOf("first refine instruction");
+        int finalIdx = body.indexOf("second refine instruction");
+        assertThat(sysIdx).isGreaterThanOrEqualTo(0);
+        assertThat(sysIdx).isLessThan(assistantIdx);
+        assertThat(assistantIdx).isLessThan(userIdx);
+        assertThat(userIdx).isLessThan(finalIdx);
+    }
+
+    @Test
     void aLargerRequestedBudgetIsNotShrunk() {
         responseJson = "{\"choices\":[{\"message\":{\"content\":\"x\"}}]}";
 

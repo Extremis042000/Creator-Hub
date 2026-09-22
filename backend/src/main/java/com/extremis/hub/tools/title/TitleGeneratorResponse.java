@@ -12,4 +12,6 @@ public class TitleGeneratorResponse {
     List<String> titles;
     List<String> shortFormTitles;
     String shareToken;
+    /** Phase 29: present only when AI generated this result -- pass it to POST .../refine to iterate ("make it punchier"). Null for template output, which has no conversation to refine. */
+    String refineSessionId;
 }

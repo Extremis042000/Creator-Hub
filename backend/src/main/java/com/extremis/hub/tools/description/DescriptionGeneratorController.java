@@ -1,5 +1,8 @@
 package com.extremis.hub.tools.description;
 
+import com.extremis.hub.admin.ForbiddenException;
+import com.extremis.hub.admin.UnauthenticatedException;
+import com.extremis.hub.ai.RefineRequest;
 import com.extremis.hub.domain.ToolType;
 import com.extremis.hub.premium.PremiumAccessService;
 import com.extremis.hub.results.SharedResultService;
@@ -38,5 +41,24 @@ public class DescriptionGeneratorController {
         }
 
         return response;
+    }
+
+    /**
+     * Phase 29: "make it shorter" on an AI-generated result. No
+     * template fallback exists here, so this requires the same
+     * premium entitlement generate() uses for its AI path -- a free or
+     * signed-out caller never had an AI result (and thus no
+     * refineSessionId) to refine in the first place.
+     */
+    @PostMapping("/refine")
+    public DescriptionGeneratorResponse refine(@Valid @RequestBody RefineRequest request, Authentication authentication) {
+        if (authentication == null) {
+            throw new UnauthenticatedException("Sign in required to refine a result.");
+        }
+        UUID userId = (UUID) authentication.getPrincipal();
+        if (!premiumAccessService.hasPremiumAccess(userId)) {
+            throw new ForbiddenException("Refining a result requires premium access.");
+        }
+        return descriptionGeneratorService.refine(request.getSessionId(), request.getMessage(), userId);
     }
 }

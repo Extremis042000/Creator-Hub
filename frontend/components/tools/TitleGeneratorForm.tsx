@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { CopyButton } from "@/components/ui/CopyButton";
 import { Field, Input, Select } from "@/components/ui/Input";
+import RefineBox from "@/components/tools/RefineBox";
 import { trackEvent } from "@/lib/analytics";
 import {
   ApiError,
   generateTitles,
+  refineTitles,
   TONE_LABELS,
   VIDEO_TYPE_LABELS,
   type ApiFieldError,
@@ -139,6 +141,9 @@ export default function TitleGeneratorForm() {
                 ))}
               </ul>
             </div>
+            {result.refineSessionId && (
+              <RefineBox sessionId={result.refineSessionId} onRefine={refineTitles} onResult={setResult} />
+            )}
           </>
         )}
       </Card>

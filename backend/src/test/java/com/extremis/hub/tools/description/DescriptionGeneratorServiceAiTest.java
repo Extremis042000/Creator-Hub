@@ -1,6 +1,7 @@
 package com.extremis.hub.tools.description;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.mock;
 
 import com.extremis.hub.ai.AiGenerationException;
@@ -9,9 +10,11 @@ import com.extremis.hub.ai.AiGenerationRequest;
 import com.extremis.hub.ai.AiGenerationResult;
 import com.extremis.hub.ai.AiUsageGuard;
 import com.extremis.hub.ai.AiUsageProperties;
+import com.extremis.hub.ai.RefineSessionStore;
 import com.extremis.hub.repository.AiGenerationLogRepository;
 import com.extremis.hub.repository.UserRepository;
 import com.extremis.hub.tools.common.TextSanitizer;
+import com.extremis.hub.web.BusinessRuleViolationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +22,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
-/** Phase 27: the AI-enhanced path and its template fallback -- the deterministic-only path stays covered by DescriptionGeneratorServiceTest. */
+/** Phase 27: the AI-enhanced path and its template fallback -- the deterministic-only path stays covered by DescriptionGeneratorServiceTest. Phase 29's refine() flow is covered here too, since it shares this service. */
 class DescriptionGeneratorServiceAiTest {
 
     private static final UUID USER_ID = UUID.randomUUID();
@@ -33,10 +36,18 @@ class DescriptionGeneratorServiceAiTest {
         return r;
     }
 
-    /** Generous limits (these tests make at most 1-2 calls) + mocked repos -- Phase 28's guard, not under test here (see AiUsageGuardTest). */
+    /** Generous limits (some of these tests make several calls, e.g. exercising Phase 29's turn cap) + mocked repos -- Phase 28's guard itself isn't under test here (see AiUsageGuardTest). */
     private AiUsageGuard permissiveUsageGuard() {
-        return new AiUsageGuard(new AiUsageProperties(), mock(AiGenerationLogRepository.class), mock(UserRepository.class));
+        AiUsageProperties generous = new AiUsageProperties();
+        generous.setRateLimitPerMinute(1000);
+        generous.setDailyCallCeiling(1000);
+        return new AiUsageGuard(generous, mock(AiGenerationLogRepository.class), mock(UserRepository.class));
     }
+
+    private static final String VALID_JSON = """
+        {"description": "A great BGMI solo vs squad chicken dinner video.", \
+        "seoKeywordsSection": "bgmi, chicken dinner, solo vs squad", \
+        "hashtags": ["#BGMI", "#ChickenDinner"]}""";
 
     private AiGenerationProvider fakeProvider(String jsonText) {
         return new AiGenerationProvider() {
@@ -59,34 +70,35 @@ class DescriptionGeneratorServiceAiTest {
     }
 
     @Test
-    void useAiTrueWithValidJsonReturnsAiGeneratedDescription() {
-        String json = """
-            {"description": "A great BGMI solo vs squad chicken dinner video.", \
-            "seoKeywordsSection": "bgmi, chicken dinner, solo vs squad", \
-            "hashtags": ["#BGMI", "#ChickenDinner"]}""";
+    void useAiTrueWithValidJsonReturnsAiGeneratedDescriptionWithARefineSessionId() {
         DescriptionGeneratorService service = new DescriptionGeneratorService(
-            new TextSanitizer(), Optional.of(fakeProvider(json)), new ObjectMapper(), permissiveUsageGuard());
+            new TextSanitizer(), Optional.of(fakeProvider(VALID_JSON)), new ObjectMapper(),
+            permissiveUsageGuard(), new RefineSessionStore());
 
         DescriptionGeneratorResponse response = service.generate(request(), true, USER_ID);
 
         assertThat(response.getDescription()).isEqualTo("A great BGMI solo vs squad chicken dinner video.");
         assertThat(response.getHashtags()).containsExactly("#BGMI", "#ChickenDinner");
+        assertThat(response.getRefineSessionId()).isNotBlank();
     }
 
     @Test
-    void useAiFalseNeverCallsProviderAndUsesTemplates() {
+    void useAiFalseNeverCallsProviderAndUsesTemplatesWithNoRefineSessionId() {
         DescriptionGeneratorService service = new DescriptionGeneratorService(
-            new TextSanitizer(), Optional.of(failingProvider()), new ObjectMapper(), permissiveUsageGuard());
+            new TextSanitizer(), Optional.of(failingProvider()), new ObjectMapper(),
+            permissiveUsageGuard(), new RefineSessionStore());
 
         DescriptionGeneratorResponse response = service.generate(request(), false, USER_ID);
 
         assertThat(response.getDescription()).contains("EXTREMIS Plays");
+        assertThat(response.getRefineSessionId()).isNull();
     }
 
     @Test
     void providerFailureFallsBackToTemplates() {
         DescriptionGeneratorService service = new DescriptionGeneratorService(
-            new TextSanitizer(), Optional.of(failingProvider()), new ObjectMapper(), permissiveUsageGuard());
+            new TextSanitizer(), Optional.of(failingProvider()), new ObjectMapper(),
+            permissiveUsageGuard(), new RefineSessionStore());
 
         DescriptionGeneratorResponse response = service.generate(request(), true, USER_ID);
 
@@ -96,7 +108,8 @@ class DescriptionGeneratorServiceAiTest {
     @Test
     void malformedJsonFallsBackToTemplates() {
         DescriptionGeneratorService service = new DescriptionGeneratorService(
-            new TextSanitizer(), Optional.of(fakeProvider("not json at all")), new ObjectMapper(), permissiveUsageGuard());
+            new TextSanitizer(), Optional.of(fakeProvider("not json at all")), new ObjectMapper(),
+            permissiveUsageGuard(), new RefineSessionStore());
 
         DescriptionGeneratorResponse response = service.generate(request(), true, USER_ID);
 
@@ -109,7 +122,8 @@ class DescriptionGeneratorServiceAiTest {
             {"description": "This is the best ever BGMI video, a world record run.", \
             "seoKeywordsSection": "bgmi", "hashtags": ["#BGMI"]}""";
         DescriptionGeneratorService service = new DescriptionGeneratorService(
-            new TextSanitizer(), Optional.of(fakeProvider(json)), new ObjectMapper(), permissiveUsageGuard());
+            new TextSanitizer(), Optional.of(fakeProvider(json)), new ObjectMapper(),
+            permissiveUsageGuard(), new RefineSessionStore());
 
         DescriptionGeneratorResponse response = service.generate(request(), true, USER_ID);
 
@@ -123,7 +137,8 @@ class DescriptionGeneratorServiceAiTest {
             {"description": "A fine description with no hashtags supplied at all here.", \
             "seoKeywordsSection": "bgmi", "hashtags": []}""";
         DescriptionGeneratorService service = new DescriptionGeneratorService(
-            new TextSanitizer(), Optional.of(fakeProvider(json)), new ObjectMapper(), permissiveUsageGuard());
+            new TextSanitizer(), Optional.of(fakeProvider(json)), new ObjectMapper(),
+            permissiveUsageGuard(), new RefineSessionStore());
 
         DescriptionGeneratorResponse response = service.generate(request(), true, USER_ID);
 
@@ -134,7 +149,8 @@ class DescriptionGeneratorServiceAiTest {
     @Test
     void noProviderConfiguredFallsBackToTemplatesEvenWithUseAiTrue() {
         DescriptionGeneratorService service = new DescriptionGeneratorService(
-            new TextSanitizer(), Optional.empty(), new ObjectMapper(), permissiveUsageGuard());
+            new TextSanitizer(), Optional.empty(), new ObjectMapper(),
+            permissiveUsageGuard(), new RefineSessionStore());
 
         DescriptionGeneratorResponse response = service.generate(request(), true, USER_ID);
 
@@ -156,7 +172,7 @@ class DescriptionGeneratorServiceAiTest {
         tightLimit.setRateLimitPerMinute(1);
         AiUsageGuard guard = new AiUsageGuard(tightLimit, mock(AiGenerationLogRepository.class), mock(UserRepository.class));
         DescriptionGeneratorService service = new DescriptionGeneratorService(
-            new TextSanitizer(), Optional.of(countingProvider), new ObjectMapper(), guard);
+            new TextSanitizer(), Optional.of(countingProvider), new ObjectMapper(), guard, new RefineSessionStore());
 
         service.generate(request(), true, USER_ID); // consumes the one allowed slot (fails validation -> falls back, but still counted against the rate limit)
         DescriptionGeneratorResponse second = service.generate(request(), true, USER_ID); // should be throttled before ever reaching the provider
@@ -180,11 +196,121 @@ class DescriptionGeneratorServiceAiTest {
         tightCeiling.setDailyCallCeiling(0);
         AiUsageGuard guard = new AiUsageGuard(tightCeiling, mock(AiGenerationLogRepository.class), mock(UserRepository.class));
         DescriptionGeneratorService service = new DescriptionGeneratorService(
-            new TextSanitizer(), Optional.of(countingProvider), new ObjectMapper(), guard);
+            new TextSanitizer(), Optional.of(countingProvider), new ObjectMapper(), guard, new RefineSessionStore());
 
         DescriptionGeneratorResponse response = service.generate(request(), true, USER_ID);
 
         assertThat(callCount.get()).isZero();
         assertThat(response.getDescription()).contains("EXTREMIS Plays");
+    }
+
+    // ---- Phase 29: refine() ----
+
+    @Test
+    void refineOnAValidSessionReturnsRevisedDescriptionAndKeepsTheSameSessionId() {
+        String refined = """
+            {"description": "A shorter, punchier BGMI description.", \
+            "seoKeywordsSection": "bgmi", "hashtags": ["#BGMI"]}""";
+        RefineSessionStore store = new RefineSessionStore();
+        DescriptionGeneratorService generator = new DescriptionGeneratorService(
+            new TextSanitizer(), Optional.of(fakeProvider(VALID_JSON)), new ObjectMapper(),
+            permissiveUsageGuard(), store);
+        DescriptionGeneratorResponse first = generator.generate(request(), true, USER_ID);
+
+        DescriptionGeneratorService refiner = new DescriptionGeneratorService(
+            new TextSanitizer(), Optional.of(fakeProvider(refined)), new ObjectMapper(),
+            permissiveUsageGuard(), store);
+        DescriptionGeneratorResponse refinedResponse =
+            refiner.refine(first.getRefineSessionId(), "make it shorter", USER_ID);
+
+        assertThat(refinedResponse.getDescription()).isEqualTo("A shorter, punchier BGMI description.");
+        assertThat(refinedResponse.getRefineSessionId()).isEqualTo(first.getRefineSessionId());
+    }
+
+    @Test
+    void refineWithUnknownSessionIdThrows() {
+        DescriptionGeneratorService service = new DescriptionGeneratorService(
+            new TextSanitizer(), Optional.of(fakeProvider(VALID_JSON)), new ObjectMapper(),
+            permissiveUsageGuard(), new RefineSessionStore());
+
+        Throwable thrown = catchThrowable(() -> service.refine(UUID.randomUUID().toString(), "shorter", USER_ID));
+
+        assertThat(thrown).isInstanceOf(BusinessRuleViolationException.class);
+    }
+
+    @Test
+    void refineWithMalformedSessionIdThrowsRatherThanCrashing() {
+        DescriptionGeneratorService service = new DescriptionGeneratorService(
+            new TextSanitizer(), Optional.of(fakeProvider(VALID_JSON)), new ObjectMapper(),
+            permissiveUsageGuard(), new RefineSessionStore());
+
+        Throwable thrown = catchThrowable(() -> service.refine("not-a-uuid", "shorter", USER_ID));
+
+        assertThat(thrown).isInstanceOf(BusinessRuleViolationException.class);
+    }
+
+    @Test
+    void refineByADifferentUserThanCreatedTheSessionThrows() {
+        RefineSessionStore store = new RefineSessionStore();
+        DescriptionGeneratorService owner = new DescriptionGeneratorService(
+            new TextSanitizer(), Optional.of(fakeProvider(VALID_JSON)), new ObjectMapper(),
+            permissiveUsageGuard(), store);
+        DescriptionGeneratorResponse first = owner.generate(request(), true, USER_ID);
+
+        DescriptionGeneratorService attacker = new DescriptionGeneratorService(
+            new TextSanitizer(), Optional.of(fakeProvider(VALID_JSON)), new ObjectMapper(),
+            permissiveUsageGuard(), store);
+        Throwable thrown = catchThrowable(
+            () -> attacker.refine(first.getRefineSessionId(), "give me the good version", UUID.randomUUID()));
+
+        assertThat(thrown).isInstanceOf(BusinessRuleViolationException.class);
+    }
+
+    @Test
+    void refineFailureThrowsRatherThanFallingBackToTemplates() {
+        RefineSessionStore store = new RefineSessionStore();
+        DescriptionGeneratorService generator = new DescriptionGeneratorService(
+            new TextSanitizer(), Optional.of(fakeProvider(VALID_JSON)), new ObjectMapper(),
+            permissiveUsageGuard(), store);
+        DescriptionGeneratorResponse first = generator.generate(request(), true, USER_ID);
+
+        DescriptionGeneratorService refiner = new DescriptionGeneratorService(
+            new TextSanitizer(), Optional.of(failingProvider()), new ObjectMapper(),
+            permissiveUsageGuard(), store);
+        Throwable thrown = catchThrowable(() -> refiner.refine(first.getRefineSessionId(), "shorter", USER_ID));
+
+        assertThat(thrown).isInstanceOf(BusinessRuleViolationException.class);
+    }
+
+    @Test
+    void refineBeyondTheTurnCapThrows() {
+        RefineSessionStore store = new RefineSessionStore();
+        DescriptionGeneratorService service = new DescriptionGeneratorService(
+            new TextSanitizer(), Optional.of(fakeProvider(VALID_JSON)), new ObjectMapper(),
+            permissiveUsageGuard(), store);
+        DescriptionGeneratorResponse first = service.generate(request(), true, USER_ID);
+        String sessionId = first.getRefineSessionId();
+
+        for (int i = 0; i < RefineSessionStore.MAX_REFINE_TURNS; i++) {
+            service.refine(sessionId, "iteration " + i, USER_ID);
+        }
+        Throwable thrown = catchThrowable(() -> service.refine(sessionId, "one more please", USER_ID));
+
+        assertThat(thrown).isInstanceOf(BusinessRuleViolationException.class);
+    }
+
+    @Test
+    void refineWithNoProviderConfiguredThrows() {
+        RefineSessionStore store = new RefineSessionStore();
+        DescriptionGeneratorService generator = new DescriptionGeneratorService(
+            new TextSanitizer(), Optional.of(fakeProvider(VALID_JSON)), new ObjectMapper(),
+            permissiveUsageGuard(), store);
+        DescriptionGeneratorResponse first = generator.generate(request(), true, USER_ID);
+
+        DescriptionGeneratorService refiner = new DescriptionGeneratorService(
+            new TextSanitizer(), Optional.empty(), new ObjectMapper(), permissiveUsageGuard(), store);
+        Throwable thrown = catchThrowable(() -> refiner.refine(first.getRefineSessionId(), "shorter", USER_ID));
+
+        assertThat(thrown).isInstanceOf(BusinessRuleViolationException.class);
     }
 }

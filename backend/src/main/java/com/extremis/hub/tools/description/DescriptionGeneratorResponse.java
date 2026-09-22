@@ -13,4 +13,6 @@ public class DescriptionGeneratorResponse {
     String seoKeywordsSection;
     List<String> hashtags;
     String shareToken;
+    /** Phase 29: present only when AI generated this result -- pass it to POST .../refine to iterate ("make it shorter"). Null for template output, which has no conversation to refine. */
+    String refineSessionId;
 }

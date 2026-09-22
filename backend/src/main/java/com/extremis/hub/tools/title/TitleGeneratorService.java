@@ -5,9 +5,13 @@ import com.extremis.hub.ai.AiGenerationProvider;
 import com.extremis.hub.ai.AiGenerationRequest;
 import com.extremis.hub.ai.AiGenerationResult;
 import com.extremis.hub.ai.AiUsageGuard;
+import com.extremis.hub.ai.ConversationTurn;
+import com.extremis.hub.ai.RefineSession;
+import com.extremis.hub.ai.RefineSessionStore;
 import com.extremis.hub.domain.ToolType;
 import com.extremis.hub.tools.common.BannedAbsoluteClaims;
 import com.extremis.hub.tools.common.TextSanitizer;
+import com.extremis.hub.web.BusinessRuleViolationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -34,6 +38,12 @@ import org.springframework.stereotype.Service;
  * call, malformed JSON, or output that fails validation. A premium
  * user must never see an error where a free user would have gotten a
  * title.
+ *
+ * Phase 29 adds an interactive refine follow-up ("make it punchier") on
+ * top of an AI-generated result -- see RefineSession/RefineSessionStore.
+ * Unlike generate(), refine() has no template fallback (there's nothing
+ * to "refine" about a template) so it throws a clear error instead of
+ * silently degrading.
  */
 @Slf4j
 @Service
@@ -43,6 +53,15 @@ public class TitleGeneratorService {
     private static final int YOUTUBE_TITLE_MAX_LENGTH = 100;
     private static final int SHORT_FORM_TITLE_MAX_LENGTH = 40;
     private static final int AI_MAX_OUTPUT_TOKENS = 3000;
+
+    private static final String SYSTEM_PROMPT = """
+        You write YouTube titles for gaming content creators. Reply with \
+        ONLY a JSON object, no markdown formatting, no commentary: \
+        {"titles": [5 to 8 long-form titles, each 100 characters or \
+        fewer], "shortFormTitles": [3 to 5 short titles, each 40 \
+        characters or fewer]}. Never use unverifiable absolute claims \
+        like "world record", "best ever", "#1 in the world", or \
+        "greatest of all time".""";
 
     private static final Map<Tone, String> TONE_WORDS = Map.of(
         Tone.HYPE, "INSANE",
@@ -89,6 +108,7 @@ public class TitleGeneratorService {
     private final Optional<AiGenerationProvider> aiProvider;
     private final ObjectMapper objectMapper;
     private final AiUsageGuard usageGuard;
+    private final RefineSessionStore refineSessionStore;
 
     public TitleGeneratorResponse generate(TitleGeneratorRequest request) {
         return generate(request, false, null);
@@ -97,7 +117,8 @@ public class TitleGeneratorService {
     /**
      * useAi is decided by the caller (premium entitlement check happens
      * in the controller); userId is required whenever useAi is true --
-     * it's how Phase 28's rate limit and usage log attribute the call.
+     * it's how Phase 28's rate limit/usage log and Phase 29's refine
+     * session attribute the call.
      */
     public TitleGeneratorResponse generate(TitleGeneratorRequest request, boolean useAi, UUID userId) {
         if (useAi && aiProvider.isPresent()) {
@@ -106,11 +127,13 @@ public class TitleGeneratorService {
             if (denialReason == null) {
                 long started = System.currentTimeMillis();
                 try {
-                    AiCallResult outcome = generateWithAi(request, provider);
+                    AiCallResult outcome = generateWithAi(request, provider, List.of());
                     usageGuard.recordSuccess(userId, ToolType.TITLE_GENERATOR, provider.getProviderName(),
                         provider.getModelName(), outcome.servedBy(), outcome.inputTokens(), outcome.outputTokens(),
                         System.currentTimeMillis() - started);
-                    return outcome.response();
+                    RefineSession session = refineSessionStore.create(
+                        userId, ToolType.TITLE_GENERATOR, SYSTEM_PROMPT, outcome.rawJsonText());
+                    return outcome.response().toBuilder().refineSessionId(session.getId().toString()).build();
                 } catch (Exception e) {
                     usageGuard.recordFailure(userId, ToolType.TITLE_GENERATOR, provider.getProviderName(),
                         e.getClass().getSimpleName(), System.currentTimeMillis() - started);
@@ -123,54 +146,114 @@ public class TitleGeneratorService {
         return generateFromTemplates(request);
     }
 
-    private record AiCallResult(TitleGeneratorResponse response, long inputTokens, long outputTokens, String servedBy) {
+    /**
+     * "make it punchier" on top of an earlier AI generation. No
+     * template fallback exists for this -- any problem throws a clear
+     * BusinessRuleViolationException instead of degrading silently.
+     */
+    public TitleGeneratorResponse refine(String sessionIdRaw, String message, UUID userId) {
+        UUID sessionId = parseSessionId(sessionIdRaw);
+        RefineSession session = refineSessionStore.find(sessionId, userId, ToolType.TITLE_GENERATOR)
+            .orElseThrow(() -> new BusinessRuleViolationException(
+                "This refine session has expired or wasn't found -- generate a new result to keep refining."));
+        if (session.getTurnCount() >= RefineSessionStore.MAX_REFINE_TURNS) {
+            throw new BusinessRuleViolationException(
+                "This refine session has reached its limit -- generate a new result to keep refining.");
+        }
+        AiGenerationProvider provider = aiProvider.orElseThrow(
+            () -> new BusinessRuleViolationException("AI generation isn't available right now."));
+
+        String denialReason = usageGuard.tryAcquire(userId);
+        if (denialReason != null) {
+            usageGuard.recordThrottled(userId, ToolType.TITLE_GENERATOR, provider.getProviderName(), denialReason);
+            throw new BusinessRuleViolationException("Too many AI requests right now -- please try again in a moment.");
+        }
+
+        String sanitizedMessage = sanitizer.sanitize(message);
+        String refinePrompt = "Refine the previous titles using this instruction: " + sanitizedMessage
+            + "\n\nReply with the SAME JSON shape as before.";
+
+        long started = System.currentTimeMillis();
+        try {
+            AiGenerationResult result = provider.generate(new AiGenerationRequest(
+                session.getSystemPrompt(), session.historySnapshot(), refinePrompt, AI_MAX_OUTPUT_TOKENS));
+            String cleaned = stripCodeFences(result.text());
+            ValidatedTitles validated = validateParsed(parseAiTitles(cleaned));
+
+            usageGuard.recordSuccess(userId, ToolType.TITLE_GENERATOR, provider.getProviderName(),
+                provider.getModelName(), result.servedBy(), result.inputTokens(), result.outputTokens(),
+                System.currentTimeMillis() - started);
+            session.recordExchange(sanitizedMessage, cleaned);
+
+            return TitleGeneratorResponse.builder()
+                .titles(validated.titles())
+                .shortFormTitles(validated.shortFormTitles())
+                .refineSessionId(session.getId().toString())
+                .build();
+        } catch (Exception e) {
+            usageGuard.recordFailure(userId, ToolType.TITLE_GENERATOR, provider.getProviderName(),
+                e.getClass().getSimpleName(), System.currentTimeMillis() - started);
+            throw new BusinessRuleViolationException("Couldn't refine that result -- please try again.");
+        }
     }
 
-    private AiCallResult generateWithAi(TitleGeneratorRequest request, AiGenerationProvider provider) {
+    private UUID parseSessionId(String raw) {
+        try {
+            return UUID.fromString(raw);
+        } catch (IllegalArgumentException e) {
+            throw new BusinessRuleViolationException(
+                "This refine session has expired or wasn't found -- generate a new result to keep refining.");
+        }
+    }
+
+    private record AiCallResult(TitleGeneratorResponse response, long inputTokens, long outputTokens,
+            String servedBy, String rawJsonText) {
+    }
+
+    private AiCallResult generateWithAi(
+            TitleGeneratorRequest request, AiGenerationProvider provider, List<ConversationTurn> history) {
         String game = sanitizer.sanitize(request.getGame());
         String topic = sanitizer.sanitize(request.getTopic());
         List<String> keywords = request.getKeywords() == null ? List.of() :
             request.getKeywords().stream().map(sanitizer::sanitize).toList();
-
-        String systemPrompt = """
-            You write YouTube titles for gaming content creators. Reply with \
-            ONLY a JSON object, no markdown formatting, no commentary: \
-            {"titles": [5 to 8 long-form titles, each 100 characters or \
-            fewer], "shortFormTitles": [3 to 5 short titles, each 40 \
-            characters or fewer]}. Never use unverifiable absolute claims \
-            like "world record", "best ever", "#1 in the world", or \
-            "greatest of all time".""";
 
         String userPrompt = "Game: %s\nTopic: %s\nVideo type: %s\nTone: %s\nKeywords: %s".formatted(
             game, topic, request.getVideoType(), request.getTone(),
             keywords.isEmpty() ? "(none)" : String.join(", ", keywords));
 
         AiGenerationResult result = provider.generate(
-            new AiGenerationRequest(systemPrompt, userPrompt, AI_MAX_OUTPUT_TOKENS));
-        AiTitles parsed = parseAiTitles(result.text());
-
-        List<String> titles = validateTitles(parsed.titles(), YOUTUBE_TITLE_MAX_LENGTH);
-        List<String> shortFormTitles = validateTitles(parsed.shortFormTitles(), SHORT_FORM_TITLE_MAX_LENGTH);
-        if (titles.size() < 3 || shortFormTitles.isEmpty()) {
-            throw new AiGenerationException("AI title output failed validation.");
-        }
+            new AiGenerationRequest(SYSTEM_PROMPT, history, userPrompt, AI_MAX_OUTPUT_TOKENS));
+        String cleaned = stripCodeFences(result.text());
+        ValidatedTitles validated = validateParsed(parseAiTitles(cleaned));
 
         TitleGeneratorResponse response = TitleGeneratorResponse.builder()
-            .titles(titles)
-            .shortFormTitles(shortFormTitles)
+            .titles(validated.titles())
+            .shortFormTitles(validated.shortFormTitles())
             .build();
-        return new AiCallResult(response, result.inputTokens(), result.outputTokens(), result.servedBy());
+        return new AiCallResult(response, result.inputTokens(), result.outputTokens(), result.servedBy(), cleaned);
     }
 
     private record AiTitles(List<String> titles, List<String> shortFormTitles) {
     }
 
-    private AiTitles parseAiTitles(String rawText) {
+    private record ValidatedTitles(List<String> titles, List<String> shortFormTitles) {
+    }
+
+    private AiTitles parseAiTitles(String cleanedText) {
         try {
-            return objectMapper.readValue(stripCodeFences(rawText), AiTitles.class);
+            return objectMapper.readValue(cleanedText, AiTitles.class);
         } catch (Exception e) {
             throw new AiGenerationException("Malformed AI title JSON.", e);
         }
+    }
+
+    private ValidatedTitles validateParsed(AiTitles parsed) {
+        List<String> titles = validateTitles(parsed.titles(), YOUTUBE_TITLE_MAX_LENGTH);
+        List<String> shortFormTitles = validateTitles(parsed.shortFormTitles(), SHORT_FORM_TITLE_MAX_LENGTH);
+        if (titles.size() < 3 || shortFormTitles.isEmpty()) {
+            throw new AiGenerationException("AI title output failed validation.");
+        }
+        return new ValidatedTitles(titles, shortFormTitles);
     }
 
     private List<String> validateTitles(List<String> titles, int maxLength) {
