@@ -6,14 +6,16 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Admin-only smoke test for the AI provider -- the way to prove a newly
- * supplied ANTHROPIC_API_KEY actually works end to end (one tiny call,
- * a few cents at most) without touching any customer-facing tool.
+ * Admin-only AI endpoints: a smoke test for the provider (prove a newly
+ * supplied key works end to end, a few cents at most, without touching
+ * any customer-facing tool) and Phase 28's usage-today summary (real
+ * cost/abuse visibility -- see AiUsageGuard/AiUsageService).
  */
 @RestController
 @RequestMapping("/api/v1/admin/ai")
@@ -22,6 +24,13 @@ public class AdminAiController {
 
     private final AdminService adminService;
     private final Optional<AiGenerationProvider> aiProvider;
+    private final AiUsageService aiUsageService;
+
+    @GetMapping("/usage-today")
+    public AiUsageSummaryResponse usageToday(Authentication authentication) {
+        adminService.requireAdmin(authentication);
+        return aiUsageService.getTodaySummary();
+    }
 
     @PostMapping("/ping")
     public Map<String, Object> ping(Authentication authentication) {

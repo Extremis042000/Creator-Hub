@@ -614,3 +614,20 @@ export function grantPremium(token: string, email: string): Promise<void> {
 export function revokePremium(token: string, userId: string): Promise<void> {
   return authedRequestNoContent("DELETE", `/api/v1/admin/premium-grants/${userId}`, token);
 }
+
+/** Today (UTC) so far -- see backend AiUsageService. Not a running total across all time. */
+export type AiUsageSummary = {
+  totalCalls: number;
+  successCount: number;
+  failureCount: number;
+  throttledCount: number;
+  totalInputTokens: number;
+  totalOutputTokens: number;
+  averageLatencyMs: number;
+  callsByProvider: Record<string, number>;
+  dailyCallCeiling: number;
+};
+
+export function fetchAiUsageToday(token: string): Promise<AiUsageSummary> {
+  return authedRequest<AiUsageSummary>("GET", "/api/v1/admin/ai/usage-today", token);
+}

@@ -4,6 +4,8 @@ import com.extremis.hub.ai.AiGenerationException;
 import com.extremis.hub.ai.AiGenerationProvider;
 import com.extremis.hub.ai.AiGenerationRequest;
 import com.extremis.hub.ai.AiGenerationResult;
+import com.extremis.hub.ai.AiUsageGuard;
+import com.extremis.hub.domain.ToolType;
 import com.extremis.hub.tools.common.BannedAbsoluteClaims;
 import com.extremis.hub.tools.common.TextSanitizer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,6 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -85,24 +88,45 @@ public class TitleGeneratorService {
     private final TextSanitizer sanitizer;
     private final Optional<AiGenerationProvider> aiProvider;
     private final ObjectMapper objectMapper;
+    private final AiUsageGuard usageGuard;
 
     public TitleGeneratorResponse generate(TitleGeneratorRequest request) {
-        return generate(request, false);
+        return generate(request, false, null);
     }
 
-    /** useAi is decided by the caller (premium entitlement check happens in the controller). */
-    public TitleGeneratorResponse generate(TitleGeneratorRequest request, boolean useAi) {
+    /**
+     * useAi is decided by the caller (premium entitlement check happens
+     * in the controller); userId is required whenever useAi is true --
+     * it's how Phase 28's rate limit and usage log attribute the call.
+     */
+    public TitleGeneratorResponse generate(TitleGeneratorRequest request, boolean useAi, UUID userId) {
         if (useAi && aiProvider.isPresent()) {
-            try {
-                return generateWithAi(request, aiProvider.get());
-            } catch (Exception e) {
-                log.warn("AI title generation failed, falling back to templates: {}", e.getClass().getSimpleName());
+            AiGenerationProvider provider = aiProvider.get();
+            String denialReason = usageGuard.tryAcquire(userId);
+            if (denialReason == null) {
+                long started = System.currentTimeMillis();
+                try {
+                    AiCallResult outcome = generateWithAi(request, provider);
+                    usageGuard.recordSuccess(userId, ToolType.TITLE_GENERATOR, provider.getProviderName(),
+                        provider.getModelName(), outcome.servedBy(), outcome.inputTokens(), outcome.outputTokens(),
+                        System.currentTimeMillis() - started);
+                    return outcome.response();
+                } catch (Exception e) {
+                    usageGuard.recordFailure(userId, ToolType.TITLE_GENERATOR, provider.getProviderName(),
+                        e.getClass().getSimpleName(), System.currentTimeMillis() - started);
+                    log.warn("AI title generation failed, falling back to templates: {}", e.getClass().getSimpleName());
+                }
+            } else {
+                usageGuard.recordThrottled(userId, ToolType.TITLE_GENERATOR, provider.getProviderName(), denialReason);
             }
         }
         return generateFromTemplates(request);
     }
 
-    private TitleGeneratorResponse generateWithAi(TitleGeneratorRequest request, AiGenerationProvider provider) {
+    private record AiCallResult(TitleGeneratorResponse response, long inputTokens, long outputTokens, String servedBy) {
+    }
+
+    private AiCallResult generateWithAi(TitleGeneratorRequest request, AiGenerationProvider provider) {
         String game = sanitizer.sanitize(request.getGame());
         String topic = sanitizer.sanitize(request.getTopic());
         List<String> keywords = request.getKeywords() == null ? List.of() :
@@ -131,10 +155,11 @@ public class TitleGeneratorService {
             throw new AiGenerationException("AI title output failed validation.");
         }
 
-        return TitleGeneratorResponse.builder()
+        TitleGeneratorResponse response = TitleGeneratorResponse.builder()
             .titles(titles)
             .shortFormTitles(shortFormTitles)
             .build();
+        return new AiCallResult(response, result.inputTokens(), result.outputTokens(), result.servedBy());
     }
 
     private record AiTitles(List<String> titles, List<String> shortFormTitles) {

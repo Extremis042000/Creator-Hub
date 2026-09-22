@@ -28,9 +28,9 @@ public class DescriptionGeneratorController {
         // tool-level premiumOnly check above: any premium-entitled signed-in user gets
         // it, even on a tool that isn't itself marked premiumOnly. Free users keep the
         // deterministic templates unchanged.
-        boolean useAi = authentication != null
-            && premiumAccessService.hasPremiumAccess((UUID) authentication.getPrincipal());
-        DescriptionGeneratorResponse response = descriptionGeneratorService.generate(request, useAi);
+        UUID userId = authentication != null ? (UUID) authentication.getPrincipal() : null;
+        boolean useAi = userId != null && premiumAccessService.hasPremiumAccess(userId);
+        DescriptionGeneratorResponse response = descriptionGeneratorService.generate(request, useAi, userId);
 
         if (request.isSave()) {
             String shareToken = sharedResultService.save(ToolType.DESCRIPTION_GENERATOR, request, response);

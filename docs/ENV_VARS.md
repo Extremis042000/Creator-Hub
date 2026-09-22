@@ -27,6 +27,8 @@ own env var store, never committed.
 | `AI_API_CHAT_URL_2` / `AI_API_KEY_2` / `AI_MODEL_2` | Optional | blank | openai-compatible provider, slot 2 (Free.ai today — `https://api.free.ai/v1/chat/`, note no `completions` and a trailing slash, unlike slot 1's convention). When **both** slots are fully configured, requests round-robin between them and fail over to the other on error — see `CompositeAiGenerationProvider`. Leave blank to run slot 1 alone. |
 | `ANTHROPIC_API_KEY` | Optional | blank | Only used when `AI_PROVIDER=anthropic`. Phase 26 AI generation. Blank = no AI bean registered, tools keep using their template engines. A business key from the Anthropic Console with billing enabled — not a personal Claude subscription login. |
 | `AI_GENERATION_ENABLED` | Optional | `true` | Kill switch: `false` turns AI off even with a key set. |
+| `AI_RATE_LIMIT_PER_MINUTE` | Optional | `5` | Phase 28: per-user AI calls allowed per rolling 60s window. |
+| `AI_DAILY_CALL_CEILING` | Optional | `200` | Phase 28: global daily AI-call ceiling across all users -- calls, not dollars, since the configured backends don't publish per-call pricing. Once hit, AI generation falls back to templates for everyone until the next UTC day. See the admin panel's "AI usage today" card. |
 | `ANTHROPIC_MODEL` | Optional | `claude-opus-5` | Cheaper tiers (e.g. `claude-sonnet-5`) are a founder cost decision, never a silent downgrade. |
 | `ANTHROPIC_EFFORT` | Optional | `low` | `low`/`medium`/`high`/`xhigh`/`max`; low suits short creative-text generation. |
 | `SENTRY_DSN` | Optional | blank | Error tracking. Blank = Sentry SDK fully inert (verified: zero log output, zero behavior change). |

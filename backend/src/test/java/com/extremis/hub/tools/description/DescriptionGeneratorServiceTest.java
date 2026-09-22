@@ -10,8 +10,9 @@ import org.junit.jupiter.api.Test;
 
 class DescriptionGeneratorServiceTest {
 
+    // AI provider is empty, so usageGuard is never dereferenced -- see DescriptionGeneratorService.generate.
     private final DescriptionGeneratorService service =
-        new DescriptionGeneratorService(new TextSanitizer(), Optional.empty(), new ObjectMapper());
+        new DescriptionGeneratorService(new TextSanitizer(), Optional.empty(), new ObjectMapper(), null);
 
     @Test
     void includesChannelNameAndSocialLinks() {

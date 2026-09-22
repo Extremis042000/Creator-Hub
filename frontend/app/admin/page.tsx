@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AdminAffiliateProductsTable from "@/components/admin/AdminAffiliateProductsTable";
+import AdminAiUsageCard from "@/components/admin/AdminAiUsageCard";
 import AdminFeatureFlags from "@/components/admin/AdminFeatureFlags";
 import AdminProductsTable from "@/components/admin/AdminProductsTable";
 import AdminToolsTable from "@/components/admin/AdminToolsTable";
@@ -14,6 +15,7 @@ import {
   fetchAdmins,
   fetchAdminProducts,
   fetchAdminTools,
+  fetchAiUsageToday,
   fetchPremiumUsers,
   ApiError,
   type AdminAffiliateProduct,
@@ -22,6 +24,7 @@ import {
   type AdminTool,
   type AdminUserSummary,
   type AdminPremiumUser,
+  type AiUsageSummary,
 } from "@/lib/api";
 import { getToken } from "@/lib/auth";
 
@@ -35,6 +38,7 @@ export default function AdminPage() {
   const [premiumUsers, setPremiumUsers] = useState<AdminPremiumUser[]>([]);
   const [affiliateProducts, setAffiliateProducts] = useState<AdminAffiliateProduct[]>([]);
   const [products, setProducts] = useState<AdminProduct[]>([]);
+  const [aiUsage, setAiUsage] = useState<AiUsageSummary | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
@@ -52,14 +56,16 @@ export default function AdminPage() {
       fetchPremiumUsers(t),
       fetchAdminAffiliateProducts(t),
       fetchAdminProducts(t),
+      fetchAiUsageToday(t),
     ])
-      .then(([toolsResult, flagsResult, adminsResult, premiumUsersResult, affiliateProductsResult, productsResult]) => {
+      .then(([toolsResult, flagsResult, adminsResult, premiumUsersResult, affiliateProductsResult, productsResult, aiUsageResult]) => {
         setTools(toolsResult);
         setFlags(flagsResult);
         setAdmins(adminsResult);
         setPremiumUsers(premiumUsersResult);
         setAffiliateProducts(affiliateProductsResult);
         setProducts(productsResult);
+        setAiUsage(aiUsageResult);
         setState("ready");
       })
       .catch((err) => {
@@ -102,7 +108,7 @@ export default function AdminPage() {
     );
   }
 
-  if (state === "error" || !token) {
+  if (state === "error" || !token || !aiUsage) {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
         <h1 className="text-xl font-bold text-brand-primary">Something went wrong</h1>
@@ -143,6 +149,11 @@ export default function AdminPage() {
       <Card className="mt-6">
         <h2 className="mb-4 font-semibold">Premium access</h2>
         <AdminPremiumUsersPanel initialPremiumUsers={premiumUsers} token={token} />
+      </Card>
+
+      <Card className="mt-6">
+        <h2 className="mb-4 font-semibold">AI usage today</h2>
+        <AdminAiUsageCard initialUsage={aiUsage} token={token} />
       </Card>
     </div>
   );

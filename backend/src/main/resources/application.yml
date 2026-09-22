@@ -83,6 +83,12 @@ extremis:
     effort: ${ANTHROPIC_EFFORT:low}
     timeout-seconds: 45
     max-retries: 1
+    # Phase 28: cost/abuse controls. Calls, not dollars -- see
+    # AiUsageProperties for why. Neither var need be set for the
+    # defaults (5/min per user, 200/day globally) to apply.
+    usage:
+      rate-limit-per-minute: ${AI_RATE_LIMIT_PER_MINUTE:5}
+      daily-call-ceiling: ${AI_DAILY_CALL_CEILING:200}
   payment:
     phonepe:
       # Left blank = PaymentProviderConfig registers no bean, so
