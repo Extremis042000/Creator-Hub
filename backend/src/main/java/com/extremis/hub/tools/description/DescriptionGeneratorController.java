@@ -4,6 +4,7 @@ import com.extremis.hub.domain.ToolType;
 import com.extremis.hub.premium.PremiumAccessService;
 import com.extremis.hub.results.SharedResultService;
 import jakarta.validation.Valid;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +24,13 @@ public class DescriptionGeneratorController {
     @PostMapping
     public DescriptionGeneratorResponse generate(@Valid @RequestBody DescriptionGeneratorRequest request, Authentication authentication) {
         premiumAccessService.requireAccessIfPremium(ToolType.DESCRIPTION_GENERATOR, authentication);
-        DescriptionGeneratorResponse response = descriptionGeneratorService.generate(request);
+        // AI-enhanced generation (Phase 27) is a separate, finer-grained gate than the
+        // tool-level premiumOnly check above: any premium-entitled signed-in user gets
+        // it, even on a tool that isn't itself marked premiumOnly. Free users keep the
+        // deterministic templates unchanged.
+        boolean useAi = authentication != null
+            && premiumAccessService.hasPremiumAccess((UUID) authentication.getPrincipal());
+        DescriptionGeneratorResponse response = descriptionGeneratorService.generate(request, useAi);
 
         if (request.isSave()) {
             String shareToken = sharedResultService.save(ToolType.DESCRIPTION_GENERATOR, request, response);

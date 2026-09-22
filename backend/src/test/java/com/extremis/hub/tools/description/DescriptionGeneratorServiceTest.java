@@ -3,12 +3,15 @@ package com.extremis.hub.tools.description;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.extremis.hub.tools.common.TextSanitizer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 class DescriptionGeneratorServiceTest {
 
-    private final DescriptionGeneratorService service = new DescriptionGeneratorService(new TextSanitizer());
+    private final DescriptionGeneratorService service =
+        new DescriptionGeneratorService(new TextSanitizer(), Optional.empty(), new ObjectMapper());
 
     @Test
     void includesChannelNameAndSocialLinks() {

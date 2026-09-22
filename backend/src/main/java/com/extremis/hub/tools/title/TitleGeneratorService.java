@@ -1,26 +1,45 @@
 package com.extremis.hub.tools.title;
 
+import com.extremis.hub.ai.AiGenerationException;
+import com.extremis.hub.ai.AiGenerationProvider;
+import com.extremis.hub.ai.AiGenerationRequest;
+import com.extremis.hub.ai.AiGenerationResult;
+import com.extremis.hub.tools.common.BannedAbsoluteClaims;
 import com.extremis.hub.tools.common.TextSanitizer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
- * Pure template composition -- zero AI inference cost. See
- * docs/06-prd.md §5.4. Every template here is reviewed to never
- * contain an unsubstantiated absolute claim (see
- * TitleGeneratorServiceTest.noTemplateContainsBannedAbsoluteClaims) --
- * there is no runtime "claim filter" because nothing in the template
- * bank generates such claims in the first place.
+ * Template composition remains the free-tier baseline -- zero AI
+ * inference cost, every template reviewed to never contain an
+ * unsubstantiated absolute claim (see
+ * TitleGeneratorServiceTest.noTemplateContainsBannedAbsoluteClaims).
+ * See docs/06-prd.md §5.4.
+ *
+ * Phase 27 adds an optional AI-enhanced path (gated by the caller on
+ * premium entitlement -- this class has no idea what "premium" means).
+ * AI output isn't statically auditable like the template bank, so it's
+ * validated at runtime (length caps, banned absolute claims) and falls
+ * back to templates on ANY problem: no provider configured, a failed
+ * call, malformed JSON, or output that fails validation. A premium
+ * user must never see an error where a free user would have gotten a
+ * title.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TitleGeneratorService {
 
     private static final int YOUTUBE_TITLE_MAX_LENGTH = 100;
+    private static final int SHORT_FORM_TITLE_MAX_LENGTH = 40;
+    private static final int AI_MAX_OUTPUT_TOKENS = 3000;
 
     private static final Map<Tone, String> TONE_WORDS = Map.of(
         Tone.HYPE, "INSANE",
@@ -64,8 +83,89 @@ public class TitleGeneratorService {
     );
 
     private final TextSanitizer sanitizer;
+    private final Optional<AiGenerationProvider> aiProvider;
+    private final ObjectMapper objectMapper;
 
     public TitleGeneratorResponse generate(TitleGeneratorRequest request) {
+        return generate(request, false);
+    }
+
+    /** useAi is decided by the caller (premium entitlement check happens in the controller). */
+    public TitleGeneratorResponse generate(TitleGeneratorRequest request, boolean useAi) {
+        if (useAi && aiProvider.isPresent()) {
+            try {
+                return generateWithAi(request, aiProvider.get());
+            } catch (Exception e) {
+                log.warn("AI title generation failed, falling back to templates: {}", e.getClass().getSimpleName());
+            }
+        }
+        return generateFromTemplates(request);
+    }
+
+    private TitleGeneratorResponse generateWithAi(TitleGeneratorRequest request, AiGenerationProvider provider) {
+        String game = sanitizer.sanitize(request.getGame());
+        String topic = sanitizer.sanitize(request.getTopic());
+        List<String> keywords = request.getKeywords() == null ? List.of() :
+            request.getKeywords().stream().map(sanitizer::sanitize).toList();
+
+        String systemPrompt = """
+            You write YouTube titles for gaming content creators. Reply with \
+            ONLY a JSON object, no markdown formatting, no commentary: \
+            {"titles": [5 to 8 long-form titles, each 100 characters or \
+            fewer], "shortFormTitles": [3 to 5 short titles, each 40 \
+            characters or fewer]}. Never use unverifiable absolute claims \
+            like "world record", "best ever", "#1 in the world", or \
+            "greatest of all time".""";
+
+        String userPrompt = "Game: %s\nTopic: %s\nVideo type: %s\nTone: %s\nKeywords: %s".formatted(
+            game, topic, request.getVideoType(), request.getTone(),
+            keywords.isEmpty() ? "(none)" : String.join(", ", keywords));
+
+        AiGenerationResult result = provider.generate(
+            new AiGenerationRequest(systemPrompt, userPrompt, AI_MAX_OUTPUT_TOKENS));
+        AiTitles parsed = parseAiTitles(result.text());
+
+        List<String> titles = validateTitles(parsed.titles(), YOUTUBE_TITLE_MAX_LENGTH);
+        List<String> shortFormTitles = validateTitles(parsed.shortFormTitles(), SHORT_FORM_TITLE_MAX_LENGTH);
+        if (titles.size() < 3 || shortFormTitles.isEmpty()) {
+            throw new AiGenerationException("AI title output failed validation.");
+        }
+
+        return TitleGeneratorResponse.builder()
+            .titles(titles)
+            .shortFormTitles(shortFormTitles)
+            .build();
+    }
+
+    private record AiTitles(List<String> titles, List<String> shortFormTitles) {
+    }
+
+    private AiTitles parseAiTitles(String rawText) {
+        try {
+            return objectMapper.readValue(stripCodeFences(rawText), AiTitles.class);
+        } catch (Exception e) {
+            throw new AiGenerationException("Malformed AI title JSON.", e);
+        }
+    }
+
+    private List<String> validateTitles(List<String> titles, int maxLength) {
+        if (titles == null) return List.of();
+        LinkedHashSet<String> valid = new LinkedHashSet<>();
+        for (String title : titles) {
+            if (title == null) continue;
+            String trimmed = title.trim();
+            if (trimmed.isEmpty() || trimmed.length() > maxLength) continue;
+            if (BannedAbsoluteClaims.containsBannedClaim(trimmed)) continue;
+            valid.add(trimmed);
+        }
+        return List.copyOf(valid);
+    }
+
+    private String stripCodeFences(String text) {
+        return text.replaceAll("(?s)^\\s*```(?:json)?", "").replaceAll("```\\s*$", "").trim();
+    }
+
+    private TitleGeneratorResponse generateFromTemplates(TitleGeneratorRequest request) {
         String game = sanitizer.sanitize(request.getGame());
         String topic = sanitizer.sanitize(request.getTopic());
         String toneWord = TONE_WORDS.get(request.getTone());

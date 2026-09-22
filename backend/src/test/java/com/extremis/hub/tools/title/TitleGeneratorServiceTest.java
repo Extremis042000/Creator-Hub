@@ -2,13 +2,17 @@ package com.extremis.hub.tools.title;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.extremis.hub.tools.common.BannedAbsoluteClaims;
 import com.extremis.hub.tools.common.TextSanitizer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 class TitleGeneratorServiceTest {
 
-    private final TitleGeneratorService service = new TitleGeneratorService(new TextSanitizer());
+    private final TitleGeneratorService service =
+        new TitleGeneratorService(new TextSanitizer(), Optional.empty(), new ObjectMapper());
 
     private TitleGeneratorRequest request(VideoType videoType, Tone tone, List<String> keywords) {
         TitleGeneratorRequest r = new TitleGeneratorRequest();
@@ -57,13 +61,11 @@ class TitleGeneratorServiceTest {
 
     @Test
     void noTemplateContainsBannedAbsoluteClaims() {
-        List<String> banned = List.of("WORLD RECORD", "#1 IN THE WORLD", "BEST EVER", "GREATEST OF ALL TIME");
         for (VideoType videoType : VideoType.values()) {
             for (Tone tone : Tone.values()) {
                 TitleGeneratorResponse response = service.generate(request(videoType, tone, List.of()));
                 for (String title : response.getTitles()) {
-                    String upper = title.toUpperCase();
-                    assertThat(banned).noneMatch(upper::contains);
+                    assertThat(BannedAbsoluteClaims.containsBannedClaim(title)).isFalse();
                 }
             }
         }
