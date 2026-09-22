@@ -6,7 +6,7 @@ export const metadata = buildMetadata({
   path: "/privacy",
 });
 
-const LAST_UPDATED = "September 14, 2026";
+const LAST_UPDATED = "September 22, 2026";
 
 export default function PrivacyPage() {
   return (
@@ -53,6 +53,38 @@ export default function PrivacyPage() {
               recommendation, we log that a click happened (and your account,
               if you're signed in) before redirecting you to the merchant's
               site, so we can measure whether recommendations are useful.
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 className="text-lg font-semibold text-text-primary">Smarter results from AI-assisted tools</h2>
+          <p className="mt-2">
+            To give you sharper, more relevant suggestions, the{" "}
+            <strong>Gaming YouTube Title Generator</strong> and{" "}
+            <strong>Gaming YouTube Description Generator</strong> can use an AI
+            language model to generate your result, instead of only picking from
+            a fixed set of templates. We're planning to bring the same
+            AI-assisted approach to more tools over time, including an upcoming{" "}
+            <strong>AI Thumbnail Generator</strong>.
+          </p>
+          <ul className="mt-2 list-disc space-y-2 pl-5">
+            <li>
+              Only the details you type into that specific tool (e.g. the game,
+              topic, tone, and any keywords) are sent for generation — never
+              your account, email, or any other identifying information.
+            </li>
+            <li>
+              Generation is handled by one or more third-party AI service
+              providers we've vetted for this purpose. Which provider is active
+              can change as we improve reliability and quality — this policy
+              covers that in general rather than naming one permanently.
+            </li>
+            <li>
+              If AI generation is ever unavailable, the tool automatically
+              falls back to its original template engine, so you always get a
+              usable result — never an error instead of your title or
+              description.
             </li>
           </ul>
         </section>

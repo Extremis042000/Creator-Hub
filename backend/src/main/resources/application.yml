@@ -60,12 +60,21 @@ extremis:
     # AI-capable tool keeps using its existing template engine.
     enabled: ${AI_GENERATION_ENABLED:true}
     provider: ${AI_PROVIDER:openai-compatible}
-    # openai-compatible provider (FreeModel today). No defaults on purpose:
-    # an unvetted third-party host must be named explicitly.
+    # openai-compatible provider(s). No defaults on purpose: an unvetted
+    # third-party host must be named explicitly. Two slots so a second
+    # backend (e.g. Free.ai alongside FreeModel) is config-only and the
+    # two are round-robined -- see CompositeAiGenerationProvider. Either,
+    # both, or neither may be set.
     compat:
-      base-url: ${AI_API_BASE_URL:}
+      chat-url: ${AI_API_CHAT_URL:}
       api-key: ${AI_API_KEY:}
       model: ${AI_MODEL:}
+      timeout-seconds: 30
+      max-tokens-floor: 3000
+    compat2:
+      chat-url: ${AI_API_CHAT_URL_2:}
+      api-key: ${AI_API_KEY_2:}
+      model: ${AI_MODEL_2:}
       timeout-seconds: 30
       max-tokens-floor: 3000
     # anthropic provider (direct, if a key is ever supplied):

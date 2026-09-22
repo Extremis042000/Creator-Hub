@@ -48,9 +48,9 @@ class OpenAiCompatibleGenerationProviderTest {
         server.stop(0);
     }
 
-    private OpenAiCompatibleGenerationProvider provider(String baseUrlSuffix) {
+    private OpenAiCompatibleGenerationProvider provider(String path) {
         OpenAiCompatibleProperties p = new OpenAiCompatibleProperties();
-        p.setBaseUrl("http://127.0.0.1:" + server.getAddress().getPort() + baseUrlSuffix);
+        p.setChatUrl("http://127.0.0.1:" + server.getAddress().getPort() + path);
         p.setApiKey("sk-test-key");
         p.setModel("fm-v1-lite");
         p.setTimeoutSeconds(5);
@@ -68,9 +68,9 @@ class OpenAiCompatibleGenerationProviderTest {
              "message":{"role":"assistant","content":"hello","reasoning":"ignored"}}],
              "usage":{"prompt_tokens":11,"completion_tokens":7,"cost":0}}""";
 
-        AiGenerationResult r = provider("/v1/").generate(req());
+        AiGenerationResult r = provider("/v1/chat/completions").generate(req());
 
-        assertThat(seenPath.get()).isEqualTo("/v1/chat/completions"); // trailing slash normalised
+        assertThat(seenPath.get()).isEqualTo("/v1/chat/completions"); // posts to exactly the configured URL
         assertThat(seenAuth.get()).isEqualTo("Bearer sk-test-key");
         assertThat(seenBody.get()).contains("\"model\":\"fm-v1-lite\"")
             .contains("\"max_tokens\":3000") // 900 requested, floored to 3000
@@ -127,7 +127,7 @@ class OpenAiCompatibleGenerationProviderTest {
     @Test
     void connectionFailureIsWrappedNotLeaked() {
         OpenAiCompatibleProperties p = new OpenAiCompatibleProperties();
-        p.setBaseUrl("http://127.0.0.1:1/v1"); // nothing listens here
+        p.setChatUrl("http://127.0.0.1:1/v1/chat/completions"); // nothing listens here
         p.setApiKey("k");
         p.setModel("m");
         p.setTimeoutSeconds(2);

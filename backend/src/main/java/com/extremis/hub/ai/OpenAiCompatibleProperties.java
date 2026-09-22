@@ -2,23 +2,26 @@ package com.extremis.hub.ai;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 
 /**
- * Any OpenAI-style /chat/completions endpoint (FreeModel today; Cloudflare
- * Workers AI or OpenRouter are config-only swaps). Deliberately no
- * defaults for baseUrl/apiKey/model -- an unvetted third-party host must
- * be named explicitly, never assumed.
+ * Any chat-completion-shaped endpoint whose request/response look like
+ * OpenAI's (messages array in, choices[0].message.content out) --
+ * FreeModel and Free.ai today; Cloudflare Workers AI or OpenRouter are
+ * config-only swaps. Two conventions were found live: FreeModel's real
+ * path is {base}/chat/completions, Free.ai's is {base}/v1/chat/ (note
+ * the trailing slash, no "completions") -- so chatUrl is the exact,
+ * complete URL to POST to, not a base the code appends a suffix to.
+ * Deliberately no defaults for chatUrl/apiKey/model -- an unvetted
+ * third-party host must be named explicitly, never assumed. Two
+ * instances of this same class are bound at different prefixes (see
+ * AiProviderConfig) so a second backend is config-only, no new class.
  */
 @Getter
 @Setter
-@Component
-@ConfigurationProperties(prefix = "extremis.ai.compat")
 public class OpenAiCompatibleProperties {
 
-    /** e.g. https://host/v1 -- the provider appends /chat/completions. */
-    private String baseUrl;
+    /** The exact chat-completion endpoint URL, e.g. https://host/v1/chat/completions. */
+    private String chatUrl;
     private String apiKey;
     private String model;
 

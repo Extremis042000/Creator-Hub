@@ -21,6 +21,12 @@ import org.springframework.web.client.RestClientResponseException;
  * HTTP errors (402 = the paid tiers), null/empty content when hidden
  * reasoning eats the budget, and <think> blocks leaking into content.
  * Errors carry no response body or prompt text.
+ *
+ * Known cosmetic gap: Free.ai's response wraps its token counts under
+ * a "free_ai_usage" key, not the standard "usage" this class reads --
+ * text extraction still works fine, but inputTokens/outputTokens come
+ * back as 0 for that specific backend. Not worth a per-provider parser
+ * for a cost-visibility-only field; revisit if that changes.
  */
 public class OpenAiCompatibleGenerationProvider implements AiGenerationProvider {
 
@@ -59,7 +65,7 @@ public class OpenAiCompatibleGenerationProvider implements AiGenerationProvider 
         OpenAiChatResponse response;
         try {
             response = restClient.post()
-                .uri(chatCompletionsUrl())
+                .uri(properties.getChatUrl())
                 .header("Authorization", "Bearer " + properties.getApiKey())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(body)
@@ -91,10 +97,5 @@ public class OpenAiCompatibleGenerationProvider implements AiGenerationProvider 
         // "model" is the upstream that actually served the call -- gateways
         // route, so it can differ from the configured alias and over time.
         return new AiGenerationResult(text, in, out, response.model());
-    }
-
-    private String chatCompletionsUrl() {
-        String base = properties.getBaseUrl();
-        return (base.endsWith("/") ? base.substring(0, base.length() - 1) : base) + "/chat/completions";
     }
 }

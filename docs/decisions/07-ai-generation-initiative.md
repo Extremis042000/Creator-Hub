@@ -1,10 +1,11 @@
 # AI-Powered Generation — Ideation & Master Phases
 
-Status: **Phase 26 built and deployed (inert — no API key yet); Phases 27-29
-proposed.** Implementation note: the direct API call is made through the
-**official Anthropic Java SDK** (`com.anthropic:anthropic-java`), not hand-rolled
-HTTP — that is the right client for a Java backend. Everywhere below that says
-"direct Messages API call" means that SDK.
+Status: **Phase 26/26b/26c built, deployed, and live-verified (FreeModel free
+tier, single delegate); Phases 27-29 proposed.** Implementation note: the direct
+Anthropic path uses the **official Anthropic Java SDK**
+(`com.anthropic:anthropic-java`); the openai-compatible path (the one actually
+live today) is a plain `RestClient` call, since arbitrary gateways don't ship a
+Java SDK. See §8-9 for the real provider work and what was measured live.
 
 ## 1. Where this came from
 
@@ -200,3 +201,84 @@ logged-in console):
 Founder actions (see chat for the exact steps): create a key in the console; read the
 console's Guide/terms for commercial use, retention and limits; run one Playground
 test; confirm comfort with the risk above.
+
+## 9. Live verification, Free.ai fallback, and the round-robin provider (2026-09-22)
+
+**FreeModel's console `/guide` page is client-side rendered and login-gated** — a
+direct fetch returns only an empty shell (title, no body). It could not be read
+without the founder's own logged-in browser; still unread as of this entry.
+
+**The founder's key round-tripped against the *wrong* domain at first.** The
+console's own quick-start snippet uses `https://alli.website/v1`, not
+`https://freemodel.online/v1` researched in §8 — different DNS (`alli.website`
+resolves to a single IPv4; `freemodel.online` sits behind Cloudflare) and a
+different, smaller public model list (207 vs 490 ids). Both were checked live before
+sending the real key anywhere. Only `alli.website` accepted it.
+
+**Real calls against `alli.website`, with the founder's key:**
+- `fm-v1-lite` works, ~2-4s per call. `fm-v1-standard` / `fm-v1-pro` return HTTP 402
+  (paid points only) — confirmed by calling all three.
+- The model actually serving `fm-v1-lite` (per the response's own `model` field) is
+  `inclusionai/ling-3.0-flash-sante:free` — a free upstream, not Claude. Output
+  quality on 3 real title-generation prompts was template-comparable, not frontier.
+- It is a reasoning model: at `max_tokens=900`, 2 of 3 real calls returned **empty
+  content** (`finish_reason=length` — the budget was consumed by hidden reasoning
+  before any visible output). At `max_tokens=3000`, 5 of 5 calls returned valid JSON.
+  `OpenAiCompatibleProperties.maxTokensFloor` (default 3000) exists specifically
+  because of this measured result, not a guess.
+
+**Config semantics corrected:** the original design assumed every gateway follows
+one URL convention (`{base}/chat/completions`) and could store just a base URL.
+Reading the founder-supplied Free.ai documentation (`Free.ai API Documentation.html`)
+showed a second, real, differently-shaped convention: Free.ai's chat endpoint is
+`https://api.free.ai/v1/chat/` — no `completions`, a trailing slash. So
+`OpenAiCompatibleProperties.baseUrl` (implicit suffix) was renamed to `chatUrl` (the
+exact, complete endpoint) — this is a breaking rename from Phase 26b's original
+`AI_API_BASE_URL`, now `AI_API_CHAT_URL`; the Render value had to be corrected from
+`https://alli.website/v1` to `https://alli.website/v1/chat/completions` accordingly.
+
+**Free.ai, from the founder's own documentation (not yet live-verified — no key
+supplied for it):** `POST https://api.free.ai/v1/chat/`, `Authorization: Bearer
+sk-free-...`, free plan = 30,000 tokens/day pool + 10 requests/minute, self-hosted
+free model id `qwen7b`. Its response wraps usage under `free_ai_usage`, not the
+standard `usage` key `OpenAiChatResponse` reads — text extraction still works, but
+`inputTokens`/`outputTokens` read back as 0 for this specific backend (a documented,
+accepted cosmetic gap, not worth a per-provider parser for a cost-visibility-only
+field).
+
+**`CompositeAiGenerationProvider` (round-robin + failover), per the founder's
+explicit ask to "equally distribute the load":** `AiProviderConfig` now binds
+`OpenAiCompatibleProperties` at **two** prefixes (`extremis.ai.compat` /
+`extremis.ai.compat2`, via a separate `AiCompatPropertiesConfig` — binding two
+`@Bean`-producing methods for the same properties class *inside* `AiProviderConfig`
+itself would be a circular dependency, since Spring must construct that class via its
+constructor before it can call any of its own `@Bean` methods; caught before it ever
+reached a running context). Neither slot configured → inert (unchanged). Exactly one
+configured → that provider directly, no wrapping (today's live state: FreeModel only).
+Both configured → wrapped in `CompositeAiGenerationProvider`, which starts each call
+at the next delegate in rotation (genuinely round-robin, not "primary until it dies")
+and falls over to the other delegate on any `AiGenerationException` before surfacing a
+failure. 5 new tests cover even distribution across 10 calls, fail-over, and
+all-delegates-failed. 76 backend tests total, 0 failures, including the real Spring
+context booting with both compat-properties beans present.
+
+**Verified live end-to-end in production after the fix:** admin ping →
+`{"provider":"openai-compatible","reply":"pong","model":"fm-v1-lite","servedBy":
+"inclusionai/ling-3.0-flash-sante:free", ...}`; health up; a pre-existing endpoint
+(`/api/v1/game-deals`) unaffected, confirming no regression.
+
+**Privacy Policy updated** with a new, positively-framed "Smarter results from
+AI-assisted tools" section naming the two live AI-candidate tools (Title Generator,
+Description Generator) and the planned-but-not-yet-built AI Thumbnail Generator
+(currently only a "Coming Soon" feature-flag placeholder — the policy is careful not
+to claim it exists yet). Deliberately doesn't name FreeModel/Free.ai specifically in
+the public-facing text, since which backend is active is config-driven and can change
+without a deploy; it does disclose that third-party AI providers are used, that only
+the tool's own fields are sent (never account identifiers), and that a template
+fallback always exists.
+
+**Still open:** the FreeModel console's actual terms of service (commercial use,
+retention, rate limits) remain unread — the founder needs to open the logged-in
+`/guide` page and relay what it says before Phase 27 sends real, non-test customer
+input through this path. A Free.ai API key would let slot 2 (and therefore the
+round-robin/failover behavior) be verified live rather than only unit-tested.

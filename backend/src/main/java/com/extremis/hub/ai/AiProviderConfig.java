@@ -3,6 +3,8 @@ package com.extremis.hub.ai;
 import com.anthropic.client.AnthropicClient;
 import com.anthropic.client.okhttp.AnthropicOkHttpClient;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,13 +16,23 @@ import org.springframework.context.annotation.Configuration;
  * Optional<AiGenerationProvider> is empty otherwise. Deliberately not
  * @ConditionalOnProperty -- that treats an empty-string env var as
  * "present".
+ *
+ * The openai-compatible path supports up to two backends (FreeModel,
+ * Free.ai), bound from the SAME OpenAiCompatibleProperties class at two
+ * different prefixes -- see AiCompatPropertiesConfig, injected here by
+ * bean name (primaryCompatProperties/secondaryCompatProperties) since
+ * both beans share a type. Adding a backend is config-only (env vars);
+ * either, both, or neither may be set. Two configured -> round-robin
+ * between them (CompositeAiGenerationProvider); one -> that one
+ * directly, no wrapping.
  */
 @Configuration
 @RequiredArgsConstructor
 public class AiProviderConfig {
 
     private final AiProperties properties;
-    private final OpenAiCompatibleProperties compatProperties;
+    private final OpenAiCompatibleProperties primaryCompatProperties;
+    private final OpenAiCompatibleProperties secondaryCompatProperties;
 
     @Bean
     public AiGenerationProvider aiGenerationProvider() {
@@ -47,12 +59,21 @@ public class AiProviderConfig {
     }
 
     private AiGenerationProvider openAiCompatibleProvider() {
-        if (isBlank(compatProperties.getBaseUrl())
-                || isBlank(compatProperties.getApiKey())
-                || isBlank(compatProperties.getModel())) {
+        List<AiGenerationProvider> configured = new ArrayList<>();
+        if (isConfigured(primaryCompatProperties)) {
+            configured.add(new OpenAiCompatibleGenerationProvider(primaryCompatProperties));
+        }
+        if (isConfigured(secondaryCompatProperties)) {
+            configured.add(new OpenAiCompatibleGenerationProvider(secondaryCompatProperties));
+        }
+        if (configured.isEmpty()) {
             return null;
         }
-        return new OpenAiCompatibleGenerationProvider(compatProperties);
+        return configured.size() == 1 ? configured.get(0) : new CompositeAiGenerationProvider(configured);
+    }
+
+    private boolean isConfigured(OpenAiCompatibleProperties compat) {
+        return !isBlank(compat.getChatUrl()) && !isBlank(compat.getApiKey()) && !isBlank(compat.getModel());
     }
 
     private boolean isBlank(String value) {
