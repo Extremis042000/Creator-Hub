@@ -277,8 +277,44 @@ without a deploy; it does disclose that third-party AI providers are used, that 
 the tool's own fields are sent (never account identifiers), and that a template
 fallback always exists.
 
-**Still open:** the FreeModel console's actual terms of service (commercial use,
-retention, rate limits) remain unread — the founder needs to open the logged-in
-`/guide` page and relay what it says before Phase 27 sends real, non-test customer
-input through this path. A Free.ai API key would let slot 2 (and therefore the
-round-robin/failover behavior) be verified live rather than only unit-tested.
+## 10. Both slots live-verified with a real key each; round-robin confirmed in production (2026-09-22, same day)
+
+**The `/guide` page turned out to be a technical quick-start generator, not a terms
+page** — the founder relayed its full content: copy-paste config snippets for Claude
+Code (MCP), Codex CLI, Cursor, Continue.dev, Cline, cURL, Python, and Node.js. No
+retention, commercial-use, or rate-limit language anywhere on it. **The commercial-use
+and data-retention question is therefore still genuinely open** — there is simply no
+policy page in this product to read yet, not an unread one. This is a real, standing
+gap for Phase 27, not resolved by anything found today.
+
+**The guide's own recommended defaults were checked and don't currently work.** Every
+snippet on that page uses `https://freemodel.online/v1` (not `alli.website`) and
+model `auto/best-chat` (not `fm-v1-lite`). Tested live with the real key:
+`freemodel.online` + `auto/best-chat` → HTTP 502 (upstream routing failure, not a
+request error); `alli.website` + `auto/best-chat` → HTTP 400; `freemodel.online` +
+`fm-v1-lite` → HTTP 400 with `"Unable to determine provider for model 'fm-v1-lite'"`
+— confirming `freemodel.online` and `alli.website` are two genuinely different
+backends with two different model catalogs, both reachable with the same key, neither
+one a subset of the other. The one combination that has ever actually worked across
+every test this session is `alli.website` + `fm-v1-lite`, and it's what stays
+configured. Worth re-checking `auto/best-chat` again later — a 502 suggests a
+transient upstream issue on FreeModel's side, not a configuration mistake here.
+
+**Free.ai, live-verified with the founder's real key:** `qwen7b` returned valid JSON
+on a real title-generation prompt **5 of 5 times** (`max_tokens=3000`, ~5-6s per
+call) — matching FreeModel's reliability. Its usage block matched the documentation
+exactly (`free_ai_usage: {tokens_used, tokens_charged, source, model}`), confirming
+the earlier note that token counts read back as 0 through this code (it reads
+`usage`, not `free_ai_usage`) is a real, now-confirmed-live limitation, not a guess.
+
+**Round-robin confirmed live in production, both slots configured:** six consecutive
+calls to `/api/v1/admin/ai/ping` alternated **perfectly** —
+`inclusionai/ling-3.0-flash-sante:free` (FreeModel) → `Qwen/Qwen3-30B-A3B-Instruct`
+(Free.ai) → repeat, three full cycles, 404ms-2006ms per call. This is the actual
+distribution behavior in production, not the unit tests' simulated delegates.
+`/api/v1/game-deals` re-checked unaffected after both deploys.
+
+**Still open:** FreeModel's (and Free.ai's) actual commercial-use/retention terms —
+no policy page has been found for either yet; this needs resolving, by the founder
+finding and reading whatever the real terms document is (or contacting support
+directly), before Phase 27 sends real, non-test customer input through this path.
