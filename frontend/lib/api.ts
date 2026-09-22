@@ -1,3 +1,5 @@
+import { getToken } from "./auth";
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
 
 export type BackendHealth = {
@@ -157,10 +159,24 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * These tool endpoints work fully anonymously ("no signup, ever") --
+ * but if the caller happens to be signed in, attaching their token
+ * lets the backend recognize them (e.g. Phase 27's premium-gated AI
+ * generation, or Phase 22's premiumOnly tool gate). Previously this
+ * never attached a token at all, so a signed-in premium user calling
+ * a premiumOnly tool (gaming-description-generator) got a real 401
+ * from the live site, and no tool could ever see who was calling --
+ * found via live verification while building Phase 27.
+ */
 async function postJson<TResponse>(path: string, payload: unknown): Promise<TResponse> {
+  const token = getToken();
   const res = await fetch(`${API_BASE_URL}${path}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify(payload),
   });
 
