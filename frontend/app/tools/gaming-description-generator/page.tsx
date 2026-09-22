@@ -16,6 +16,10 @@ export const metadata = buildMetadata({ title: TITLE, description: DESCRIPTION, 
 
 const FAQS = [
   {
+    q: "Does this use AI?",
+    a: "Free descriptions come from a template engine, so results are instant and predictable. Signed-in premium accounts get an AI-written description instead — and it automatically falls back to templates if AI is ever unavailable, so the tool never breaks.",
+  },
+  {
     q: "What gets included in the description?",
     a: "An intro paragraph, your social links (if provided), your keywords, and relevant hashtags — all structured for YouTube's description box.",
   },

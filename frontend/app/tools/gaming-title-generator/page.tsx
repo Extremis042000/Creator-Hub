@@ -9,7 +9,7 @@ import { fetchPublicTools } from "@/lib/api";
 
 const TITLE = "Gaming YouTube Title Generator";
 const DESCRIPTION =
-  "Generate clickable, non-misleading YouTube title ideas for your gaming videos. Free, no signup, no AI cost.";
+  "Generate clickable, non-misleading YouTube title ideas for your gaming videos. Free, no signup required.";
 const PATH = "/tools/gaming-title-generator";
 
 export const metadata = buildMetadata({ title: TITLE, description: DESCRIPTION, path: PATH });
@@ -17,7 +17,7 @@ export const metadata = buildMetadata({ title: TITLE, description: DESCRIPTION, 
 const FAQS = [
   {
     q: "Does this use AI?",
-    a: "No — titles are generated from templates, not AI, so results are instant, free, and predictable.",
+    a: "Free titles come from a template engine, so results are instant and predictable. Signed-in premium accounts get AI-enhanced titles instead — and it automatically falls back to templates if AI is ever unavailable, so the tool never breaks.",
   },
   {
     q: "Will titles be misleading or clickbait?",
