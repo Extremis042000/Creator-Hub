@@ -24,7 +24,8 @@ extremis:
   cors:
     allowed-origins:
       - http://localhost:3000
-      - https://extremis-creator-hub.surya-chowdhury0412.workers.dev
+      - https://extremis-creator-hub.surya-chowdhury0412.workers.dev # transitional; keep until the custom domain fully replaces it (see decisions/08-custom-domain-cutover.md)
+      - https://creator-hub.co.in
   auth:
     google:
       # Founder-provided (Google Cloud Console) — see .env.example.

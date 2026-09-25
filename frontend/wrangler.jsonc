@@ -4,10 +4,23 @@
   "name": "extremis-creator-hub",
   "compatibility_date": "2026-09-13",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  // Kept alongside the custom domain below on purpose -- adding "routes"
+  // otherwise silently disables workers.dev by default, and the plan
+  // (decisions/08-custom-domain-cutover.md) is additive: the old URL keeps
+  // working throughout and after the cutover, never a hard replace.
+  "workers_dev": true,
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  "routes": [
+    { "pattern": "creator-hub.co.in", "custom_domain": true }
+    // www.creator-hub.co.in intentionally omitted for now -- Cloudflare
+    // rejected it (error 100117): a DNS record already exists for "www"
+    // in this zone (likely carried over from GoDaddy's default parking
+    // setup during the nameserver migration). Add it back once that
+    // record is removed -- see the founder-action note in the cutover doc.
+  ],
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",
