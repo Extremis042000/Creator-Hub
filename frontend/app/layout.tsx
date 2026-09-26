@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import AdSenseScript from "@/components/AdSenseScript";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import RouteLoadingOverlay from "@/components/RouteLoadingOverlay";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
@@ -40,6 +41,7 @@ export default async function RootLayout({
       <body className="min-h-screen bg-bg-canvas text-text-primary antialiased">
         <GoogleAnalytics />
         <AdSenseScript />
+        <RouteLoadingOverlay />
         <div className="flex min-h-screen flex-col">
           <SiteHeader />
           <main className="flex-1">{children}</main>
