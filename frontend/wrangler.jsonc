@@ -14,12 +14,11 @@
     "binding": "ASSETS"
   },
   "routes": [
-    { "pattern": "creator-hub.co.in", "custom_domain": true }
-    // www.creator-hub.co.in intentionally omitted for now -- Cloudflare
-    // rejected it (error 100117): a DNS record already exists for "www"
-    // in this zone (likely carried over from GoDaddy's default parking
-    // setup during the nameserver migration). Add it back once that
-    // record is removed -- see the founder-action note in the cutover doc.
+    { "pattern": "creator-hub.co.in", "custom_domain": true },
+    // Bound to the same Worker, not a separate site -- middleware.ts
+    // 308-redirects every request here to the bare domain, so this is
+    // "www resolves, then redirects", not a second copy of the app.
+    { "pattern": "www.creator-hub.co.in", "custom_domain": true }
   ],
   "services": [
     {

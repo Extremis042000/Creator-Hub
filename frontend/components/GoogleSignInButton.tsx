@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import Script from "next/script";
 import { useCallback, useRef } from "react";
 import { signInWithGoogle } from "@/lib/api";
@@ -30,22 +29,22 @@ declare global {
 
 export default function GoogleSignInButton() {
   const buttonRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
 
-  const handleCredentialResponse = useCallback(
-    async (response: GoogleCredentialResponse) => {
-      try {
-        const auth = await signInWithGoogle(response.credential);
-        setToken(auth.token);
-        router.push("/dashboard");
-        router.refresh();
-      } catch {
-        // Sign-in failure just leaves the user on the login page —
-        // no account state changes without a successful response.
-      }
-    },
-    [router],
-  );
+  const handleCredentialResponse = useCallback(async (response: GoogleCredentialResponse) => {
+    try {
+      const auth = await signInWithGoogle(response.credential);
+      setToken(auth.token);
+      // A real navigation, not router.push -- AuthNav (in the persistent
+      // layout) only checks the token once on mount, so a client-side
+      // route change left it stuck showing "Sign in" after a real login
+      // (the header never remounted to re-check). A full navigation also
+      // means landing on the home page, not the dashboard.
+      window.location.href = "/";
+    } catch {
+      // Sign-in failure just leaves the user on the login page —
+      // no account state changes without a successful response.
+    }
+  }, []);
 
   const initializeGoogleButton = useCallback(() => {
     if (!window.google || !buttonRef.current || !GOOGLE_CLIENT_ID) return;

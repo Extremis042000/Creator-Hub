@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- EXTREMIS Creator Hub favicon: a bold "E" monogram in the site's own
+       brand colors (app/globals.css) -- brand-primary red on bg-canvas
+       near-black, kept flat/geometric so it stays legible at 16x16. -->
+  <rect width="64" height="64" rx="13" fill="#0a0b0f"/>
+  <rect x="16" y="13" width="9" height="38" rx="2" fill="#ff3b3b"/>
+  <rect x="16" y="13" width="30" height="9" rx="2" fill="#ff3b3b"/>
+  <rect x="16" y="27.5" width="23" height="9" rx="2" fill="#ff3b3b"/>
+  <rect x="16" y="42" width="30" height="9" rx="2" fill="#ff3b3b"/>
+</svg>
