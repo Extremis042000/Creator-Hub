@@ -21,6 +21,8 @@
 - **[Founder Action Checklist](decisions/05-founder-action-checklist.md)** — steps only the founder can do (KYC, ad-program approvals, domain).
 - **[AI-Powered Generation Initiative](decisions/07-ai-generation-initiative.md)** — built and live-verified (Phases 26-29): the Title/Description generators now call a real AI provider for premium users, with cost/abuse controls and an interactive refine follow-up, modeled on the founder's "Triage Desk" project's Claude-integration pattern.
 - **[Custom Domain Cutover](decisions/08-custom-domain-cutover.md)** — done and live-verified (Phases 30-34): `creator-hub.co.in` (founder-purchased) is now the canonical public URL, alongside the still-live `*.workers.dev`/`*.onrender.com` infrastructure addresses.
+- **[AI Model Optimization](decisions/09-ai-model-optimization.md)** — proposed, not started (Phases 35-39): eval-driven prompt iteration and a first-party usage-signal feedback loop, since the current free-tier gateway models can't literally be fine-tuned without a real (non-$0) cost decision.
+- **[AI Thumbnail Generator](decisions/10-ai-thumbnail-generator.md)** — proposed, not started (Phases 40-44): a new premium tool, reusing the already-integrated FreeModel gateway's image models (live-verified, including a working reference-image mode) — explicitly does not train on scraped YouTube data, which its own Developer Policies prohibit.
 
 ## architecture/
 Original planning-phase technical blueprint and system design (DB
