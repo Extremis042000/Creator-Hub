@@ -2,10 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import ToolCard from "@/components/ToolCard";
 import HomeComingSoonCard from "@/components/HomeComingSoonCard";
-import GameDealCard from "@/components/GameDealCard";
+import HomeShowcase from "@/components/HomeShowcase";
 import { SITE_NAME, SITE_URL } from "@/lib/seo";
 import { TOOLS } from "@/lib/tools";
-import { fetchEnabledFeatureFlags, fetchGameDeals, fetchPublicTools } from "@/lib/api";
+import { buildHomeShowcaseSlides } from "@/lib/homeShowcaseSlides";
+import {
+  fetchActiveAffiliateProducts,
+  fetchActiveProducts,
+  fetchEnabledFeatureFlags,
+  fetchGameDeals,
+  fetchPublicTools,
+} from "@/lib/api";
 
 // No title override here — the layout's title.default already IS the
 // site name; setting one would run it through the "%s | SITE_NAME"
@@ -17,12 +24,13 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [publicTools, comingSoonKeys, gameDeals] = await Promise.all([
+  const [publicTools, comingSoonKeys, gameDeals, gearProducts, storeProducts] = await Promise.all([
     fetchPublicTools(),
     fetchEnabledFeatureFlags(),
     fetchGameDeals(),
+    fetchActiveAffiliateProducts(),
+    fetchActiveProducts(),
   ]);
-  const topDeals = gameDeals.slice(0, 3);
   const premiumBySlug = new Map(publicTools.map((t) => [t.slug, t.premiumOnly]));
   // Premium tools promoted to the front of the grid -- subscription
   // upsell visibility takes priority over the free tools' original order.
@@ -31,10 +39,21 @@ export default async function HomePage() {
     premiumOnly: premiumBySlug.get(tool.slug) ?? false,
   })).sort((a, b) => Number(b.premiumOnly) - Number(a.premiumOnly));
 
+  // The hero's teaser panel used to be permanently "Hot Game Deals" --
+  // now it rotates through every non-empty section every 3s (see
+  // components/HomeShowcase.tsx), in the founder's own requested order.
+  const showcaseSlides = buildHomeShowcaseSlides({
+    tools: sortedTools,
+    comingSoonKeys,
+    gameDeals,
+    gearProducts,
+    storeProducts,
+  });
+
   return (
     <>
       <section className="mx-auto max-w-6xl px-4 py-20">
-        <div className={`grid gap-10 ${topDeals.length > 0 ? "lg:grid-cols-2 lg:items-center" : ""}`}>
+        <div className={`grid gap-10 ${showcaseSlides.length > 0 ? "lg:grid-cols-2 lg:items-center" : ""}`}>
           <div className="text-center lg:text-left">
             <h1 className="mx-auto max-w-xl text-4xl font-bold tracking-tight sm:text-5xl lg:mx-0">
               Free tools for competitive players &amp; gaming creators
@@ -50,21 +69,7 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          {topDeals.length > 0 && (
-            <div>
-              <div className="flex items-center justify-between">
-                <h2 className="text-base font-semibold text-text-secondary">🔥 Hot Game Deals</h2>
-                <Link href="/deals" className="text-xs font-medium text-brand-accent hover:underline">
-                  See all deals &rarr;
-                </Link>
-              </div>
-              <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                {topDeals.map((deal) => (
-                  <GameDealCard key={deal.dealUrl} deal={deal} compact />
-                ))}
-              </div>
-            </div>
-          )}
+          <HomeShowcase slides={showcaseSlides} />
         </div>
       </section>
 

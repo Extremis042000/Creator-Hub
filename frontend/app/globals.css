@@ -70,6 +70,50 @@ body {
   50% { transform: translateY(-3px); }
 }
 
+/* Homepage showcase carousel -- see components/HomeShowcase.tsx. A slow
+   rotating conic-gradient ring behind the panel (red -> accent -> red),
+   a per-slide fill on the progress bar, and layered enter/exit for the
+   slide content so a section change feels like more than a plain swap. */
+@keyframes showcase-ring-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes showcase-progress-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes showcase-slide-enter {
+  from { opacity: 0; transform: translateY(18px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes showcase-slide-exit {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(-14px) scale(0.98); }
+}
+
+@keyframes showcase-header-enter {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.animate-showcase-ring {
+  animation: showcase-ring-spin 8s linear infinite;
+}
+
+.animate-showcase-enter {
+  animation: showcase-slide-enter 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-showcase-exit {
+  animation: showcase-slide-exit 0.3s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+.animate-showcase-header {
+  animation: showcase-header-enter 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
