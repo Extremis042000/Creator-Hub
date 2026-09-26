@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube titles for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"titles\": [5 to 8 long-form titles, each 100 characters or fewer], \"shortFormTitles\": [3 to 5 short titles, each 40 characters or fewer]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\"."
+  },
+  {
+    "role": "user",
+    "content": "Game: Elden Ring\nTopic: Malenia boss guide no damage strategy\nVideo type: TUTORIAL\nTone: COMPETITIVE\nKeywords: no damage, boss guide"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"titles\": [\"Malenia No Damage Guide: Competitive Elden Ring Boss Strategy\", \"How to Beat Malenia With Zero Damage Taken in Elden Ring\", \"Malenia Boss Guide: No Damage Strategy for Competitive Players\", \"Elden Ring Malenia No Damage Run: Full Boss Fight Tutorial\", \"Malenia No Damage Tutorial: Competitive Elden Ring Boss Clear\", \"Zero Damage Malenia Guide: Elden Ring Competitive Boss Strategy\", \"Malenia Boss Fight No Damage: Competitive Elden Ring Walkthrough\", \"Elden Ring Malenia No Damage Strategy: Competitive Tutorial\"], \"shortFormTitles\": [\"Malenia No Damage Guide\", \"Zero Damage Malenia\", \"Malenia Boss Strategy\", \"No Damage Malenia Fight\", \"Malenia Tutorial\"]}"
+  }
+]

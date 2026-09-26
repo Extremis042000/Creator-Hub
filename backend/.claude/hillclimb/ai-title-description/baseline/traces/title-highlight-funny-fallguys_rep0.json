@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube titles for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"titles\": [5 to 8 long-form titles, each 100 characters or fewer], \"shortFormTitles\": [3 to 5 short titles, each 40 characters or fewer]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\"."
+  },
+  {
+    "role": "user",
+    "content": "Game: Fall Guys\nTopic: hilarious fails compilation\nVideo type: HIGHLIGHT\nTone: FUNNY\nKeywords: (none)"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"titles\": [\"Fall Guys Fails Compilation: The Chaos Nobody Expected\", \"Fall Guys Funniest Fails: When Survival Goes Wrong\", \"Fall Guys Epic Fails: The Most Clumsy Players Ever\", \"Fall Guys Compilation: Fails That Broke The Internet\", \"Fall Guys Hilarious Fails: Can't Stop Laughing\", \"Fall Guys Fails: The Moments That Ruined The Run\", \"Fall Guys Funniest Moments: Fails & Faceplants\", \"Fall Guys Chaos Compilation: Epic Fails Inside\"], \"shortFormTitles\": [\"Fall Guys Fails\", \"Funniest Fall Guys\", \"Fall Guys Chaos\", \"Epic Fall Guys Fails\", \"Fall Guys Funniest\"]}"
+  }
+]

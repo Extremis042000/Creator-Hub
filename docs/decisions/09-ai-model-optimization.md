@@ -1,9 +1,9 @@
 # AI Model Optimization — Ideation & Phases
 
-Status: **proposed, not started.** Founder asked to "train all my AI models to
-provide more optimized results." This doc is honest about what that phrase can
-and can't mean given this product's actual architecture, then plans the real,
-buildable version of it.
+Status: **Phase 35 done and live-verified; Phases 36-39 proposed, not started.**
+Founder asked to "train all my AI models to provide more optimized results."
+This doc is honest about what that phrase can and can't mean given this
+product's actual architecture, then plans the real, buildable version of it.
 
 ## 1. The honest starting point: we don't own the models
 
@@ -61,7 +61,7 @@ Without owning the model, the levers that actually move output quality are:
 
 | Phase | Task | Depends on | Complexity | Completion criteria |
 |---|---|---|---|---|
-| 35 | Build an eval set for Title/Description generation | Phase 27 | Medium | A runnable eval (10-20 real prompts per tool, a grading method — likely model-graded against a rubric: banned-claims-free, right length, on-topic, genuinely distinct from the template baseline) with a measured baseline score for the current prompts, using the bundled `claude-api` skill's `build-eval` flow. |
+| 35 | Build an eval set for Title/Description generation | Phase 27 | Medium | ✅ **Done** — `backend/.claude/hillclimb/ai-title-description/`. 24 real cases run against the real production prompts and the real `alli.website` gateway. Grading ended up two-layered, not the model-graded rubric originally sketched here: a deterministic `valid`/`distinct_from_template` pass (both 100%, 24/24) plus a `quality` (0-3) pass grounded in live YouTube search results — the founder's explicit choice over getting a paid Claude API key, since there wasn't one configured. See `QUALITY_PASS.md` alongside the eval for the real findings (descriptions score 3/3 across the board; titles score 2/3 — correct but low option-diversity; one max-keywords edge case scores 1/3 — keyword-stuffed). |
 | 36 | Prompt/few-shot iteration against the eval | Phase 35 | Medium | Using `hillclimb`: add few-shot examples and tighter structure to both tools' system prompts, re-run the eval after each change, keep only changes that measurably improve the score. Ships as an update to the existing prompts in `TitleGeneratorService`/`DescriptionGeneratorService` — no new endpoints. |
 | 37 | First-party usage-signal capture | Phase 28 (`ai_generation_log`) | Medium | Extend `ai_generation_log` (or a small companion table) to record a lightweight outcome signal per generation -- was it copied, refined further (Phase 29's `refine()`), or immediately regenerated -- as a proxy for "was this good." No new user-facing UI; this is instrumentation for phase 38's admin visibility and any future eval-set growth. |
 | 38 *(optional, later)* | Admin visibility into eval scores + usage signals | Phase 36, 37 | Low | A small addition to the existing "AI usage today" admin card (Phase 28) or a new panel showing the latest eval score per tool and the copy/refine/regenerate signal breakdown -- so prompt changes are visible as a trend, not just felt. |

@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube video descriptions for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"description\": \"a friendly, SEO-aware description, 5000 characters or fewer, that naturally weaves in the channel name and any social links given\", \"seoKeywordsSection\": \"a short comma-separated keyword list\", \"hashtags\": [\"1 to 15 hashtags, each starting with #, no spaces\"]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\"."
+  },
+  {
+    "role": "user",
+    "content": "Game: Valorant\nTopic: clutch ace montage\nChannel name: AceClips\nKeywords: valorant, ace\n"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"description\": \"Welcome to another adrenaline-pumping episode of AceClips! In this Valorant clutch ace montage, we bring you the most intense 1v5 moments and round-winning plays that will keep you on the edge of your seat. Whether you are a seasoned Radiant player or just starting your journey, these clutch sequences showcase incredible aim, game sense, and pure determination under pressure. Thank you for hanging out with us at AceClips — if you enjoy watching clutch aces and epic Valorant highlights, make sure to drop a like, subscribe, and hit the bell so you never miss an upload. Leave a comment below telling us which ace was your favorite, and we might feature it in our next compilation. Stay positive, keep grinding, and remember: every ace starts with a single clutch. See you in the next video!\", \"seoKeywordsSection\": \"valorant, ace, clutch, montage, 1v5, highlights, gaming, Valorant clips, ace montage, competitive gaming\", \"hashtags\": [\"#Valorant\", \"#Ace\", \"#Clutch\", \"#Montage\", \"#Gaming\", \"#Highlights\", \"#1v5\", \"#ValorantClips\", \"#AceClips\", \"#CompetitiveGaming\"]}"
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube video descriptions for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"description\": \"a friendly, SEO-aware description, 5000 characters or fewer, that naturally weaves in the channel name and any social links given\", \"seoKeywordsSection\": \"a short comma-separated keyword list\", \"hashtags\": [\"1 to 15 hashtags, each starting with #, no spaces\"]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\"."
+  },
+  {
+    "role": "user",
+    "content": "Game: Apex Legends\nTopic: ranked grind to predator\nChannel name: ApexGrinder\nKeywords: (none)\nSocial links:\nTwitch: https://twitch.tv/apexgrinder\n"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"description\":\"Join ApexGrinder on this ranked grind to Predator in Apex Legends! 🎮 This video covers everything from placement matches to pushing through the ranks, sharing tips, clutch plays, and mindset strategies along the way. Whether you're climbing from Gold or already in Diamond, there's something here for every Apex player.\\n\\n🔔 Subscribe to ApexGrinder for more ranked gameplay, tips, and behind-the-scenes content!\\n📺 Watch live on Twitch: https://twitch.tv/apexgrinder\\n\\nTimestamps:\\n0:00 - Intro\\n1:30 - Ranked Start\\n5:00 - Mid-Rank Grind\\n10:00 - Predator Push\\n15:00 - Clutch Moments\\n20:00 - Outro & Next Goals\\n\\nThanks for watching ApexGrinder! Drop a comment with your current rank and let's climb together. 💜\",\"seoKeywordsSection\":\"Apex Legends, ranked grind, Predator climb, Apex tips, ranked gameplay, ApexGrinder\",\"hashtags\":[\"#ApexLegends\",\"#RankedGrind\",\"#Predator\",\"#ApexGrinder\",\"#ApexTips\",\"#RankedGameplay\",\"#FPS\",\"#BattleRoyale\",\"#Gaming\",\"#Clips\"]}"
+  }
+]

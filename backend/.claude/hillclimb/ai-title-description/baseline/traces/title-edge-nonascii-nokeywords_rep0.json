@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube titles for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"titles\": [5 to 8 long-form titles, each 100 characters or fewer], \"shortFormTitles\": [3 to 5 short titles, each 40 characters or fewer]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\"."
+  },
+  {
+    "role": "user",
+    "content": "Game: Pokémon Scarlet & Violet\nTopic: shiny hunting guide\nVideo type: TUTORIAL\nTone: COMPETITIVE\nKeywords: (none)"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"titles\": [\"Competitive Shiny Hunting Guide for Pokémon Scarlet & Violet\", \"How to Hunt Shinies Faster in Pokémon Scarlet & Violet\", \"Scarlet & Violet Shiny Hunting: Tips for Competitive Players\", \"Efficient Shiny Hunting Methods in Pokémon Scarlet & Violet\", \"Shiny Hunting Strategy Guide for Pokémon Scarlet & Violet\", \"Advanced Shiny Hunting Techniques in Scarlet & Violet\", \"Pokémon Scarlet & Violet: Competitive Shiny Hunting Tutorial\"], \"shortFormTitles\": [\"Shiny Hunting Guide\", \"Scarlet & Violet Shinies\", \"Competitive Shiny Hunting\", \"Hunt Shinies Faster\", \"Shiny Hunting Tips\"]}"
+  }
+]

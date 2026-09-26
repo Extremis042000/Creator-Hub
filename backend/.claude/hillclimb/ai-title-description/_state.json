@@ -1,0 +1,9 @@
+{
+  "flow": "ai-title-description",
+  "metrics": [
+    { "id": "valid", "label": "Valid", "kind": "binary" },
+    { "id": "quality", "label": "Quality (0-3)", "kind": "float" },
+    { "id": "distinct_from_template", "label": "vs Template", "kind": "binary" }
+  ],
+  "perf_fields": ["latency_s"]
+}

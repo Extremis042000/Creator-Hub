@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube titles for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"titles\": [5 to 8 long-form titles, each 100 characters or fewer], \"shortFormTitles\": [3 to 5 short titles, each 40 characters or fewer]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\"."
+  },
+  {
+    "role": "user",
+    "content": "Game: Counter-Strike 2\nTopic: major tournament grand final recap\nVideo type: LIVESTREAM_RECAP\nTone: HYPE\nKeywords: cs2, major"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"titles\": [\"CS2 Major Grand Final Recap - The Most Epic Finish You Missed Live\", \"Major Tournament Grand Final Breakdown - CS2 Intense Clutch Moments\", \"CS2 Major Finals Recap: Unbelievable Plays and Final Standings\", \"The CS2 Major Grand Final Was INSANE - Full Recap and Highlights\", \"Major Grand Final CS2 Recap - Top Plays and Game-Changing Rounds\", \"CS2 Major Championship Grand Final - Hype Recap You Need to See\"], \"shortFormTitles\": [\"CS2 Major Grand Final Recap\", \"Major Finals CS2 Highlights\", \"CS2 Major Grand Final\", \"Major Finals Recap\", \"CS2 Grand Final Hype\"]}"
+  }
+]

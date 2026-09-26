@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube video descriptions for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"description\": \"a friendly, SEO-aware description, 5000 characters or fewer, that naturally weaves in the channel name and any social links given\", \"seoKeywordsSection\": \"a short comma-separated keyword list\", \"hashtags\": [\"1 to 15 hashtags, each starting with #, no spaces\"]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\"."
+  },
+  {
+    "role": "user",
+    "content": "Game: Grand Theft Auto V\nTopic: the most chaotic online heist setup and finale with the whole crew going wrong\nChannel name: Mx. Games & Co.\nKeywords: gtav, heist, online\n"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"description\": \"Welcome back to Mx. Games & Co.! In this episode, we tried to pull off a chaotic GTA V Online heist setup and finale with the whole crew, and of course, everything went hilariously wrong. From failed stealth approaches to catastrophic finale meltdowns, our crew couldn't catch a break. Watch as we scramble through the setup missions, deal with random chaos, and attempt the finale only for total disaster to strike at every turn. Expect laughs, rage, and pure GTA Online mayhem as the team tries to survive the crazy heist night. If you love funny gaming fails and GTA chaos, you're in the right place! Don't forget to like, subscribe, and hit the bell so you never miss a wild ride with Mx. Games & Co.\", \"seoKeywordsSection\": \"gtav, gta 5 online, heist, online heist, gta online, chaos, funny fails, multiplayer mayhem, gaming, funny gaming\", \"hashtags\": [\"#GTA5\", \"#GTAOnline\", \"#Heist\", \"#Chaos\", \"#FunnyFails\", \"#OnlineGaming\", \"#GTA\", \"#Gaming\", \"#GTA5Online\", \"#HeistFail\", \"#Multiplayer\", \"#GamingCommunity\", \"#FunnyGaming\", \"#GTAHeist\", \"#OnlineChaos\"]}"
+  }
+]

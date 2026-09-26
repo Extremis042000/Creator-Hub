@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube titles for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"titles\": [5 to 8 long-form titles, each 100 characters or fewer], \"shortFormTitles\": [3 to 5 short titles, each 40 characters or fewer]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\"."
+  },
+  {
+    "role": "user",
+    "content": "Game: Minecraft\nTopic: building my first survival base\nVideo type: VLOG\nTone: CASUAL\nKeywords: survival, base build"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"titles\": [\"Building My First Survival Base in Minecraft - Full Vlog\", \"My First Minecraft Survival Base Build - Day 1 Vlog\", \"How I Built My First Minecraft Survival Base - Vlog\", \"Surviving My First Night & Building a Base in Minecraft\", \"Starting Fresh - My First Minecraft Survival Base Build\", \"Minecraft Survival Base Build from Scratch - Vlog Episode 1\", \"Let's Build a Survival Base in Minecraft - First Time Vlog\"], \"shortFormTitles\": [\"First Survival Base in Minecraft\", \"Minecraft Base Build Vlog\", \"Building My First Survival Base\", \"Minecraft Survival Base Vlog\", \"My First Minecraft Base Build\"]}"
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube video descriptions for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"description\": \"a friendly, SEO-aware description, 5000 characters or fewer, that naturally weaves in the channel name and any social links given\", \"seoKeywordsSection\": \"a short comma-separated keyword list\", \"hashtags\": [\"1 to 15 hashtags, each starting with #, no spaces\"]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\"."
+  },
+  {
+    "role": "user",
+    "content": "Game: Elden Ring\nTopic: Malenia no-hit guide\nChannel name: SoulsMaster\nKeywords: eldenring, boss guide, no hit\nSocial links:\nTwitter: https://twitter.com/soulsmaster\nDiscord: https://discord.gg/soulsmaster\n"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"description\":\"Welcome to SoulsMaster! Today we're tackling the ultimate Elden Ring challenge: a Malenia no-hit guide. This boss is notorious for her relentless Waterfowl Dance and insane speed, but with the right positioning and timing, you can dodge every single hit.\\n\\nIn this SoulsMaster breakdown, we'll walk you through the exact movements for Phase 1, how to safely navigate her combos, and the safest routes through Phase 2. Whether you're aiming for a pure no-hit run or just want to survive longer, this Elden Ring boss guide has you covered.\\n\\nIf you enjoy tough boss fights and clean runs, make sure to follow SoulsMaster for more Elden Ring content, challenge runs, and strategy guides.\\n\\n📱 Follow SoulsMaster on Twitter: https://twitter.com/soulsmaster\\n💬 Join the SoulsMaster Discord: https://discord.gg/soulsmaster\\n\\nThanks for watching! Let me know in the comments how many times you died before pulling it off.\\n\\nTimestamps:\\n0:00 - Intro\\n0:45 - Phase 1 Patterns\\n2:30 - Waterfowl Dance Avoidance\\n4:15 - Phase 2 Route\\n6:00 - Final Check\",\"seoKeywordsSection\":\"elden ring, malenia, boss guide, no hit, soulslike, tarnished, gameplay\",\"hashtags\":[\"#EldenRing\",\"#Malenia\",\"#NoHit\",\"#BossGuide\",\"#SoulsLike\",\"#FromSoftware\",\"#Gaming\",\"#EldenRingBoss\",\"#SoulsMaster\",\"#ChallengeRun\"]}"
+  }
+]

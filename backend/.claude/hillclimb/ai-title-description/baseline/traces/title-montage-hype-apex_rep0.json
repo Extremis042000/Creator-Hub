@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube titles for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"titles\": [5 to 8 long-form titles, each 100 characters or fewer], \"shortFormTitles\": [3 to 5 short titles, each 40 characters or fewer]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\"."
+  },
+  {
+    "role": "user",
+    "content": "Game: Apex Legends\nTopic: insane kill montage from ranked\nVideo type: MONTAGE\nTone: HYPE\nKeywords: apex, montage"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"titles\": [\"Apex Legends Ranked Montage INSANE Kills You Won't Believe\", \"Insane Apex Ranked Kill Montage With Crazy Clutch Plays\", \"Apex Legends Montage: Ranked Kills That Hit Different\", \"Ranked Apex Montage Insane Multi-Kills And Perfect Shots\", \"Apex Legends Ranked Kill Montage Absolute Chaos Edition\", \"Insane Ranked Kills In Apex Legends Montage Highlights\", \"Apex Montage Ranked Kills So Insane You'll Rewatch It\"], \"shortFormTitles\": [\"Apex Ranked Insane Kills\", \"Apex Montage Kill Frenzy\", \"Insane Apex Ranked Montage\", \"Apex Kill Montage Hype\", \"Ranked Apex Insane Kills\"]}"
+  }
+]

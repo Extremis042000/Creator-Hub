@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube titles for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"titles\": [5 to 8 long-form titles, each 100 characters or fewer], \"shortFormTitles\": [3 to 5 short titles, each 40 characters or fewer]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\"."
+  },
+  {
+    "role": "user",
+    "content": "Game: Just Chatting\nTopic: weirdest chat moments from the stream\nVideo type: LIVESTREAM_RECAP\nTone: FUNNY\nKeywords: (none)"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"titles\": [\"Chat Went Off the Rails Again: 10 Moments I'm Still Recovering From\", \"When Just Chatting Gets Weird: Unhinged Moments from the Stream\", \"I Can't Believe Chat Said That: The Craziest Stream Moments Compilation\", \"Stream Chat Lost Their Minds: Funny and Bizarre Moments Recap\", \"Just Chatting Chaos: Chat Said the Wildest Things Today\", \"Chat is Getting Weird Again: Moments That Broke My Brain\", \"Unfiltered Chat: The Strangest Things Viewers Said on Stream\"], \"shortFormTitles\": [\"Chat Lost It Again\", \"Weird Chat Moments\", \"Chat Says the Darndest Things\", \"Stream Chat Chaos\", \"When Chat Gets Weird\"]}"
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube video descriptions for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"description\": \"a friendly, SEO-aware description, 5000 characters or fewer, that naturally weaves in the channel name and any social links given\", \"seoKeywordsSection\": \"a short comma-separated keyword list\", \"hashtags\": [\"1 to 15 hashtags, each starting with #, no spaces\"]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\"."
+  },
+  {
+    "role": "user",
+    "content": "Game: Rocket League\nTopic: grand champion tips\nChannel name: RLPro\nKeywords: rocketleague\nSocial links:\nYouTube: https://youtube.com/@rlpro2\n"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"description\":\"Welcome to RLPro! In this video, we're breaking down essential tips to help you climb to Grand Champion in Rocket League. Whether you're stuck in Champion or pushing toward the highest ranks, these mechanics and mindset shifts will level up your game. We cover rotation, aerial control, recovery drills, and decision-making that Grand Champions use consistently. If you're serious about improving your Rocket League skills, hit like and subscribe to RLPro for more guides, training routines, and gameplay breakdowns. Check out our channel for daily content: https://youtube.com/@rlpro2\",\"seoKeywordsSection\":\"rocketleague, grand champion tips, rocket league guide, rlpro, champion rank, aerial training\",\"hashtags\":[\"#RocketLeague\",\"#GrandChampion\",\"#RLPro\",\"#RocketLeagueTips\",\"#ChampionRank\",\"#AerialTraining\",\"#GamingTips\",\"#CarBall\",\"#Esports\",\"#GameGuide\",\"#RankedPlay\",\"#SkillImprovement\"]}"
+  }
+]

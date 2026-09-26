@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube video descriptions for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"description\": \"a friendly, SEO-aware description, 5000 characters or fewer, that naturally weaves in the channel name and any social links given\", \"seoKeywordsSection\": \"a short comma-separated keyword list\", \"hashtags\": [\"1 to 15 hashtags, each starting with #, no spaces\"]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\"."
+  },
+  {
+    "role": "user",
+    "content": "Game: Among Us\nTopic: betrayal funniest moments\nChannel name: SusPlays\nKeywords: (none)\n"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"description\": \"Get ready to laugh out loud with the most hilariously brutal betrayals in Among Us! 🚀 In this video, we're breaking down the sneakiest backstabs, the most unexpected double-crosses, and the moments that make you question every single friendship in the game. From fake tasks to emergency meetings gone wrong, these funny Among Us betrayals are pure chaos. Welcome to SusPlays — your home for the best Among Us clips, funny moments, and multiplayer madness! If you love watching crewmates get destroyed by their own teammates, smash that like button and subscribe for more daily gaming fun. Let me know in the comments: what’s the worst betrayal you’ve ever experienced in Among Us? Drop a like, share this with your friends, and hit the bell so you never miss a drop! 🎮💥 SusPlays brings you the funniest gaming content, highlights, and memes every single day.\", \"seoKeywordsSection\": \"Among Us, betrayal, funny moments, impostor, crewmate, funny clips, gaming highlights, SusPlays, multiplayer\", \"hashtags\": [\"#AmongUs\", \"#Betrayal\", \"#FunnyMoments\", \"#SusPlays\", \"#Impostor\", \"#Gaming\", \"#Clips\", \"#Humorous\", \"#SpaceGame\", \"#OnlineMultiplayer\", \"#Crewmate\", \"#Backstab\", \"#GamingClips\", \"#FunnyGaming\"]}"
+  }
+]

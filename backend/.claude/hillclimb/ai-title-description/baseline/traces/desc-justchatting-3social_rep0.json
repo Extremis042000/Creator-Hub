@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube video descriptions for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"description\": \"a friendly, SEO-aware description, 5000 characters or fewer, that naturally weaves in the channel name and any social links given\", \"seoKeywordsSection\": \"a short comma-separated keyword list\", \"hashtags\": [\"1 to 15 hashtags, each starting with #, no spaces\"]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\"."
+  },
+  {
+    "role": "user",
+    "content": "Game: Just Chatting\nTopic: AMA stream highlights\nChannel name: ChatterBox\nKeywords: justchatting\nSocial links:\nTwitter: https://twitter.com/chatterbox\nInstagram: https://instagram.com/chatterbox\nTikTok: https://tiktok.com/@chatterbox\n"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"description\": \"Hey everyone! Welcome to the best of the Just Chatting AMA stream highlights from ChatterBox! 🎙️ We answered your burning questions, shared some laughs, and dove deep into all things gaming and life. If you missed the live stream, don't worry—here are the top moments you didn't want to miss. Thanks for hanging out with us! Make sure to follow ChatterBox on social media for daily updates, behind-the-scenes content, and future stream announcements: 🐦 Twitter: https://twitter.com/chatterbox 📸 Instagram: https://instagram.com/chatterbox 🎵 TikTok: https://tiktok.com/@chatterbox If you enjoyed these highlights, give us a thumbs up, subscribe, and hit the bell so you never miss a stream. Got questions for next time? Drop them in the comments below! ChatterBox — where every conversation matters. See you in the next stream! 💬\", \"seoKeywordsSection\": \"just chatting, ama, stream highlights, chatterbox, gaming chat, q&a, live stream, community\", \"hashtags\": [\"#JustChatting\", \"#AMA\", \"#StreamHighlights\", \"#ChatterBox\", \"#Gaming\", \"#QandA\", \"#Twitch\", \"#YouTubeGaming\", \"#LiveStream\", \"#Chatting\", \"#AMAHighlights\", \"#GamerLife\", \"#StreamHighlights2024\", \"#ChatWithMe\", \"#Community\"]}"
+  }
+]

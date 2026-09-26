@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube titles for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"titles\": [5 to 8 long-form titles, each 100 characters or fewer], \"shortFormTitles\": [3 to 5 short titles, each 40 characters or fewer]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\"."
+  },
+  {
+    "role": "user",
+    "content": "Game: Stardew Valley\nTopic: beginner farm layout tips\nVideo type: TUTORIAL\nTone: CASUAL\nKeywords: (none)"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"titles\": [\"Stardew Valley Beginner Farm Layout Tips That Actually Work\", \"Farm Layout for Beginners in Stardew Valley - Tutorial\", \"How to Plan Your First Farm Layout in Stardew Valley\", \"Stardew Valley Farm Layout Guide for Total Newbies\", \"Easy Farm Layout Tips to Start Strong in Stardew Valley\", \"Stardew Valley Farm Layout: Common Beginner Mistakes\", \"How I Layout My Stardew Valley Farm Every New Game\"], \"shortFormTitles\": [\"Stardew Farm Layout Tips\", \"Beginner Farm Layouts\", \"Stardew Valley Farm Guide\", \"Farm Layout Tips\", \"New Farm Layout Ideas\"]}"
+  }
+]

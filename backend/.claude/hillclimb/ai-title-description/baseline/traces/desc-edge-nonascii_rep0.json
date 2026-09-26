@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube video descriptions for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"description\": \"a friendly, SEO-aware description, 5000 characters or fewer, that naturally weaves in the channel name and any social links given\", \"seoKeywordsSection\": \"a short comma-separated keyword list\", \"hashtags\": [\"1 to 15 hashtags, each starting with #, no spaces\"]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\"."
+  },
+  {
+    "role": "user",
+    "content": "Game: Pokémon Scarlet & Violet\nTopic: shiny hunting live\nChannel name: ShinyHunterZ\nKeywords: (none)\n"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"description\": \"Join ShinyHunterZ on an exciting shiny hunting adventure in Pokémon Scarlet & Violet! 🌟 In this live shiny hunting stream, we're chasing after those rare, sparkling Pokémon across the Paldea region. Every encounter could be the one — will we find a shiny Legendary, a shiny starter, or a rare shiny mask? Stick around, cheer us on, and maybe luck is on our side today! Don't forget to like, subscribe, and hit the bell so you never miss a shiny hunt with ShinyHunterZ. Let's catch 'em all! 🎮✨\", \"seoKeywordsSection\": \"Pokemon Scarlet Violet, shiny hunting, live stream, shiny Pokemon, Paldea, rare Pokemon, ShinyHunterZ, shiny chase, Pokemon Nintendo Switch, catching shiny\", \"hashtags\": [\"#PokemonScarletViolet\", \"#ShinyHunting\", \"#LiveStream\", \"#ShinyPokemon\", \"#Paldea\", \"#RarePokemon\", \"#ShinyHunterZ\", \"#PokemonNintendoSwitch\", \"#GamingLive\", \"#CatchEmAll\"]}"
+  }
+]

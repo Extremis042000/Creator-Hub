@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube video descriptions for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"description\": \"a friendly, SEO-aware description, 5000 characters or fewer, that naturally weaves in the channel name and any social links given\", \"seoKeywordsSection\": \"a short comma-separated keyword list\", \"hashtags\": [\"1 to 15 hashtags, each starting with #, no spaces\"]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\"."
+  },
+  {
+    "role": "user",
+    "content": "Game: Minecraft\nTopic: survival base tour\nChannel name: BlockBuilder\nKeywords: (none)\nSocial links:\nTwitter: https://twitter.com/blockbuilder\n"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"description\": \"Welcome back to BlockBuilder! In this video, I'm giving you a full tour of my new Minecraft survival base. From the cozy starter cabin to the massive expansion project, I'll show you how I've been shaping this world block by block. If you enjoy watching survival bases come to life, you're in the right place! Make sure to follow me on Twitter at https://twitter.com/blockbuilder for updates, sneak peeks, and community chat. Don't forget to like, subscribe, and drop a comment below with your favorite base feature. Let's build something awesome together!\", \"seoKeywordsSection\": \"minecraft survival base tour, minecraft building, survival base ideas, minecraft base tour, blockbuilder\", \"hashtags\": [\"#Minecraft\", \"#Survival\", \"#BaseTour\", \"#Gaming\", \"#MinecraftBase\", \"#Building\", \"#SurvivalMode\", \"#MinecraftSurvival\", \"#GamingCommunity\", \"#BlockBuilder\"]}"
+  }
+]

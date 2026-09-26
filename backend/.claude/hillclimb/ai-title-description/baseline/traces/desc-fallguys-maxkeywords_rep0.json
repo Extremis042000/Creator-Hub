@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube video descriptions for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"description\": \"a friendly, SEO-aware description, 5000 characters or fewer, that naturally weaves in the channel name and any social links given\", \"seoKeywordsSection\": \"a short comma-separated keyword list\", \"hashtags\": [\"1 to 15 hashtags, each starting with #, no spaces\"]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\"."
+  },
+  {
+    "role": "user",
+    "content": "Game: Fall Guys\nTopic: hilarious fails\nChannel name: GigglePlays\nKeywords: fallguys, fails, funny, compilation, party game, gaming, coop, battle royale, casual, family friendly, gameplay, highlights, twitch, youtube gaming, let's play\n"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"description\": \"Welcome back to GigglePlays! 😂 In this episode, we're collecting the most hilarious fails in Fall Guys that had us laughing until our jellybeans almost fell off the screen. From epic faceplants to physics-defying belly flops, every round is packed with chaotic party game energy that's pure casual fun for the whole family. Whether you're a battle royale fan or just love a good co-op laugh, this Fall Guys highlights compilation delivers non-stop entertainment. If you enjoy funny gaming moments, playful let's play content, and the best of YouTube gaming vibes, hit that subscribe button and join the GigglePlays crew for more gameplay adventures! Drop a comment below with your favorite fail moment — we love reading your thoughts. Thanks for watching and may the last bean standing be the one who enjoys the ride the most! 🎮🫘\", \"seoKeywordsSection\": \"fallguys, fails, funny, compilation, party game, gaming, coop, battle royale, casual, family friendly, gameplay, highlights, twitch, youtube gaming, let's play\", \"hashtags\": [\"#FallGuys\", \"#Fails\", \"#FunnyGaming\", \"#Compilation\", \"#PartyGame\", \"#Gaming\", \"#Coop\", \"#BattleRoyale\", \"#CasualGaming\", \"#FamilyFriendly\", \"#Gameplay\", \"#Highlights\", \"#Twitch\", \"#YouTubeGaming\", \"#LetsPlay\"]}"
+  }
+]

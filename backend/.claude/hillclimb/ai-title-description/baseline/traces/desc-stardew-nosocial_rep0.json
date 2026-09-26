@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube video descriptions for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"description\": \"a friendly, SEO-aware description, 5000 characters or fewer, that naturally weaves in the channel name and any social links given\", \"seoKeywordsSection\": \"a short comma-separated keyword list\", \"hashtags\": [\"1 to 15 hashtags, each starting with #, no spaces\"]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\"."
+  },
+  {
+    "role": "user",
+    "content": "Game: Stardew Valley\nTopic: cozy farm tour\nChannel name: CozyGamer\nKeywords: stardewvalley, farming sim\n"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"description\":\"Welcome to another cozy farm tour on CozyGamer! In this video, we're exploring the peaceful world of Stardew Valley and building a dream farm from the ground up. From planting crops and raising animals to decorating your home and making friends in Pelican Town, there's something incredibly relaxing about this farming sim. Join me as we check out our latest farm layout, share some tips for staying organized, and enjoy the simple pleasures of rural life in Stardew Valley. If you love cozy gaming and farming sims, subscribe to CozyGamer for more chill gameplay and farm tours every week! 🌾✨\",\"seoKeywordsSection\":\"stardew valley, farming sim, cozy gaming, farm tour, peaceful gameplay, stardew valley tips, cozy gamer, relaxing game\",\"hashtags\":[\"#StardewValley\",\"#FarmingSim\",\"#CozyGaming\",\"#FarmTour\",\"#CozyGamer\",\"#GamingCommunity\",\"#RelaxingGames\",\"#StardewValleyTips\",\"#IndieGames\",\"#ChillGaming\",\"#FarmLife\",\"#CasualGaming\",\"#Gameplay\"]}"
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube video descriptions for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"description\": \"a friendly, SEO-aware description, 5000 characters or fewer, that naturally weaves in the channel name and any social links given\", \"seoKeywordsSection\": \"a short comma-separated keyword list\", \"hashtags\": [\"1 to 15 hashtags, each starting with #, no spaces\"]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\"."
+  },
+  {
+    "role": "user",
+    "content": "Game: Counter-Strike 2\nTopic: major tournament recap\nChannel name: EsportsDaily\nKeywords: cs2, esports, major\n"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"description\": \"Welcome back to EsportsDaily! In this video, we break down the latest CS2 major tournament with all the key moments, upsets, and standout performances that defined the event. From nail-biting clutch plays to strategic masterclasses, we cover everything you need to know about the major. Whether you're tuning in for the first time or you've been following the scene for years, EsportsDaily brings you in-depth analysis, player spotlights, and post-match reactions. Make sure to like, subscribe, and hit the bell so you never miss a tournament recap or esports breakdown. Thanks for watching with us today!\", \"seoKeywordsSection\": \"cs2, counter strike 2, esports, major tournament, cs2 highlights, tournament recap, competitive gaming, esports daily\", \"hashtags\": [\"#CounterStrike2\", \"#CS2\", \"#Esports\", \"#MajorTournament\", \"#EsportsDaily\", \"#CS2Highlights\", \"#Gaming\", \"#TournamentRecap\", \"#ProPlay\", \"#EsportsCommunity\"]}"
+  }
+]

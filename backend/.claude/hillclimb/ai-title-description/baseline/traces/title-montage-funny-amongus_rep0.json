@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube titles for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"titles\": [5 to 8 long-form titles, each 100 characters or fewer], \"shortFormTitles\": [3 to 5 short titles, each 40 characters or fewer]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\"."
+  },
+  {
+    "role": "user",
+    "content": "Game: Among Us\nTopic: funniest betrayal moments\nVideo type: MONTAGE\nTone: FUNNY\nKeywords: (none)"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"titles\": [\"Among Us Funniest Betrayal Moments Montage - When Friends Become Enemies\", \"Epic Among Us Betrayals That Will Make You Laugh Out Loud - Funny Montage\", \"When Crewmates Betray Each Other in Among Us - Hilarious Moments Compilation\", \"Among Us Funny Betrayal Montage - The Worst Friends Turn Out to Be Impostors\", \"Among Us Hilarious Betrayal Moments - When Trust Breaks in Space\", \"Betrayal Is Fun in Among Us - Funny Moments When Impostors Get Caught\", \"Among Us Betrayal Montage - Laughing as Friends Sabotage Each Other\"], \"shortFormTitles\": [\"Among Us Betrayal Fails\", \"Funny Impostor Moments\", \"Crewmate Betrayals\", \"Among Us Funny Montage\", \"Betrayal Laughs\"]}"
+  }
+]
