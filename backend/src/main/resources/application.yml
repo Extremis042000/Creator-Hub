@@ -90,6 +90,18 @@ extremis:
     usage:
       rate-limit-per-minute: ${AI_RATE_LIMIT_PER_MINUTE:5}
       daily-call-ceiling: ${AI_DAILY_CALL_CEILING:200}
+    # Phase 40: image generation. A DIFFERENT endpoint shape from the
+    # chat-completions text path above -- see OpenAiCompatibleImageProperties.
+    # api-key deliberately has no independent default; it falls back to the
+    # same AI_API_KEY used for text (same FreeModel account/gateway) via the
+    # nested placeholder below, unless AI_IMAGE_API_KEY is ever set for a
+    # separate image-only gateway.
+    image:
+      enabled: ${AI_IMAGE_ENABLED:true}
+      generations-url: ${AI_IMAGE_API_URL:}
+      api-key: ${AI_IMAGE_API_KEY:${AI_API_KEY:}}
+      model: ${AI_IMAGE_MODEL:}
+      timeout-seconds: 60
   payment:
     phonepe:
       # Left blank = PaymentProviderConfig registers no bean, so

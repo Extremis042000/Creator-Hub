@@ -24,6 +24,7 @@ public class AdminAiController {
 
     private final AdminService adminService;
     private final Optional<AiGenerationProvider> aiProvider;
+    private final Optional<ImageGenerationProvider> imageProvider;
     private final AiUsageService aiUsageService;
 
     @GetMapping("/usage-today")
@@ -56,6 +57,27 @@ public class AdminAiController {
             "reply", result.text(),
             "inputTokens", result.inputTokens(),
             "outputTokens", result.outputTokens(),
+            "latencyMs", System.currentTimeMillis() - started);
+    }
+
+    /** Phase 40: same idea as /ping, for the image path -- a real, low-cost end-to-end check. */
+    @PostMapping("/ping-image")
+    public Map<String, Object> pingImage(Authentication authentication) {
+        adminService.requireAdmin(authentication);
+        ImageGenerationProvider provider = imageProvider.orElseThrow(() -> new BusinessRuleViolationException(
+            "Image generation isn't configured -- set AI_IMAGE_API_URL/AI_IMAGE_MODEL (reuses AI_API_KEY unless AI_IMAGE_API_KEY is set)."));
+
+        long started = System.currentTimeMillis();
+        ImageGenerationResult result = provider.generate(
+            new ImageGenerationRequest("a plain grey square, connectivity check", 512, 512));
+
+        return Map.of(
+            "provider", provider.getProviderName(),
+            "model", provider.getModelName(),
+            "servedBy", result.servedBy() == null ? "unknown" : result.servedBy(),
+            "imageUrl", result.imageUrl(),
+            "width", result.width(),
+            "height", result.height(),
             "latencyMs", System.currentTimeMillis() - started);
     }
 }
