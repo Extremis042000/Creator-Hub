@@ -65,12 +65,6 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - name: Debug secret shape (temporary -- never prints the value)
-        run: |
-          printf '%s' "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" | wc -c
-          printf '%s' "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" | sha256sum
-          printf '%s' "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" | od -c | head -3
-
       - name: Trigger Render deploy
         id: trigger
         run: |
