@@ -51,40 +51,54 @@ self-hosted VM and abandoned after 5 failed signup attempts (a known,
 generic Oracle fraud-detection false-positive, not something fixable
 from this end) — pivoted to Render+Cloudflare instead.
 
-## Backend deploy (Render)
+## Deploys are automated (as of 2026-09-26)
 
-Auto-deploy from `main` is configured but has been unreliable in
-practice — always confirm a deploy actually started after pushing, and
-trigger one manually via the Render API if it didn't:
+Every push to `main` that passes tests deploys **both** apps
+automatically via GitHub Actions (`.github/workflows/ci.yml`) — see
+the CI section below for exactly how. This replaced a long-standing
+manual step: Render's own `autoDeploy: "yes"` setting has existed on
+the service since it was created, but checking the actual deploy
+history, it had **never once** actually fired — every prior deploy
+across every phase was a manual API call or dashboard click. The CI
+workflow now triggers deploys explicitly rather than relying on that.
 
+**A real gotcha hit while wiring this up, worth knowing if a secret
+ever needs re-setting by hand:** piping a value into `gh secret set`
+from PowerShell (`Get-Content -Raw | gh secret set NAME`) silently
+prepends a UTF-8 BOM to the secret — PowerShell's text-pipeline
+encoding, not a `gh` or GitHub bug. A URL secret with a leading BOM
+makes `curl` fail with exit code 3 ("URL malformed"), with zero useful
+output since the failure happens before any request is sent. Fix:
+write a plain ASCII file and redirect it into `gh`'s stdin via `cmd`
+(`cmd /c "gh secret set NAME < file.txt"`), which bypasses PowerShell's
+re-encoding entirely. Verify a suspect secret's exact byte shape with
+`printf '%s' "${{ secrets.X }}" | od -c | head -3` in a throwaway
+workflow step — it's safe because it never prints the value itself.
+
+Manual commands remain useful for local testing or if CI is down:
+
+**Backend (Render):**
 ```powershell
 $headers = @{ Authorization = "Bearer $env:RENDER_API_KEY" }
 Invoke-RestMethod -Uri "https://api.render.com/v1/services/srv-daj5veu7bikc73arlm5g/deploys" `
   -Method Post -Headers $headers -ContentType "application/json" -Body '{}'
 ```
-
 Poll `GET /v1/services/{id}/deploys/{deployId}` until `status` is
 `live` (or `build_failed`/`update_failed`). A deploy through the free
-tier's build queue commonly takes 3-5 minutes — `update_in_progress`
-for a few minutes is normal, not stuck; cross-check against wall-clock
-time before assuming a hang.
+tier's build queue commonly takes 3-5 minutes.
 
-Render env vars are managed the same way — through the Render
-dashboard or API, never committed. See `ENV_VARS.md` for the full list
-and which ones are required to boot at all vs. optional/inert-until-set.
+Render env vars are managed through the Render dashboard or API, never
+committed. See `ENV_VARS.md` for the full list.
 
-## Frontend deploy (Cloudflare Workers)
-
+**Frontend (Cloudflare Workers):**
 ```powershell
 cd frontend
 npm run deploy   # = opennextjs-cloudflare build && opennextjs-cloudflare deploy
 ```
-
-This runs `wrangler deploy` under the hood using the Cloudflare
-account ID + API token configured for `wrangler` (see `ENV_VARS.md`).
-`NEXT_PUBLIC_*` env vars are inlined into the build at build time —
-setting them after the fact requires a rebuild+redeploy, not just an
-env var change.
+Uses the Cloudflare account ID + API token configured for `wrangler`
+(see `ENV_VARS.md`). `NEXT_PUBLIC_*` env vars are inlined into the
+build at build time — setting them after the fact requires a
+rebuild+redeploy, not just an env var change.
 
 **Critical: `frontend/.env.production.local` must exist with real
 production values before running `npm run deploy`.** `.env.local`
@@ -140,46 +154,64 @@ gzip Worker script limit before deploying something that adds weight:
 npx wrangler deploy --dry-run --outdir .wrangler-dryrun
 ```
 
-## CI (GitHub Actions, `.github/workflows/ci.yml`)
+## CI/CD (GitHub Actions, `.github/workflows/ci.yml`)
 
-Runs on every push/PR to `main`: backend `./mvnw test` (against the
-real Neon database — there's no test-specific database), frontend
-`npx tsc --noEmit`. CI does **not** deploy either app — deployment is
-always a separate, manual step (the commands above), run from
-wherever `RENDER_API_KEY`/Cloudflare credentials are available.
+Four jobs. `backend` (`./mvnw test`, against the real Neon database —
+there's no test-specific database) and `frontend` (`npx tsc --noEmit`)
+run on every push/PR to `main`. On an actual push to `main` (never a
+PR) that passes its tests, two more jobs deploy automatically:
 
-All backend secrets in CI are one combined GitHub secret,
+- **`deploy`** (backend → Render): POSTs the Render deploy hook
+  (`RENDER_DEPLOY_HOOK_URL` secret), then polls that specific deploy's
+  own status (`RENDER_API_KEY` secret, `RENDER_SERVICE_ID` repo
+  variable) every 15s until it reaches a terminal state, up to 10
+  minutes — confirmed end-to-end at ~4 minutes in practice.
+- **`deploy-frontend`** (frontend → Cloudflare Workers): writes the
+  same `NEXT_PUBLIC_*` values `frontend/.env.production.local` holds
+  (not secret — they're baked into the client bundle and shipped to
+  every visitor regardless of where they're stored), then runs the
+  same `npm run deploy` as the manual path, using
+  `CLOUDFLARE_API_TOKEN`/`CLOUDFLARE_ACCOUNT_ID` secrets.
+
+Both post a Google Chat message either way (success or failure) via
+an incoming webhook (`GOOGLE_CHAT_WEBHOOK_URL` secret) — status icon,
+short commit SHA + subject line, and (backend) a link to the deploy on
+Render's dashboard.
+
+All backend app secrets are one combined GitHub secret,
 `CREATOR_HUB_SECRETS` (dotenv-style, one `KEY=value` per line), parsed
-into individual masked env vars inside the workflow rather than kept
-as separate named secrets.
+into individual masked env vars inside the `backend` job rather than
+kept as separate named secrets. The CI/CD infra secrets above
+(Render/Cloudflare/Google Chat) are separate, individually named
+secrets/variables — a different concern (deploying the app) from what
+the app needs to run (`CREATOR_HUB_SECRETS`).
 
 ## Redeploy checklist after a backend code change
 
 1. `cd backend && .\run-local.ps1` locally first — confirm it boots
    and the relevant endpoint works.
 2. `./mvnw test` — full suite, against the real Neon DB.
-3. Commit, push to `main`.
-4. Confirm CI is green (`GET /repos/{owner}/{repo}/actions/runs`).
-5. Trigger a Render deploy (see above) — don't assume auto-deploy fired.
-6. Poll until `live`, then hit `/actuator/health` and one real endpoint
-   on the production URL to confirm the new code is actually serving.
+3. Commit, push to `main` — CI now deploys automatically once tests
+   pass (see CI/CD above). Watch it with `gh run watch` rather than
+   assuming it succeeded.
+4. **Still verify live with a real request, not just a green run.** A
+   passing GitHub Actions job proves the deploy hook fired and Render
+   reported `live` — it doesn't prove the new code path actually
+   behaves as intended for a real caller. Hit `/actuator/health` and
+   one real endpoint that exercises the change on the production URL.
 
 ## Redeploy checklist after a frontend code change
 
 1. `cd frontend && npm run dev` locally first, exercise the change in
    a browser.
 2. `npx tsc --noEmit`.
-3. Commit, push to `main` (CI typechecks; doesn't deploy).
-4. Confirm `frontend/.env.production.local` exists with real values
-   (see above) — check `next build`'s own "Environments:" log line
-   during the deploy, don't just assume it's there.
-5. `npm run deploy` from a machine where Cloudflare credentials are
-   configured.
-6. Hit the production URL and confirm the change is live — and
-   critically, confirm it's showing **real backend data**, not just a
-   200 status. A static page returning 200 proves nothing about
-   backend connectivity (this is exactly how the 2026-09-14 incident
-   above went undetected for two deploys). Check a page that does an
-   SSR backend fetch (e.g. the homepage's "Hot Game Deals" section, or
-   a tool's premium badge) actually shows real fetched content, and
-   spot-check one client bundle chunk for the real backend hostname.
+3. Commit, push to `main` — CI now builds and deploys automatically
+   once `tsc` passes (see CI/CD above).
+4. **Still verify live**, and critically, confirm it's showing **real
+   backend data**, not just a 200 status. A static page returning 200
+   proves nothing about backend connectivity (this is exactly how the
+   2026-09-14 incident above went undetected for two deploys — CI was
+   green both times). Check a page that does an SSR backend fetch
+   (e.g. the homepage's "Hot Game Deals" section, or a tool's premium
+   badge) actually shows real fetched content, and spot-check one
+   client bundle chunk for the real backend hostname.
