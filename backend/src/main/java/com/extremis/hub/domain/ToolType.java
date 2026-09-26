@@ -5,5 +5,7 @@ public enum ToolType {
     VALORANT_SENSITIVITY_CONVERTER,
     BGMI_SENSITIVITY_HELPER,
     TITLE_GENERATOR,
-    DESCRIPTION_GENERATOR
+    DESCRIPTION_GENERATOR,
+    /** Phase 41. Premium-only from day one -- no free/template path exists for an image. */
+    THUMBNAIL_GENERATOR
 }

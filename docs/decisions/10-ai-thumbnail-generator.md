@@ -1,6 +1,6 @@
 # AI Thumbnail Generator — Ideation & Phases
 
-Status: **Phase 40 done and live-verified; Phases 41-44 proposed, not started.**
+Status: **Phases 40-41 done and live-verified; Phases 42-44 proposed, not started.**
 New tool: generate a YouTube thumbnail from
 a text description of the video's content, with an optional user-uploaded
 reference photo the AI should incorporate or take style cues from. Already
@@ -159,11 +159,14 @@ parallel design. Built and live-verified in Phase 40:
   url/key/model are non-blank.
 - **Admin smoke-test endpoint** `POST /api/v1/admin/ai/ping-image`, same shape
   as the existing `/ping` for text.
-- **Not yet built** (Phase 41): `ImageGenerationLog`-style reuse of Phase 28's
-  `AiUsageGuard`/`ai_generation_log` pattern under a new
+- **Built in Phase 41**: `ThumbnailGeneratorService`/`Controller` reusing
+  Phase 28's `AiUsageGuard`/`ai_generation_log` pattern unchanged under a new
   `ToolType.THUMBNAIL_GENERATOR`, and the premium-only gate (no free tier at
   all for this tool, unlike Title/Description's $0 template fallback — there's
-  no deterministic template equivalent for an image).
+  no deterministic template equivalent for an image) via a Tool row seeded
+  `premiumOnly=true` from the start. `ReferenceImagePreparer` handles the
+  upload-safety half: never trusts a client-claimed content type, downscales/
+  recompresses to fit under `OpenAiCompatibleImageProvider.REFERENCE_IMAGE_SAFE_MAX_BYTES`.
 
 ## 5. Master phases
 
@@ -174,21 +177,27 @@ doc's phases were started.)*
 | Phase | Task | Depends on | Complexity | Completion criteria |
 |---|---|---|---|---|
 | 40 | `ImageGenerationProvider` + live verification of open questions (§3) | Phase 26's provider pattern | Medium | ✅ **Done and live-verified (2026-09-26).** Real test at 1280×720 (good quality, confirmed); base64 reference images confirmed working AND genuinely used (not ignored), with a real ~120KB-1.37MB size ceiling found and documented (`REFERENCE_IMAGE_SAFE_MAX_BYTES`); free-tier ceiling mapped via 27 real calls, zero 402/429. `ImageGenerationProvider`/`OpenAiCompatibleImageProvider`/config wiring shipped; admin `POST /api/v1/admin/ai/ping-image` smoke test live. 159 backend tests (10 new), 0 failures. |
-| 41 | Backend tool service + endpoint (`gaming-thumbnail-generator`) | Phase 40 | Medium | `POST /api/v1/tools/gaming-thumbnail-generator`: game/topic/tone input (matching Title/Description's existing request shape for consistency) + optional reference image, returns a generated thumbnail URL/data. Premium-gated (no free path). Reuses Phase 28's `AiUsageGuard` under a new `ToolType.THUMBNAIL_GENERATOR`. Downscales/compresses any uploaded reference image below `REFERENCE_IMAGE_SAFE_MAX_BYTES` before it ever reaches the provider, and validates upload size/type defensively (never trust a client-supplied content-type). |
+| 41 | Backend tool service + endpoint (`gaming-thumbnail-generator`) | Phase 40 | Medium | ✅ **Done (2026-09-26).** `POST /api/v1/tools/gaming-thumbnail-generator`: game/topic/videoType/tone/keywords input (mirrors Title's request shape) + optional base64 reference photo, returns `{imageUrl, width, height}` at real 1280×720. Premium-gated from day one via a new seeded `Tool` row (`V12__seed_thumbnail_tool`, `premiumOnly=true` from the start, unlike Title/Description which started free and were toggled later) + `ToolType.THUMBNAIL_GENERATOR`. Reuses Phase 28's `AiUsageGuard` unchanged (input/output tokens always logged as 0, matching Phase 40's live finding that image calls report no real token cost). New `ReferenceImagePreparer` (pure JDK `ImageIO`, no new dependency): decodes the claimed upload and **verifies it's a real raster image via `ImageIO.read` regardless of any client-claimed content type**, then downscales + re-encodes as JPEG, stepping quality down and shrinking dimensions once more if needed, until the result is under `OpenAiCompatibleImageProvider.REFERENCE_IMAGE_SAFE_MAX_BYTES`. No template fallback exists (per §4) — any failure (no provider, rate-limited, a failed call, an invalid upload) throws a clear `BusinessRuleViolationException`, the same discipline as `TitleGeneratorService#refine`. 12 new backend tests (`ReferenceImagePreparerTest`: real in-memory generated images incl. a high-frequency checkerboard exercising the quality-stepping loop, invalid-base64, non-image-bytes; `ThumbnailGeneratorServiceTest`: success, no-provider, provider-failure, rate-limit, daily-ceiling, invalid-reference-image, all asserting a thrown exception with zero provider calls where applicable). 171 backend tests total, 0 failures — including the real Spring context test, which live-applied `V12` to the actual production Neon DB (the seeded tool row now genuinely exists there). Not yet exposed on Render (`AI_IMAGE_API_URL`/`AI_IMAGE_MODEL` still unset there as of Phase 40 — this endpoint is reachable but returns "AI thumbnail generation isn't available right now" until those are set). |
 | 42 | Prompt construction tying into SEO/description context | Phase 41, Phase 27's Description Generator | Medium | The prompt sent to the image model incorporates the same game/topic/keywords a user would put into the Description Generator, so the thumbnail and the description/hashtags it's paired with are visually and topically consistent — this is the "SEO-friendly, video-context-friendly" part of the founder's ask, achieved through shared input context, not scraped training data. |
 | 43 *(optional)* | Live style-reference lookup via the YouTube Data API | Phase 42, founder's own `GOOGLE_SERVICES_SETUP.md`-style API key | Medium | Strictly ephemeral, per-request use (§1) — fetches 2-3 real thumbnails for a similar public search term as transient style context for one generation, never cached. Explicitly optional and clearly gated on being implemented in a way that stays inside YouTube's Developer Policies -- if that can't be done cleanly at build time, this phase is skipped, not forced. |
 | 44 | Frontend UI (`/tools/gaming-thumbnail-generator`) + homepage "Coming Soon" flag flip | Phase 41 | Medium | New tool page matching the existing tool-page template (`PremiumToolGate`-wrapped, like `gaming-description-generator`), an image upload control, generated-image preview + download. Once live, the homepage's existing "Coming Soon: AI Thumbnail generator" card (Phase 21's feature flag) is turned into a real link, and the Privacy Policy's existing "planned, not yet built" language (Phase 26c) is updated to reflect it now existing. |
 
 ## 6. What's needed from the founder
 
-Nothing to start Phase 41 — it reuses the AI provider credentials already on
-Render. Two things worth a decision before Phase 41 ships to real customers:
+Nothing to start Phase 42. Two things worth a decision now that Phase 41 has
+actually shipped the tool:
 
-1. **Confirm premium-only, no free tier, is the right call** for this tool —
+1. **Set `AI_IMAGE_API_URL`/`AI_IMAGE_MODEL` on Render** (see Phase 40's row
+   in `03-development-roadmap.md` for the exact values) — without them,
+   `gaming-thumbnail-generator` is live-deployed but returns "AI thumbnail
+   generation isn't available right now" to every caller. No new secret
+   needed; it reuses the existing `AI_API_KEY`.
+2. **Confirm premium-only, no free tier, is the right call** for this tool —
    matches the "no template fallback exists for an image" reasoning in §4, but
    it's a monetization choice worth the founder's explicit sign-off, not just
-   an assumption.
-2. **If Phase 43 (YouTube style-reference lookup) is wanted**, a Google Cloud
+   an assumption. (Already implemented this way — this is a sign-off request,
+   not a blocker.)
+3. **If Phase 43 (YouTube style-reference lookup) is wanted**, a Google Cloud
    Console API key with the YouTube Data API v3 enabled (same console already
    used for OAuth/Analytics, see `GOOGLE_SERVICES_SETUP.md`) — otherwise Phase
    43 is simply skipped and the tool ships without it.
