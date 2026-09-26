@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube titles for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"titles\": [5 to 8 long-form titles, each 100 characters or fewer], \"shortFormTitles\": [3 to 5 short titles, each 40 characters or fewer]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\". Vary each title's structure, not just its word order: give each one a different opening hook (a direct statement, a question, a \"how I/how to\" framing, a bracketed qualifier like \"(No Damage)\" or \"(Solo)\", or a number where it fits naturally) so the options read as genuinely different titles, not the same sentence reordered. If more than 4 keywords are given, use only the 3-4 most relevant to each individual title rather than cramming all of them into every one."
+  },
+  {
+    "role": "user",
+    "content": "Game: Among Us\nTopic: funniest betrayal moments\nVideo type: MONTAGE\nTone: FUNNY\nKeywords: (none)"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"titles\": [\"Crewmates Didn't See This Betrayal Coming\", \"Did This Impostor Just Laugh After Killing?\", \"How I Got Voted Out While Saving My Friend\", \"(No Suspects) Among Us Betrayal Fails\", \"3 Times Impostors Betrayed Their Own Crew\", \"My Friend Trusted Me... Then Saw The Body\", \"The Most Dramatic Emergency Meeting Ever\"], \"shortFormTitles\": [\"Betrayal Hits Different\", \"Impostor Laugh\", \"Crewmate Betrayed\", \"Sus Moment\", \"Among Us Betrayal\"]}"
+  }
+]

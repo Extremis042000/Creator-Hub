@@ -1,0 +1,21 @@
+--- a/backend/src/main/java/com/extremis/hub/tools/title/TitleGeneratorService.java
++++ b/backend/src/main/java/com/extremis/hub/tools/title/TitleGeneratorService.java
+@@ -60,7 +60,15 @@ public class TitleGeneratorService {
+         fewer], "shortFormTitles": [3 to 5 short titles, each 40 \
+         characters or fewer]}. Never use unverifiable absolute claims \
+         like "world record", "best ever", "#1 in the world", or \
+-        "greatest of all time".""";
++        "greatest of all time". Vary each title's structure, not just \
++        its word order: give each one a different opening hook (a \
++        direct statement, a question, a "how I/how to" framing, a \
++        bracketed qualifier like "(No Damage)" or "(Solo)", or a number \
++        where it fits naturally) so the options read as genuinely \
++        different titles, not the same sentence reordered. If more than \
++        4 keywords are given, use only the 3-4 most relevant to each \
++        individual title rather than cramming all of them into every \
++        one.""";
+
+# Prompt-only change, no max_tokens bump -- this is the version that
+# produced the 3 finish_reason=length failures (12.5%). v2 (same prompt,
+# max_tokens 3000 -> 4500) is what actually shipped -- see v2/change.patch
+# for the real, applied diff.

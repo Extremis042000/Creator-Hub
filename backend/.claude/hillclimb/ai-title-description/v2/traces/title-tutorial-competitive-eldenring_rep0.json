@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube titles for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"titles\": [5 to 8 long-form titles, each 100 characters or fewer], \"shortFormTitles\": [3 to 5 short titles, each 40 characters or fewer]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\". Vary each title's structure, not just its word order: give each one a different opening hook (a direct statement, a question, a \"how I/how to\" framing, a bracketed qualifier like \"(No Damage)\" or \"(Solo)\", or a number where it fits naturally) so the options read as genuinely different titles, not the same sentence reordered. If more than 4 keywords are given, use only the 3-4 most relevant to each individual title rather than cramming all of them into every one."
+  },
+  {
+    "role": "user",
+    "content": "Game: Elden Ring\nTopic: Malenia boss guide no damage strategy\nVideo type: TUTORIAL\nTone: COMPETITIVE\nKeywords: no damage, boss guide"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"titles\":[\"[No Damage] Malenia Boss Guide - Elden Ring Tutorial\",\"How Do You Beat Malenia Without Taking Damage? (Elden Ring Guide)\",\"How I Defeated Malenia With Zero Damage - Elden Ring Boss Guide\",\"Malenia No Damage Strategy - Competitive Elden Ring Boss Tutorial\",\"3 Phases To Beat Malenia Without Damage - Elden Ring Guide\",\"(Solo) Malenia No Damage Boss Guide | Elden Ring Tutorial\",\"Can You Beat Malenia Without Getting Hit? Full Boss Guide\",\"Elden Ring Malenia: The No Damage Boss Guide You Need\"],\"shortFormTitles\":[\"Malenia No Damage Guide\",\"Beat Malenia Without Damage\",\"(No Damage) Malenia Tutorial\",\"Zero Damage Malenia Strategy\",\"Malenia Boss Guide: No Damage\"]}"
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube titles for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"titles\": [5 to 8 long-form titles, each 100 characters or fewer], \"shortFormTitles\": [3 to 5 short titles, each 40 characters or fewer]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\". Vary each title's structure, not just its word order: give each one a different opening hook (a direct statement, a question, a \"how I/how to\" framing, a bracketed qualifier like \"(No Damage)\" or \"(Solo)\", or a number where it fits naturally) so the options read as genuinely different titles, not the same sentence reordered. If more than 4 keywords are given, use only the 3-4 most relevant to each individual title rather than cramming all of them into every one."
+  },
+  {
+    "role": "user",
+    "content": "Game: Rocket League\nTopic: grinding to grand champion\nVideo type: VLOG\nTone: COMPETITIVE\nKeywords: (none)"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"titles\": [\"I Spent 30 Days Grinding Ranked to Hit Grand Champion\", \"What It Actually Takes to Climb from Diamond to Grand Champion\", \"How I Finally Broke Through to Grand Champion in Rocket League\", \"(Solo Queue) My Grind from Platinum to Grand Champion\", \"I Lost 400 Ranked Games Before Reaching Grand Champion\", \"Why I Quit Ranked After Finally Hitting Grand Champion\", \"This 90-Day Rocket League Grind Changed My Competitive Rank\"], \"shortFormTitles\": [\"Grand Champion Grind VLOG\", \"From Platinum to GC\", \"90 Days to Grand Champion\", \"Solo Queue Grand Champion\"]}"
+  }
+]

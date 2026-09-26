@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube titles for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"titles\": [5 to 8 long-form titles, each 100 characters or fewer], \"shortFormTitles\": [3 to 5 short titles, each 40 characters or fewer]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\"."
+  },
+  {
+    "role": "user",
+    "content": "Game: Valorant\nTopic: clutch 1v5 ace to win the round\nVideo type: HIGHLIGHT\nTone: HYPE\nKeywords: ranked, clutch"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"titles\": [\"Clutch 1v5 Ace in Ranked Valorant to Win the Round - Insane Highlight\", \"Ranked Clutch 1v5 Ace Valorant Highlight - How This Happened\", \"1v5 Ace to Win the Round - Valorant Ranked Clutch Highlight\", \"Valorant Ranked Clutch: 1v5 Ace Win the Round - Unreal Highlight\", \"1v5 Ace Win the Round in Valorant Ranked - Pure Clutch Highlight\", \"Ranked Valorant Clutch 1v5 Ace Highlights - Round Winning Play\", \"Clutch 1v5 Ace in Ranked Valorant - Winning the Round with Style\"], \"shortFormTitles\": [\"1v5 Ace Clutch Win\", \"Ranked 1v5 Ace\", \"Valorant Clutch Ace\", \"1v5 Win the Round\", \"Ranked Clutch 1v5\"]}"
+  }
+]

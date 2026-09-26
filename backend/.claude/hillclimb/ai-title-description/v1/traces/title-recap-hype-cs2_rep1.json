@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube titles for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"titles\": [5 to 8 long-form titles, each 100 characters or fewer], \"shortFormTitles\": [3 to 5 short titles, each 40 characters or fewer]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\". Vary each title's structure, not just its word order: give each one a different opening hook (a direct statement, a question, a \"how I/how to\" framing, a bracketed qualifier like \"(No Damage)\" or \"(Solo)\", or a number where it fits naturally) so the options read as genuinely different titles, not the same sentence reordered. If more than 4 keywords are given, use only the 3-4 most relevant to each individual title rather than cramming all of them into every one."
+  },
+  {
+    "role": "user",
+    "content": "Game: Counter-Strike 2\nTopic: major tournament grand final recap\nVideo type: LIVESTREAM_RECAP\nTone: HYPE\nKeywords: cs2, major"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"titles\": [\"CS2 Major Grand Final Recap - This Stream Had Me SCREAMING\", \"Did Anyone Else Watch the CS2 Major Grand Final Live on Stream?\", \"How I Reacted to the CS2 Major Grand Final on This Stream\", \"(Solo Stream) CS2 Major Grand Final Recap - Pure Chaos\", \"3 Clutch Plays From the CS2 Major Grand Final Stream Recap\", \"CS2 Major Grand Final Night - Full Stream Recap & Highlights\", \"Why the CS2 Major Grand Final Was Unpredictable on Stream\"], \"shortFormTitles\": [\"CS2 Major Grand Final Recap\", \"Stream Recap: CS2 Major Finals\", \"(No Spoilers) CS2 Major Recap\", \"CS2 Finals Stream Highlights\", \"CS2 Major Final - Full Recap\"]}"
+  }
+]

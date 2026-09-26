@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube titles for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"titles\": [5 to 8 long-form titles, each 100 characters or fewer], \"shortFormTitles\": [3 to 5 short titles, each 40 characters or fewer]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\". Vary each title's structure, not just its word order: give each one a different opening hook (a direct statement, a question, a \"how I/how to\" framing, a bracketed qualifier like \"(No Damage)\" or \"(Solo)\", or a number where it fits naturally) so the options read as genuinely different titles, not the same sentence reordered. If more than 4 keywords are given, use only the 3-4 most relevant to each individual title rather than cramming all of them into every one."
+  },
+  {
+    "role": "user",
+    "content": "Game: Among Us\nTopic: funniest betrayal moments\nVideo type: MONTAGE\nTone: FUNNY\nKeywords: (none)"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"titles\": [\"When Your Best Friend Sends You Out The Airlock — Among Us Betrayal Montage\", \"How I Somehow Got Voted Out By My Own Crew In Among Us (Funny Moments)\", \"(No Suspects) The Funniest Betrayals In Among Us You'll See Today\", \"7 Times Crewmates Betrayed Each Other In Among Us And It Was Hilarious\", \"POV: You Trusted Someone In Among Us And They Immediately Sabotaged You\", \"The Moment Your 'Ally' Presses The Emergency Button On You — Among Us\", \"I Asked For A Task But Got Backstabbed In Among Us — Funny Betrayals\"], \"shortFormTitles\": [\"Among Us Betrayal Fails\", \"Crewmate Karma Moments\", \"Backstab In Space\", \"Voted Out By Friends\", \"No One Trusted The Impostor\"]}"
+  }
+]

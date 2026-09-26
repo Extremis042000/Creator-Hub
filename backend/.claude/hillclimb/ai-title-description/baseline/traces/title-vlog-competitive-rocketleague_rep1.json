@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube titles for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"titles\": [5 to 8 long-form titles, each 100 characters or fewer], \"shortFormTitles\": [3 to 5 short titles, each 40 characters or fewer]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\"."
+  },
+  {
+    "role": "user",
+    "content": "Game: Rocket League\nTopic: grinding to grand champion\nVideo type: VLOG\nTone: COMPETITIVE\nKeywords: (none)"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"titles\": [\"From Diamond to Grand Champion: The Grind Never Stops VLOG\", \"Hundred Games Later: My Rocket League Grand Champion Grind\", \"Sweaty Sessions Only: Pushing Toward Grand Champion Ranked\", \"No Days Off: Grinding Rocket League Ranked to Grand Champion\", \"Boost Management and Bad Habits: Grand Champion VLOG\", \"Ranked Grind Diary: From Champion 3 to Grand Champion\", \"Pressure Test: Can I Hit Grand Champion in This VLOG?\", \"Tilt and Triumph: My Path to Grand Champion Rocket League\"], \"shortFormTitles\": [\"Grand Champion Grind\", \"Ranked Rocket League VLOG\", \"Sweaty Grind Sessions\", \"GC or Bust\", \"Chasing Grand Champion\"]}"
+  }
+]

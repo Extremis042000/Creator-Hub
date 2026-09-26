@@ -52,8 +52,18 @@ public class TitleGeneratorService {
 
     private static final int YOUTUBE_TITLE_MAX_LENGTH = 100;
     private static final int SHORT_FORM_TITLE_MAX_LENGTH = 40;
-    private static final int AI_MAX_OUTPUT_TOKENS = 3000;
+    // Phase 36 (hillclimb v2): raised from 3000 -- v1's added instructions
+    // increased how often the free-tier model's hidden reasoning consumed
+    // the whole budget before emitting visible text (finish_reason=length
+    // on 3/24 eval attempts). 4500 eliminated that failure mode with no
+    // quality regression. See backend/.claude/hillclimb/ai-title-description/.
+    private static final int AI_MAX_OUTPUT_TOKENS = 4500;
 
+    // Phase 36 (hillclimb v2, measured quality 1.958 -> 3.0/3.0, 24/24
+    // valid): the last two sentences target two real findings from the
+    // Phase 35 eval -- titles reordering the same words instead of varying
+    // the angle, and inconsistent keyword-stuffing when many keywords are
+    // supplied. See backend/.claude/hillclimb/ai-title-description/report.html.
     private static final String SYSTEM_PROMPT = """
         You write YouTube titles for gaming content creators. Reply with \
         ONLY a JSON object, no markdown formatting, no commentary: \
@@ -61,7 +71,15 @@ public class TitleGeneratorService {
         fewer], "shortFormTitles": [3 to 5 short titles, each 40 \
         characters or fewer]}. Never use unverifiable absolute claims \
         like "world record", "best ever", "#1 in the world", or \
-        "greatest of all time".""";
+        "greatest of all time". Vary each title's structure, not just \
+        its word order: give each one a different opening hook (a \
+        direct statement, a question, a "how I/how to" framing, a \
+        bracketed qualifier like "(No Damage)" or "(Solo)", or a number \
+        where it fits naturally) so the options read as genuinely \
+        different titles, not the same sentence reordered. If more than \
+        4 keywords are given, use only the 3-4 most relevant to each \
+        individual title rather than cramming all of them into every \
+        one.""";
 
     private static final Map<Tone, String> TONE_WORDS = Map.of(
         Tone.HYPE, "INSANE",

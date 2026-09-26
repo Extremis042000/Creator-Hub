@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube titles for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"titles\": [5 to 8 long-form titles, each 100 characters or fewer], \"shortFormTitles\": [3 to 5 short titles, each 40 characters or fewer]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\". Vary each title's structure, not just its word order: give each one a different opening hook (a direct statement, a question, a \"how I/how to\" framing, a bracketed qualifier like \"(No Damage)\" or \"(Solo)\", or a number where it fits naturally) so the options read as genuinely different titles, not the same sentence reordered. If more than 4 keywords are given, use only the 3-4 most relevant to each individual title rather than cramming all of them into every one."
+  },
+  {
+    "role": "user",
+    "content": "Game: Valorant\nTopic: clutch 1v5 ace to win the round\nVideo type: HIGHLIGHT\nTone: HYPE\nKeywords: ranked, clutch"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"titles\": [\"Ranked Clutch 1v5 Ace Closes Out the Round - Valorant Highlight\", \"Can One Clip Change a Ranked Match? This 1v5 Ace Says Yes\", \"How I Pulled Off a 1v5 Ace in Ranked - Full Clutch Highlight\", \"(Solo Queue) Insane 1v5 Ace Clutch Wins the Ranked Round\", \"1 Player. 5 Enemies. 1 Ranked Ace - Full Clutch Highlight\", \"Unreal Ranked Clutch: 1v5 Ace Ending the Round in Valorant\", \"What Does a Perfect 1v5 Ace Look Like in Ranked Valorant?\"], \"shortFormTitles\": [\"Ranked 1v5 Ace Clutch\", \"Insane Valorant Clutch\", \"1v5 Ace Wins Ranked\", \"Clutch Highlight Reel\"]}"
+  }
+]

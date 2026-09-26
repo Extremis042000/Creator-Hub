@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube titles for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"titles\": [5 to 8 long-form titles, each 100 characters or fewer], \"shortFormTitles\": [3 to 5 short titles, each 40 characters or fewer]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\". Vary each title's structure, not just its word order: give each one a different opening hook (a direct statement, a question, a \"how I/how to\" framing, a bracketed qualifier like \"(No Damage)\" or \"(Solo)\", or a number where it fits naturally) so the options read as genuinely different titles, not the same sentence reordered. If more than 4 keywords are given, use only the 3-4 most relevant to each individual title rather than cramming all of them into every one."
+  },
+  {
+    "role": "user",
+    "content": "Game: Counter-Strike 2\nTopic: major tournament grand final recap\nVideo type: LIVESTREAM_RECAP\nTone: HYPE\nKeywords: cs2, major"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"titles\": [\"Major Grand Final Recap - CS2 Finals Breakdown & Analysis\", \"Who Won the CS2 Major Grand Final? Full Recap Inside\", \"How the CS2 Major Grand Final Played Out - Full Stream Recap\", \"(Live Recap) CS2 Major Grand Final - All Rounds Covered\", \"5 Things That Decided the CS2 Major Grand Final\", \"CS2 Major Grand Final - Full Recap & Key Moments\", \"Could Anyone Beat the CS2 Major Grand Final Favorites?\"], \"shortFormTitles\": [\"CS2 Major Grand Final Recap\", \"Major Finals Breakdown\", \"CS2 Grand Final Highlights\", \"Who Won the CS2 Major?\"]}"
+  }
+]

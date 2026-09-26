@@ -1,0 +1,4 @@
+{
+  "description": "Same prompt as v1 (varied hooks + keyword cap) with max_tokens raised 3000 -> 4500",
+  "target": "code"
+}

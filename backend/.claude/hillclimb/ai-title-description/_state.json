@@ -1,5 +1,14 @@
 {
   "flow": "ai-title-description",
+  "current_round": 2,
+  "reps": 2,
+  "tool_scope": "title",
+  "goal": { "target": "quality", "direction": "higher", "hold": ["valid", "distinct_from_template"] },
+  "approve_each_round": false,
+  "split": "none -- 12-case title set too small to hold out a test slice usefully; scored directionally on the whole set every round per eval-hillclimb.md Step 3's small-set allowance",
+  "best": { "round": 2, "score": 3.0 },
+  "stopped_reason": "quality hit the rubric's ceiling (3/3) in round 2 with both guardrails (valid, distinct_from_template) at 100% and zero regressions -- no more headroom to climb on this metric.",
+  "harness_paths": ["run-eval.mjs", "apply-quality-pass.mjs", "apply-quality-pass-v1.mjs", "apply-quality-pass-v2.mjs"],
   "metrics": [
     { "id": "valid", "label": "Valid", "kind": "binary" },
     { "id": "quality", "label": "Quality (0-3)", "kind": "float" },

@@ -1,0 +1,5 @@
+{
+  "description": "Vary title structure (hook per title) + cap keyword usage at 3-4 per title",
+  "target": "system_prompt",
+  "suspicious": "3 of 24 attempts (12.5%) failed with finish_reason=length -- hidden reasoning consumed the whole 3000-token budget before any visible output. Quality on the 21 successful attempts is a real, substantial win (3.0 vs baseline 1.958), but this is a genuine reliability regression, not noise -- v2 tests raising max_tokens as the fix."
+}

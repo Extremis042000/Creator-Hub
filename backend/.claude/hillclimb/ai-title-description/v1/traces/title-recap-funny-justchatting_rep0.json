@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube titles for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"titles\": [5 to 8 long-form titles, each 100 characters or fewer], \"shortFormTitles\": [3 to 5 short titles, each 40 characters or fewer]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\". Vary each title's structure, not just its word order: give each one a different opening hook (a direct statement, a question, a \"how I/how to\" framing, a bracketed qualifier like \"(No Damage)\" or \"(Solo)\", or a number where it fits naturally) so the options read as genuinely different titles, not the same sentence reordered. If more than 4 keywords are given, use only the 3-4 most relevant to each individual title rather than cramming all of them into every one."
+  },
+  {
+    "role": "user",
+    "content": "Game: Just Chatting\nTopic: weirdest chat moments from the stream\nVideo type: LIVESTREAM_RECAP\nTone: FUNNY\nKeywords: (none)"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"titles\": [\"Chat Went Completely Off the Rails Today and I Couldn't Look Away\", \"Did Anyone Else Notice How Fast Chat Lost Its Mind Today\", \"How I Survived the Weirdest Chat Moments in My Streaming Career\", \"(No Filter) The Craziest Things Chat Said During This Stream\", \"3 Chat Moments That Made Me Question Everything About Streaming\", \"Chat Literally Lost It and I Just Had to Record the Whole Thing\", \"What Even Is Happening in This Chat Right Now\"], \"shortFormTitles\": [\"Weirdest Chat Moments\", \"Chat Went Crazy\", \"Craziest Chat Reactions\", \"When Chat Loses It\", \"Chat Chaos Compilation\"]}"
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube titles for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"titles\": [5 to 8 long-form titles, each 100 characters or fewer], \"shortFormTitles\": [3 to 5 short titles, each 40 characters or fewer]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\". Vary each title's structure, not just its word order: give each one a different opening hook (a direct statement, a question, a \"how I/how to\" framing, a bracketed qualifier like \"(No Damage)\" or \"(Solo)\", or a number where it fits naturally) so the options read as genuinely different titles, not the same sentence reordered. If more than 4 keywords are given, use only the 3-4 most relevant to each individual title rather than cramming all of them into every one."
+  },
+  {
+    "role": "user",
+    "content": "Game: Counter-Strike 2\nTopic: the most insane 1 tap headshot clutch round win against a full team stack on Mirage\nVideo type: HIGHLIGHT\nTone: HYPE\nKeywords: cs2, clutch, headshot, mirage, ranked, faceit, ace, 1v5, highlight, esports"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"titles\": [\"Did This 1v5 Headshot Clutch on Mirage Just Be Possible?\", \"1 Tap, 1v5, Ace — This Mirage Clutch Is Unreal\", \"(Solo) The 1v5 Headshot Clutch That Broke Mirage\", \"How I Landed a 1v5 Headshot Ace on Ranked Mirage\", \"5 Enemies Down, 1 Headshot — This Mirage Clutch Wins\", \"This Faceit 1v5 Headshot Clutch on Mirage Is Insane\", \"Can You Believe This 1v5 Headshot Clutch on Mirage?\"], \"shortFormTitles\": [\"1v5 Headshot Clutch on Mirage\", \"(Solo) 1 Tap Ace Clutch\", \"Insane Mirage 1v5 Headshot\", \"Ranked 1v5 Clutch Wins\", \"Faceit 1v5 Headshot Ace\"]}"
+  }
+]

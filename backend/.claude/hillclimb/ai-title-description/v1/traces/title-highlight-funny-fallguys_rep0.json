@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube titles for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"titles\": [5 to 8 long-form titles, each 100 characters or fewer], \"shortFormTitles\": [3 to 5 short titles, each 40 characters or fewer]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\". Vary each title's structure, not just its word order: give each one a different opening hook (a direct statement, a question, a \"how I/how to\" framing, a bracketed qualifier like \"(No Damage)\" or \"(Solo)\", or a number where it fits naturally) so the options read as genuinely different titles, not the same sentence reordered. If more than 4 keywords are given, use only the 3-4 most relevant to each individual title rather than cramming all of them into every one."
+  },
+  {
+    "role": "user",
+    "content": "Game: Fall Guys\nTopic: hilarious fails compilation\nVideo type: HIGHLIGHT\nTone: FUNNY\nKeywords: (none)"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"titles\": [\"Fall Guys Fails That Broke My Brain\", \"Can You Watch This Fall Guys Fail Without Laughing?\", \"How I Turned Fall Guys Into a Comedy Show\", \"(No Wins) Fall Guys Disaster Compilation\", \"50 Fails in 10 Minutes of Fall Guys Chaos\", \"Fall Guys Players Are Honestly Insane\"], \"shortFormTitles\": [\"Fall Guys Fails\", \"Funny Fall Guys Moments\", \"Fall Guys Gone Wrong\", \"Epic Fall Guys Chaos\"]}"
+  }
+]

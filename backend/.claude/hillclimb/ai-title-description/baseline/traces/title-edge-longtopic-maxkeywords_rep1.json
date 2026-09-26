@@ -1,0 +1,14 @@
+[
+  {
+    "role": "system",
+    "content": "You write YouTube titles for gaming content creators. Reply with ONLY a JSON object, no markdown formatting, no commentary: {\"titles\": [5 to 8 long-form titles, each 100 characters or fewer], \"shortFormTitles\": [3 to 5 short titles, each 40 characters or fewer]}. Never use unverifiable absolute claims like \"world record\", \"best ever\", \"#1 in the world\", or \"greatest of all time\"."
+  },
+  {
+    "role": "user",
+    "content": "Game: Counter-Strike 2\nTopic: the most insane 1 tap headshot clutch round win against a full team stack on Mirage\nVideo type: HIGHLIGHT\nTone: HYPE\nKeywords: cs2, clutch, headshot, mirage, ranked, faceit, ace, 1v5, highlight, esports"
+  },
+  {
+    "role": "assistant",
+    "content": "{\"titles\": [\"INSANE 1v5 Headshot Clutch on Mirage - Faceit Ranked Ace Highlight CS2\", \"1 Tap Headshot Clutch Round Win vs Full Stack on Mirage - CS2 Highlight\", \"CS2 Mirage 1v5 Ace Headshot Clutch - Faceit Ranked Highlight Moments\", \"Unbelievable 1v5 Headshot Clutch on Mirage - CS2 Ranked Highlight\", \"Faceit Ranked 1v5 Ace Clutch Headshot on Mirage - CS2 Highlight\", \"CS2 Clutch 1v5 Headshot on Mirage - Insane Ace Highlight Montage\", \"Mirage 1v5 Headshot Clutch Win - CS2 Ranked Faceit Highlight\", \"Insane Ace Clutch Headshot on Mirage - CS2 1v5 Highlight\"], \"shortFormTitles\": [\"1v5 Headshot Clutch CS2\", \"Mirage Ace Clutch Highlight\", \"Insane 1v5 CS2 Highlight\", \"Faceit Clutch Headshot CS2\", \"Mirage 1v5 Headshot Win\"]}"
+  }
+]
