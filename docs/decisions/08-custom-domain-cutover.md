@@ -1,11 +1,10 @@
 # Custom Domain Cutover — Ideation & Phases
 
-Status: **Phases 30-33 fully done and live-verified, including `www`; Phase
-34 (optional cleanup) not started.** Founder purchased `creator-hub.co.in`
-via GoDaddy (2026-09-22) — the one non-$0 item on the founder action
-checklist (`decisions/05-founder-action-checklist.md`) — then completed the
-Cloudflare zone move, the GoDaddy nameserver switch, and the Render custom
-domain binding independently.
+Status: **All phases (30-34) done and live-verified.** Founder purchased
+`creator-hub.co.in` via GoDaddy (2026-09-22) — the one non-$0 item on the
+founder action checklist (`decisions/05-founder-action-checklist.md`) —
+then completed the Cloudflare zone move, the GoDaddy nameserver switch, and
+the Render custom domain binding independently.
 
 ## 1. Where this starts from
 
@@ -122,6 +121,5 @@ than expected, not breakage).
 
 ## 7. What's left
 
-Phases 30-33 are fully done and live-verified, including `www`. Only
-Phase 34 (SEO/doc polish) remains, and it's optional cleanup that doesn't
-block anything — pick it up whenever convenient.
+Nothing. All five phases (30-34) are done and live-verified, including
+`www` and the SEO/doc polish.

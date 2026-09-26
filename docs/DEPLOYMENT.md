@@ -5,15 +5,24 @@ and how to redeploy each one.
 
 ## Where
 
-| App | Host | URL |
-|---|---|---|
-| Frontend | Cloudflare Workers | https://extremis-creator-hub.surya-chowdhury0412.workers.dev |
-| Backend | Render (free tier, Docker) | https://extremis-creator-hub-backend.onrender.com |
-| Database | Neon (serverless Postgres, free tier) | — |
-| Source | GitHub | https://github.com/Extremis042000/Creator-Hub |
+| App | Host | Custom domain | Underlying free-tier URL |
+|---|---|---|---|
+| Frontend | Cloudflare Workers | https://creator-hub.co.in (`www` 301s here) | https://extremis-creator-hub.surya-chowdhury0412.workers.dev |
+| Backend | Render (free tier, Docker) | https://api.creator-hub.co.in | https://extremis-creator-hub-backend.onrender.com |
+| Database | Neon (serverless Postgres, free tier) | — | — |
+| Source | GitHub | — | https://github.com/Extremis042000/Creator-Hub |
 
-No custom domain yet — the zero-cost `*.workers.dev` subdomain is
-used instead. Optional later, per `decisions/05-founder-action-checklist.md`.
+`creator-hub.co.in` (founder-purchased via GoDaddy, DNS moved to
+Cloudflare) is the canonical, public-facing domain as of 2026-09-26 —
+see `decisions/08-custom-domain-cutover.md` for the full cutover.
+The `*.workers.dev`/`*.onrender.com` URLs are the underlying
+infrastructure addresses; both still answer directly and are never
+disabled, since Cloudflare custom domains and Render custom domains
+are additive, not a replacement for the host's own free URL. Nothing
+in the app hardcodes either — both flow through the same env vars
+described below (`NEXT_PUBLIC_API_BASE_URL`/`NEXT_PUBLIC_SITE_URL` on
+the frontend, `extremis.cors.allowed-origins` on the backend), so a
+future domain change is a config edit, not a code change.
 
 ## Why these hosts
 
@@ -94,10 +103,14 @@ Fix, and the permanent guard against a repeat: `.env.production.local`
 (gitignored, matches `.env*.local` — recreate it if missing, e.g. on a
 fresh clone or a new machine) with:
 ```
-NEXT_PUBLIC_API_BASE_URL=https://extremis-creator-hub-backend.onrender.com
-NEXT_PUBLIC_SITE_URL=https://extremis-creator-hub.surya-chowdhury0412.workers.dev
+NEXT_PUBLIC_API_BASE_URL=https://api.creator-hub.co.in
+NEXT_PUBLIC_SITE_URL=https://creator-hub.co.in
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=<same value as backend's GOOGLE_CLIENT_ID>
 ```
+(Pre-2026-09-26, before the custom domain cutover, these pointed at
+the `*.workers.dev`/`*.onrender.com` URLs instead — see
+`decisions/08-custom-domain-cutover.md`. Either still works today
+since both remain live, but the custom domain is canonical.)
 With this file present, `next build`'s own "Environments:" log line
 (printed at the start of every build) will list
 `.env.production.local, .env.local` — if it only lists `.env.local`,

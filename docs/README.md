@@ -20,7 +20,7 @@
 - **[MVP Priority Matrix](decisions/04-mvp-priority-matrix.md)**
 - **[Founder Action Checklist](decisions/05-founder-action-checklist.md)** — steps only the founder can do (KYC, ad-program approvals, domain).
 - **[AI-Powered Generation Initiative](decisions/07-ai-generation-initiative.md)** — built and live-verified (Phases 26-29): the Title/Description generators now call a real AI provider for premium users, with cost/abuse controls and an interactive refine follow-up, modeled on the founder's "Triage Desk" project's Claude-integration pattern.
-- **[Custom Domain Cutover](decisions/08-custom-domain-cutover.md)** — proposed, not started (Phases 30-34): wiring up `creator-hub.co.in` (founder-purchased) to replace the `*.workers.dev`/`*.onrender.com` URLs.
+- **[Custom Domain Cutover](decisions/08-custom-domain-cutover.md)** — done and live-verified (Phases 30-34): `creator-hub.co.in` (founder-purchased) is now the canonical public URL, alongside the still-live `*.workers.dev`/`*.onrender.com` infrastructure addresses.
 
 ## architecture/
 Original planning-phase technical blueprint and system design (DB

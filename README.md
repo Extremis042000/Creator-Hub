@@ -17,9 +17,12 @@ covers running the code locally.
 
 ## Live
 
-- Frontend: https://extremis-creator-hub.surya-chowdhury0412.workers.dev
-- Backend: https://extremis-creator-hub-backend.onrender.com
-- API docs (Swagger UI): https://extremis-creator-hub-backend.onrender.com/swagger-ui.html
+- Site: https://creator-hub.co.in
+- API: https://api.creator-hub.co.in
+- API docs (Swagger UI): https://api.creator-hub.co.in/swagger-ui.html
+
+The underlying infrastructure (Cloudflare Workers, Render) still answers
+directly at its own free-tier URLs too — see `docs/DEPLOYMENT.md`.
 
 See `docs/DEPLOYMENT.md` for how these are hosted and how to redeploy.
 
