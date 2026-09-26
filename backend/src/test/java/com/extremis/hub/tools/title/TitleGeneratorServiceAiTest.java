@@ -2,7 +2,10 @@ package com.extremis.hub.tools.title;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.extremis.hub.ai.AiGenerationException;
 import com.extremis.hub.ai.AiGenerationProvider;
@@ -10,6 +13,7 @@ import com.extremis.hub.ai.AiGenerationRequest;
 import com.extremis.hub.ai.AiGenerationResult;
 import com.extremis.hub.ai.AiUsageGuard;
 import com.extremis.hub.ai.AiUsageProperties;
+import com.extremis.hub.ai.GenerationSignalService;
 import com.extremis.hub.ai.RefineSessionStore;
 import com.extremis.hub.repository.AiGenerationLogRepository;
 import com.extremis.hub.repository.UserRepository;
@@ -45,6 +49,16 @@ class TitleGeneratorServiceAiTest {
         return new AiUsageGuard(generous, mock(AiGenerationLogRepository.class), mock(UserRepository.class));
     }
 
+    /**
+     * Phase 37: not under test here (see GenerationSignalServiceTest) --
+     * wired to its own fresh, unrelated RefineSessionStore/mocked
+     * repository so every call inside generate()/refine() silently
+     * no-ops without affecting any assertion in this file.
+     */
+    private GenerationSignalService newSignalService() {
+        return new GenerationSignalService(new RefineSessionStore(), mock(AiGenerationLogRepository.class));
+    }
+
     private static final String VALID_JSON = """
         {"titles": ["My Great Valorant Clutch", "Another Good Title", \
         "Third Title Here", "Fourth One Too", "Fifth One As Well"], \
@@ -74,7 +88,7 @@ class TitleGeneratorServiceAiTest {
     void useAiTrueWithValidJsonReturnsAiGeneratedTitlesWithARefineSessionId() {
         TitleGeneratorService service = new TitleGeneratorService(
             new TextSanitizer(), Optional.of(fakeProvider(VALID_JSON)), new ObjectMapper(),
-            permissiveUsageGuard(), new RefineSessionStore());
+            permissiveUsageGuard(), new RefineSessionStore(), newSignalService());
 
         TitleGeneratorResponse response = service.generate(request(), true, USER_ID);
 
@@ -87,7 +101,7 @@ class TitleGeneratorServiceAiTest {
     void useAiFalseNeverCallsProviderAndUsesTemplatesWithNoRefineSessionId() {
         TitleGeneratorService service = new TitleGeneratorService(
             new TextSanitizer(), Optional.of(failingProvider()), new ObjectMapper(),
-            permissiveUsageGuard(), new RefineSessionStore());
+            permissiveUsageGuard(), new RefineSessionStore(), newSignalService());
 
         TitleGeneratorResponse response = service.generate(request(), false, USER_ID);
 
@@ -99,7 +113,7 @@ class TitleGeneratorServiceAiTest {
     void providerFailureFallsBackToTemplates() {
         TitleGeneratorService service = new TitleGeneratorService(
             new TextSanitizer(), Optional.of(failingProvider()), new ObjectMapper(),
-            permissiveUsageGuard(), new RefineSessionStore());
+            permissiveUsageGuard(), new RefineSessionStore(), newSignalService());
 
         TitleGeneratorResponse response = service.generate(request(), true, USER_ID);
 
@@ -110,7 +124,7 @@ class TitleGeneratorServiceAiTest {
     void malformedJsonFallsBackToTemplates() {
         TitleGeneratorService service = new TitleGeneratorService(
             new TextSanitizer(), Optional.of(fakeProvider("not json at all")), new ObjectMapper(),
-            permissiveUsageGuard(), new RefineSessionStore());
+            permissiveUsageGuard(), new RefineSessionStore(), newSignalService());
 
         TitleGeneratorResponse response = service.generate(request(), true, USER_ID);
 
@@ -125,7 +139,7 @@ class TitleGeneratorServiceAiTest {
             "shortFormTitles": ["Short One", "Short Two", "Short Three"]}""";
         TitleGeneratorService service = new TitleGeneratorService(
             new TextSanitizer(), Optional.of(fakeProvider(json)), new ObjectMapper(),
-            permissiveUsageGuard(), new RefineSessionStore());
+            permissiveUsageGuard(), new RefineSessionStore(), newSignalService());
 
         TitleGeneratorResponse response = service.generate(request(), true, USER_ID);
 
@@ -143,7 +157,7 @@ class TitleGeneratorServiceAiTest {
             "shortFormTitles": ["Short One"]}""";
         TitleGeneratorService service = new TitleGeneratorService(
             new TextSanitizer(), Optional.of(fakeProvider(json)), new ObjectMapper(),
-            permissiveUsageGuard(), new RefineSessionStore());
+            permissiveUsageGuard(), new RefineSessionStore(), newSignalService());
 
         TitleGeneratorResponse response = service.generate(request(), true, USER_ID);
 
@@ -159,7 +173,7 @@ class TitleGeneratorServiceAiTest {
             + "\"shortFormTitles\": [\"Short One\"]}\n```";
         TitleGeneratorService service = new TitleGeneratorService(
             new TextSanitizer(), Optional.of(fakeProvider(json)), new ObjectMapper(),
-            permissiveUsageGuard(), new RefineSessionStore());
+            permissiveUsageGuard(), new RefineSessionStore(), newSignalService());
 
         TitleGeneratorResponse response = service.generate(request(), true, USER_ID);
 
@@ -170,7 +184,7 @@ class TitleGeneratorServiceAiTest {
     void noProviderConfiguredFallsBackToTemplatesEvenWithUseAiTrue() {
         TitleGeneratorService service = new TitleGeneratorService(
             new TextSanitizer(), Optional.empty(), new ObjectMapper(),
-            permissiveUsageGuard(), new RefineSessionStore());
+            permissiveUsageGuard(), new RefineSessionStore(), newSignalService());
 
         TitleGeneratorResponse response = service.generate(request(), true, USER_ID);
 
@@ -192,7 +206,7 @@ class TitleGeneratorServiceAiTest {
         tightLimit.setRateLimitPerMinute(1);
         AiUsageGuard guard = new AiUsageGuard(tightLimit, mock(AiGenerationLogRepository.class), mock(UserRepository.class));
         TitleGeneratorService service = new TitleGeneratorService(
-            new TextSanitizer(), Optional.of(countingProvider), new ObjectMapper(), guard, new RefineSessionStore());
+            new TextSanitizer(), Optional.of(countingProvider), new ObjectMapper(), guard, new RefineSessionStore(), newSignalService());
 
         service.generate(request(), true, USER_ID); // consumes the one allowed slot (fails validation -> falls back, but still counted against the rate limit)
         TitleGeneratorResponse second = service.generate(request(), true, USER_ID); // should be throttled before ever reaching the provider
@@ -216,7 +230,7 @@ class TitleGeneratorServiceAiTest {
         tightCeiling.setDailyCallCeiling(0);
         AiUsageGuard guard = new AiUsageGuard(tightCeiling, mock(AiGenerationLogRepository.class), mock(UserRepository.class));
         TitleGeneratorService service = new TitleGeneratorService(
-            new TextSanitizer(), Optional.of(countingProvider), new ObjectMapper(), guard, new RefineSessionStore());
+            new TextSanitizer(), Optional.of(countingProvider), new ObjectMapper(), guard, new RefineSessionStore(), newSignalService());
 
         TitleGeneratorResponse response = service.generate(request(), true, USER_ID);
 
@@ -234,12 +248,12 @@ class TitleGeneratorServiceAiTest {
         RefineSessionStore store = new RefineSessionStore();
         TitleGeneratorService generator = new TitleGeneratorService(
             new TextSanitizer(), Optional.of(fakeProvider(VALID_JSON)), new ObjectMapper(),
-            permissiveUsageGuard(), store);
+            permissiveUsageGuard(), store, newSignalService());
         TitleGeneratorResponse first = generator.generate(request(), true, USER_ID);
 
         TitleGeneratorService refiner = new TitleGeneratorService(
             new TextSanitizer(), Optional.of(fakeProvider(refined)), new ObjectMapper(),
-            permissiveUsageGuard(), store);
+            permissiveUsageGuard(), store, newSignalService());
         TitleGeneratorResponse refinedResponse = refiner.refine(first.getRefineSessionId(), "make it punchier", USER_ID);
 
         assertThat(refinedResponse.getTitles()).containsExactly(
@@ -251,7 +265,7 @@ class TitleGeneratorServiceAiTest {
     void refineWithUnknownSessionIdThrows() {
         TitleGeneratorService service = new TitleGeneratorService(
             new TextSanitizer(), Optional.of(fakeProvider(VALID_JSON)), new ObjectMapper(),
-            permissiveUsageGuard(), new RefineSessionStore());
+            permissiveUsageGuard(), new RefineSessionStore(), newSignalService());
 
         Throwable thrown = catchThrowable(() -> service.refine(UUID.randomUUID().toString(), "shorter", USER_ID));
 
@@ -262,7 +276,7 @@ class TitleGeneratorServiceAiTest {
     void refineWithMalformedSessionIdThrowsRatherThanCrashing() {
         TitleGeneratorService service = new TitleGeneratorService(
             new TextSanitizer(), Optional.of(fakeProvider(VALID_JSON)), new ObjectMapper(),
-            permissiveUsageGuard(), new RefineSessionStore());
+            permissiveUsageGuard(), new RefineSessionStore(), newSignalService());
 
         Throwable thrown = catchThrowable(() -> service.refine("not-a-uuid", "shorter", USER_ID));
 
@@ -274,12 +288,12 @@ class TitleGeneratorServiceAiTest {
         RefineSessionStore store = new RefineSessionStore();
         TitleGeneratorService owner = new TitleGeneratorService(
             new TextSanitizer(), Optional.of(fakeProvider(VALID_JSON)), new ObjectMapper(),
-            permissiveUsageGuard(), store);
+            permissiveUsageGuard(), store, newSignalService());
         TitleGeneratorResponse first = owner.generate(request(), true, USER_ID);
 
         TitleGeneratorService attacker = new TitleGeneratorService(
             new TextSanitizer(), Optional.of(fakeProvider(VALID_JSON)), new ObjectMapper(),
-            permissiveUsageGuard(), store);
+            permissiveUsageGuard(), store, newSignalService());
         Throwable thrown = catchThrowable(
             () -> attacker.refine(first.getRefineSessionId(), "give me the good version", UUID.randomUUID()));
 
@@ -291,12 +305,12 @@ class TitleGeneratorServiceAiTest {
         RefineSessionStore store = new RefineSessionStore();
         TitleGeneratorService generator = new TitleGeneratorService(
             new TextSanitizer(), Optional.of(fakeProvider(VALID_JSON)), new ObjectMapper(),
-            permissiveUsageGuard(), store);
+            permissiveUsageGuard(), store, newSignalService());
         TitleGeneratorResponse first = generator.generate(request(), true, USER_ID);
 
         TitleGeneratorService refiner = new TitleGeneratorService(
             new TextSanitizer(), Optional.of(failingProvider()), new ObjectMapper(),
-            permissiveUsageGuard(), store);
+            permissiveUsageGuard(), store, newSignalService());
         Throwable thrown = catchThrowable(() -> refiner.refine(first.getRefineSessionId(), "shorter", USER_ID));
 
         assertThat(thrown).isInstanceOf(BusinessRuleViolationException.class);
@@ -307,7 +321,7 @@ class TitleGeneratorServiceAiTest {
         RefineSessionStore store = new RefineSessionStore();
         TitleGeneratorService service = new TitleGeneratorService(
             new TextSanitizer(), Optional.of(fakeProvider(VALID_JSON)), new ObjectMapper(),
-            permissiveUsageGuard(), store);
+            permissiveUsageGuard(), store, newSignalService());
         TitleGeneratorResponse first = service.generate(request(), true, USER_ID);
         String sessionId = first.getRefineSessionId();
 
@@ -324,13 +338,67 @@ class TitleGeneratorServiceAiTest {
         RefineSessionStore store = new RefineSessionStore();
         TitleGeneratorService generator = new TitleGeneratorService(
             new TextSanitizer(), Optional.of(fakeProvider(VALID_JSON)), new ObjectMapper(),
-            permissiveUsageGuard(), store);
+            permissiveUsageGuard(), store, newSignalService());
         TitleGeneratorResponse first = generator.generate(request(), true, USER_ID);
 
         TitleGeneratorService refiner = new TitleGeneratorService(
-            new TextSanitizer(), Optional.empty(), new ObjectMapper(), permissiveUsageGuard(), store);
+            new TextSanitizer(), Optional.empty(), new ObjectMapper(), permissiveUsageGuard(), store, newSignalService());
         Throwable thrown = catchThrowable(() -> refiner.refine(first.getRefineSessionId(), "shorter", USER_ID));
 
         assertThat(thrown).isInstanceOf(BusinessRuleViolationException.class);
+    }
+
+    // ---- Phase 37: outcome-signal wiring, end to end through the real service ----
+
+    @Test
+    void refiningAResultRecordsAREFINEDSignalOnItsOriginalGenerationLogRow() {
+        AiGenerationLogRepository logRepository = mock(AiGenerationLogRepository.class);
+        when(logRepository.save(org.mockito.ArgumentMatchers.any())).thenAnswer(inv -> {
+            com.extremis.hub.domain.AiGenerationLog entry = inv.getArgument(0);
+            entry.setId(UUID.randomUUID());
+            return entry;
+        });
+        UserRepository userRepository = mock(UserRepository.class);
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(new com.extremis.hub.domain.User()));
+        AiUsageProperties generous = new AiUsageProperties();
+        generous.setRateLimitPerMinute(1000);
+        generous.setDailyCallCeiling(1000);
+        AiUsageGuard guard = new AiUsageGuard(generous, logRepository, userRepository);
+        RefineSessionStore store = new RefineSessionStore();
+        GenerationSignalService signalService = new GenerationSignalService(store, logRepository);
+        TitleGeneratorService service = new TitleGeneratorService(
+            new TextSanitizer(), Optional.of(fakeProvider(VALID_JSON)), new ObjectMapper(), guard, store, signalService);
+
+        TitleGeneratorResponse first = service.generate(request(), true, USER_ID);
+        service.refine(first.getRefineSessionId(), "make it punchier", USER_ID);
+
+        verify(logRepository).recordOutcomeSignalIfAbsent(
+            org.mockito.ArgumentMatchers.any(), eq(com.extremis.hub.domain.OutcomeSignal.REFINED));
+    }
+
+    @Test
+    void generatingAgainWithoutRefiningOrCopyingRecordsAREGENERATEDSignalOnThePriorResult() {
+        AiGenerationLogRepository logRepository = mock(AiGenerationLogRepository.class);
+        when(logRepository.save(org.mockito.ArgumentMatchers.any())).thenAnswer(inv -> {
+            com.extremis.hub.domain.AiGenerationLog entry = inv.getArgument(0);
+            entry.setId(UUID.randomUUID());
+            return entry;
+        });
+        UserRepository userRepository = mock(UserRepository.class);
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(new com.extremis.hub.domain.User()));
+        AiUsageProperties generous = new AiUsageProperties();
+        generous.setRateLimitPerMinute(1000);
+        generous.setDailyCallCeiling(1000);
+        AiUsageGuard guard = new AiUsageGuard(generous, logRepository, userRepository);
+        RefineSessionStore store = new RefineSessionStore();
+        GenerationSignalService signalService = new GenerationSignalService(store, logRepository);
+        TitleGeneratorService service = new TitleGeneratorService(
+            new TextSanitizer(), Optional.of(fakeProvider(VALID_JSON)), new ObjectMapper(), guard, store, signalService);
+
+        service.generate(request(), true, USER_ID); // first generation, abandoned unrefined/uncopied below
+        service.generate(request(), true, USER_ID); // regenerating -- should mark the first one REGENERATED
+
+        verify(logRepository).recordOutcomeSignalIfAbsent(
+            org.mockito.ArgumentMatchers.any(), eq(com.extremis.hub.domain.OutcomeSignal.REGENERATED));
     }
 }

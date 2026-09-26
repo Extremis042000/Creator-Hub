@@ -6,6 +6,7 @@ import com.extremis.hub.ai.AiGenerationRequest;
 import com.extremis.hub.ai.AiGenerationResult;
 import com.extremis.hub.ai.AiUsageGuard;
 import com.extremis.hub.ai.ConversationTurn;
+import com.extremis.hub.ai.GenerationSignalService;
 import com.extremis.hub.ai.RefineSession;
 import com.extremis.hub.ai.RefineSessionStore;
 import com.extremis.hub.domain.ToolType;
@@ -127,6 +128,7 @@ public class TitleGeneratorService {
     private final ObjectMapper objectMapper;
     private final AiUsageGuard usageGuard;
     private final RefineSessionStore refineSessionStore;
+    private final GenerationSignalService generationSignalService;
 
     public TitleGeneratorResponse generate(TitleGeneratorRequest request) {
         return generate(request, false, null);
@@ -146,11 +148,14 @@ public class TitleGeneratorService {
                 long started = System.currentTimeMillis();
                 try {
                     AiCallResult outcome = generateWithAi(request, provider, List.of());
-                    usageGuard.recordSuccess(userId, ToolType.TITLE_GENERATOR, provider.getProviderName(),
+                    // Phase 37: check BEFORE creating the new session -- this is about
+                    // the PRIOR generation the user is about to abandon, not this one.
+                    generationSignalService.recordRegeneratedIfApplicable(userId, ToolType.TITLE_GENERATOR);
+                    UUID generationLogId = usageGuard.recordSuccess(userId, ToolType.TITLE_GENERATOR, provider.getProviderName(),
                         provider.getModelName(), outcome.servedBy(), outcome.inputTokens(), outcome.outputTokens(),
-                        System.currentTimeMillis() - started);
+                        System.currentTimeMillis() - started).orElse(null);
                     RefineSession session = refineSessionStore.create(
-                        userId, ToolType.TITLE_GENERATOR, SYSTEM_PROMPT, outcome.rawJsonText());
+                        userId, ToolType.TITLE_GENERATOR, SYSTEM_PROMPT, outcome.rawJsonText(), generationLogId);
                     return outcome.response().toBuilder().refineSessionId(session.getId().toString()).build();
                 } catch (Exception e) {
                     usageGuard.recordFailure(userId, ToolType.TITLE_GENERATOR, provider.getProviderName(),
@@ -201,6 +206,7 @@ public class TitleGeneratorService {
             usageGuard.recordSuccess(userId, ToolType.TITLE_GENERATOR, provider.getProviderName(),
                 provider.getModelName(), result.servedBy(), result.inputTokens(), result.outputTokens(),
                 System.currentTimeMillis() - started);
+            generationSignalService.recordRefined(session);
             session.recordExchange(sanitizedMessage, cleaned);
 
             return TitleGeneratorResponse.builder()

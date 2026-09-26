@@ -2,13 +2,17 @@ package com.extremis.hub.tools.title;
 
 import com.extremis.hub.admin.ForbiddenException;
 import com.extremis.hub.admin.UnauthenticatedException;
+import com.extremis.hub.ai.CopySignalRequest;
+import com.extremis.hub.ai.GenerationSignalService;
 import com.extremis.hub.ai.RefineRequest;
+import com.extremis.hub.domain.OutcomeSignal;
 import com.extremis.hub.domain.ToolType;
 import com.extremis.hub.premium.PremiumAccessService;
 import com.extremis.hub.results.SharedResultService;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,6 +27,7 @@ public class TitleGeneratorController {
     private final TitleGeneratorService titleGeneratorService;
     private final SharedResultService sharedResultService;
     private final PremiumAccessService premiumAccessService;
+    private final GenerationSignalService generationSignalService;
 
     @PostMapping
     public TitleGeneratorResponse generate(@Valid @RequestBody TitleGeneratorRequest request, Authentication authentication) {
@@ -60,5 +65,34 @@ public class TitleGeneratorController {
             throw new ForbiddenException("Refining a result requires premium access.");
         }
         return titleGeneratorService.refine(request.getSessionId(), request.getMessage(), userId);
+    }
+
+    /**
+     * Phase 37: fire-and-forget from the frontend's existing Copy
+     * button, no new UI. Always 204 -- a signed-out caller, an
+     * unknown/expired/foreign session, or a template result with no
+     * session at all are all silently no-ops (see
+     * GenerationSignalService); this is best-effort instrumentation,
+     * never something the UI should surface an error for.
+     */
+    @PostMapping("/copied")
+    public ResponseEntity<Void> copied(@Valid @RequestBody CopySignalRequest request, Authentication authentication) {
+        if (authentication != null) {
+            UUID userId = (UUID) authentication.getPrincipal();
+            UUID sessionId = parseSessionId(request.getSessionId());
+            if (sessionId != null) {
+                generationSignalService.recordExplicitSignal(sessionId, userId, ToolType.TITLE_GENERATOR, OutcomeSignal.COPIED);
+            }
+        }
+        return ResponseEntity.noContent().build();
+    }
+
+    /** Null (not an exception) on a malformed id -- this endpoint is best-effort and never surfaces an error to the caller. */
+    private UUID parseSessionId(String raw) {
+        try {
+            return UUID.fromString(raw);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 }

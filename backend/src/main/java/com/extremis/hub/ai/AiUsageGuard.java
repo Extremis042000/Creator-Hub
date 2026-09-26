@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -76,9 +77,14 @@ public class AiUsageGuard {
         return null;
     }
 
-    public void recordSuccess(UUID userId, ToolType toolType, String providerName, String modelName,
+    /**
+     * Phase 37: returns the saved row's id (empty only if the user
+     * vanished between the call and the log write) so the caller can
+     * link a RefineSession to it for later outcome-signal recording.
+     */
+    public Optional<UUID> recordSuccess(UUID userId, ToolType toolType, String providerName, String modelName,
             String servedBy, long inputTokens, long outputTokens, long latencyMs) {
-        save(userId, toolType, providerName, modelName, servedBy, inputTokens, outputTokens, latencyMs, true, null);
+        return save(userId, toolType, providerName, modelName, servedBy, inputTokens, outputTokens, latencyMs, true, null);
     }
 
     public void recordFailure(UUID userId, ToolType toolType, String providerName, String failureReason,
@@ -90,9 +96,9 @@ public class AiUsageGuard {
         save(userId, toolType, providerName, null, null, 0, 0, 0, false, reason);
     }
 
-    private void save(UUID userId, ToolType toolType, String providerName, String modelName, String servedBy,
+    private Optional<UUID> save(UUID userId, ToolType toolType, String providerName, String modelName, String servedBy,
             long inputTokens, long outputTokens, long latencyMs, boolean success, String failureReason) {
-        userRepository.findById(userId).ifPresentOrElse(user -> {
+        return userRepository.findById(userId).map(user -> {
             AiGenerationLog entry = new AiGenerationLog();
             entry.setUser(user);
             entry.setToolType(toolType);
@@ -104,8 +110,11 @@ public class AiUsageGuard {
             entry.setLatencyMs(latencyMs);
             entry.setSuccess(success);
             entry.setFailureReason(failureReason);
-            logRepository.save(entry);
-        }, () -> log.warn("AI usage log skipped -- user {} not found", userId));
+            return logRepository.save(entry).getId();
+        }).or(() -> {
+            log.warn("AI usage log skipped -- user {} not found", userId);
+            return Optional.empty();
+        });
     }
 
     private void rolloverDailyCounterIfNeeded() {

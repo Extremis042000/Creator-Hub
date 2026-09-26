@@ -23,14 +23,26 @@ public class RefineSession {
     private final UUID userId;
     private final ToolType toolType;
     private final String systemPrompt;
+    private final Instant createdAt = Instant.now();
     private final List<ConversationTurn> turns = new ArrayList<>();
-    private volatile Instant lastActivityAt = Instant.now();
+    private volatile Instant lastActivityAt = createdAt;
     private int turnCount;
 
-    RefineSession(UUID userId, ToolType toolType, String systemPrompt, String initialAssistantText) {
+    /**
+     * Phase 37: the AiGenerationLog row this session's ORIGINAL
+     * generate() call created -- null when that call didn't return an
+     * id (the user vanished mid-request, a real edge case AiUsageGuard
+     * already handles). GenerationSignalService updates that row, not
+     * a per-refine-turn one, so "was the original result good" stays
+     * one answer per session even after several refine turns.
+     */
+    private final UUID generationLogId;
+
+    RefineSession(UUID userId, ToolType toolType, String systemPrompt, String initialAssistantText, UUID generationLogId) {
         this.userId = userId;
         this.toolType = toolType;
         this.systemPrompt = systemPrompt;
+        this.generationLogId = generationLogId;
         this.turns.add(new ConversationTurn(ConversationTurn.Role.ASSISTANT, initialAssistantText));
     }
 
@@ -44,6 +56,14 @@ public class RefineSession {
 
     public ToolType getToolType() {
         return toolType;
+    }
+
+    public UUID getGenerationLogId() {
+        return generationLogId;
+    }
+
+    public Instant createdAt() {
+        return createdAt;
     }
 
     public String getSystemPrompt() {

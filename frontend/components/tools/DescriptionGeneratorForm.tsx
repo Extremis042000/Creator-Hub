@@ -11,6 +11,7 @@ import {
   ApiError,
   generateDescription,
   refineDescription,
+  reportDescriptionCopied,
   type ApiFieldError,
   type DescriptionGeneratorResponse,
 } from "@/lib/api";
@@ -105,7 +106,11 @@ export default function DescriptionGeneratorForm() {
           <>
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-text-secondary">Description</h3>
-              <CopyButton value={result.description} label="Copy all" />
+              <CopyButton
+                value={result.description}
+                label="Copy all"
+                onCopy={result.refineSessionId ? () => reportDescriptionCopied(result.refineSessionId!) : undefined}
+              />
             </div>
             <pre className="whitespace-pre-wrap rounded-md border border-border-subtle bg-bg-surface-alt p-3 font-mono text-xs text-text-primary">
               {result.description}

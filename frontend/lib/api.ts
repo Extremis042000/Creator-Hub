@@ -188,6 +188,26 @@ async function postJson<TResponse>(path: string, payload: unknown): Promise<TRes
   return res.json() as Promise<TResponse>;
 }
 
+/**
+ * Phase 37: fire-and-forget, best-effort usage-signal report -- never
+ * throws, never awaited by the caller for its result, and doesn't try
+ * to parse a body (the backend returns 204 No Content). A signed-out
+ * caller (getToken() returns null) skips the network call entirely --
+ * an anonymous copy has no session to attach it to anyway.
+ */
+function reportCopySignal(path: string, sessionId: string): void {
+  const token = getToken();
+  if (!token) return;
+  fetch(`${API_BASE_URL}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ sessionId }),
+  }).catch(() => {
+    // Best-effort instrumentation -- a failed network call here must
+    // never surface to the UI or affect the copy the user just made.
+  });
+}
+
 export type PerformanceCategory =
   | "DEVELOPING"
   | "SOLID"
@@ -334,6 +354,11 @@ export function refineTitles(sessionId: string, message: string): Promise<TitleG
   return postJson<TitleGeneratorResponse>("/api/v1/tools/gaming-title-generator/refine", { sessionId, message });
 }
 
+/** Phase 37: report that the user copied this AI-generated title -- a first-party "was this good" signal. */
+export function reportTitleCopied(sessionId: string): void {
+  reportCopySignal("/api/v1/tools/gaming-title-generator/copied", sessionId);
+}
+
 export type SocialLink = { platform: string; url: string };
 
 export type DescriptionGeneratorRequest = {
@@ -369,6 +394,11 @@ export function refineDescription(sessionId: string, message: string): Promise<D
     sessionId,
     message,
   });
+}
+
+/** Phase 37: report that the user copied this AI-generated description -- a first-party "was this good" signal. */
+export function reportDescriptionCopied(sessionId: string): void {
+  reportCopySignal("/api/v1/tools/gaming-description-generator/copied", sessionId);
 }
 
 export type CurrentUser = {

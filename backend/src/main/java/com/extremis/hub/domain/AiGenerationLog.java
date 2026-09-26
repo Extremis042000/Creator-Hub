@@ -63,4 +63,9 @@ public class AiGenerationLog extends Auditable {
     /** Short code only -- an exception class name, or AiUsageGuard.RATE_LIMITED/DAILY_CEILING_REACHED -- never raw error text. */
     @Column(name = "failure_reason")
     private String failureReason;
+
+    /** Phase 37: null until (if ever) a signal is recorded -- see OutcomeSignal and GenerationSignalService. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "outcome_signal")
+    private OutcomeSignal outcomeSignal;
 }

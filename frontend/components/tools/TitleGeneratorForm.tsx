@@ -11,6 +11,7 @@ import {
   ApiError,
   generateTitles,
   refineTitles,
+  reportTitleCopied,
   TONE_LABELS,
   VIDEO_TYPE_LABELS,
   type ApiFieldError,
@@ -125,7 +126,11 @@ export default function TitleGeneratorForm() {
                 {result.titles.map((title) => (
                   <li key={title} className="flex items-center justify-between gap-2">
                     <span className="text-sm">{title}</span>
-                    <CopyButton value={title} label="Copy" />
+                    <CopyButton
+                      value={title}
+                      label="Copy"
+                      onCopy={result.refineSessionId ? () => reportTitleCopied(result.refineSessionId!) : undefined}
+                    />
                   </li>
                 ))}
               </ul>
@@ -136,7 +141,11 @@ export default function TitleGeneratorForm() {
                 {result.shortFormTitles.map((title) => (
                   <li key={title} className="flex items-center justify-between gap-2">
                     <span className="text-sm">{title}</span>
-                    <CopyButton value={title} label="Copy" />
+                    <CopyButton
+                      value={title}
+                      label="Copy"
+                      onCopy={result.refineSessionId ? () => reportTitleCopied(result.refineSessionId!) : undefined}
+                    />
                   </li>
                 ))}
               </ul>

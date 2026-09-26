@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Test;
 
 class TitleGeneratorServiceTest {
 
-    // AI provider is empty, so usageGuard/refineSessionStore are never dereferenced -- see TitleGeneratorService.generate.
+    // AI provider is empty, so usageGuard/refineSessionStore/generationSignalService are never dereferenced -- see TitleGeneratorService.generate.
     private final TitleGeneratorService service =
-        new TitleGeneratorService(new TextSanitizer(), Optional.empty(), new ObjectMapper(), null, null);
+        new TitleGeneratorService(new TextSanitizer(), Optional.empty(), new ObjectMapper(), null, null, null);
 
     private TitleGeneratorRequest request(VideoType videoType, Tone tone, List<String> keywords) {
         TitleGeneratorRequest r = new TitleGeneratorRequest();

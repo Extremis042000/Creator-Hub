@@ -73,19 +73,23 @@ class AiUsageGuardTest {
     }
 
     @Test
-    void recordSuccessSavesALogRowWhenUserExists() {
+    void recordSuccessSavesALogRowWhenUserExistsAndReturnsItsId() {
         User user = new User();
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(logRepository.save(any(AiGenerationLog.class))).thenAnswer(withGeneratedId());
 
-        guard.recordSuccess(userId, ToolType.TITLE_GENERATOR, "openai-compatible", "fm-v1-lite", "served-model", 10, 20, 1234);
+        Optional<UUID> loggedId = guard.recordSuccess(
+            userId, ToolType.TITLE_GENERATOR, "openai-compatible", "fm-v1-lite", "served-model", 10, 20, 1234);
 
         verify(logRepository, times(1)).save(any(AiGenerationLog.class));
+        assertThat(loggedId).isPresent();
     }
 
     @Test
     void recordFailureSavesALogRowWithFailureReasonAndZeroTokens() {
         User user = new User();
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(logRepository.save(any(AiGenerationLog.class))).thenAnswer(withGeneratedId());
 
         guard.recordFailure(userId, ToolType.DESCRIPTION_GENERATOR, "openai-compatible", "AiGenerationException", 500);
 
@@ -96,6 +100,7 @@ class AiUsageGuardTest {
     void recordThrottledSavesALogRowWithZeroLatency() {
         User user = new User();
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(logRepository.save(any(AiGenerationLog.class))).thenAnswer(withGeneratedId());
 
         guard.recordThrottled(userId, ToolType.TITLE_GENERATOR, "openai-compatible", AiUsageGuard.RATE_LIMITED);
 
@@ -113,5 +118,14 @@ class AiUsageGuardTest {
 
     private AiGenerationLog argThatFailureReasonIs(String reason) {
         return org.mockito.ArgumentMatchers.argThat(entry -> reason.equals(entry.getFailureReason()));
+    }
+
+    /** Mimics what a real save() does -- assigns an id to the same entity passed in. */
+    private org.mockito.stubbing.Answer<AiGenerationLog> withGeneratedId() {
+        return invocation -> {
+            AiGenerationLog entry = invocation.getArgument(0);
+            entry.setId(UUID.randomUUID());
+            return entry;
+        };
     }
 }
