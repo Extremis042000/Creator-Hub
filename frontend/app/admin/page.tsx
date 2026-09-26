@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import AdminAffiliateProductsTable from "@/components/admin/AdminAffiliateProductsTable";
 import AdminAiUsageCard from "@/components/admin/AdminAiUsageCard";
+import AdminAiSignalsCard from "@/components/admin/AdminAiSignalsCard";
 import AdminFeatureFlags from "@/components/admin/AdminFeatureFlags";
 import AdminProductsTable from "@/components/admin/AdminProductsTable";
 import AdminToolsTable from "@/components/admin/AdminToolsTable";
@@ -16,6 +17,7 @@ import {
   fetchAdminProducts,
   fetchAdminTools,
   fetchAiUsageToday,
+  fetchAiSignalSummary,
   fetchPremiumUsers,
   ApiError,
   type AdminAffiliateProduct,
@@ -25,6 +27,7 @@ import {
   type AdminUserSummary,
   type AdminPremiumUser,
   type AiUsageSummary,
+  type AiSignalSummary,
 } from "@/lib/api";
 import { getToken } from "@/lib/auth";
 
@@ -39,6 +42,7 @@ export default function AdminPage() {
   const [affiliateProducts, setAffiliateProducts] = useState<AdminAffiliateProduct[]>([]);
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [aiUsage, setAiUsage] = useState<AiUsageSummary | null>(null);
+  const [aiSignals, setAiSignals] = useState<AiSignalSummary | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
@@ -57,8 +61,9 @@ export default function AdminPage() {
       fetchAdminAffiliateProducts(t),
       fetchAdminProducts(t),
       fetchAiUsageToday(t),
+      fetchAiSignalSummary(t),
     ])
-      .then(([toolsResult, flagsResult, adminsResult, premiumUsersResult, affiliateProductsResult, productsResult, aiUsageResult]) => {
+      .then(([toolsResult, flagsResult, adminsResult, premiumUsersResult, affiliateProductsResult, productsResult, aiUsageResult, aiSignalsResult]) => {
         setTools(toolsResult);
         setFlags(flagsResult);
         setAdmins(adminsResult);
@@ -66,6 +71,7 @@ export default function AdminPage() {
         setAffiliateProducts(affiliateProductsResult);
         setProducts(productsResult);
         setAiUsage(aiUsageResult);
+        setAiSignals(aiSignalsResult);
         setState("ready");
       })
       .catch((err) => {
@@ -154,6 +160,11 @@ export default function AdminPage() {
       <Card className="mt-6">
         <h2 className="mb-4 font-semibold">AI usage today</h2>
         <AdminAiUsageCard initialUsage={aiUsage} token={token} />
+      </Card>
+
+      <Card className="mt-6">
+        <h2 className="mb-4 font-semibold">AI generation quality signals</h2>
+        <AdminAiSignalsCard initialSummary={aiSignals!} token={token} />
       </Card>
     </div>
   );

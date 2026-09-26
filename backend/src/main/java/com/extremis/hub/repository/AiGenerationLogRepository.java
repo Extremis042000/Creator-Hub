@@ -15,6 +15,9 @@ public interface AiGenerationLogRepository extends JpaRepository<AiGenerationLog
 
     List<AiGenerationLog> findByCreatedAtGreaterThanEqual(Instant since);
 
+    /** Phase 38: all-time (not just today, unlike the usage-today view) -- signals accumulate slowly enough that "today" alone would look empty most days. */
+    List<AiGenerationLog> findBySuccessTrue();
+
     /**
      * Phase 37: records a signal only if none is set yet -- first
      * signal wins, so a REGENERATED check landing after the user

@@ -32,6 +32,13 @@ public class AdminAiController {
         return aiUsageService.getTodaySummary();
     }
 
+    /** Phase 38: all-time copy/refine/regenerate signal breakdown per tool -- see AiUsageService.getSignalSummary. */
+    @GetMapping("/signals")
+    public AiSignalSummaryResponse signals(Authentication authentication) {
+        adminService.requireAdmin(authentication);
+        return aiUsageService.getSignalSummary();
+    }
+
     @PostMapping("/ping")
     public Map<String, Object> ping(Authentication authentication) {
         adminService.requireAdmin(authentication);

@@ -678,3 +678,20 @@ export type AiUsageSummary = {
 export function fetchAiUsageToday(token: string): Promise<AiUsageSummary> {
   return authedRequest<AiUsageSummary>("GET", "/api/v1/admin/ai/usage-today", token);
 }
+
+/** Phase 38: all-time (not scoped to today) -- see backend AiUsageService.getSignalSummary. */
+export type ToolSignalBreakdown = {
+  successfulGenerations: number;
+  copied: number;
+  refined: number;
+  regenerated: number;
+  noSignalYet: number;
+};
+
+export type AiSignalSummary = {
+  byTool: Record<string, ToolSignalBreakdown>;
+};
+
+export function fetchAiSignalSummary(token: string): Promise<AiSignalSummary> {
+  return authedRequest<AiSignalSummary>("GET", "/api/v1/admin/ai/signals", token);
+}

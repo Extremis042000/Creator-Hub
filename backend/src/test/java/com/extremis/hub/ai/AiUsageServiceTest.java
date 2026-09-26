@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import com.extremis.hub.domain.AiGenerationLog;
+import com.extremis.hub.domain.OutcomeSignal;
 import com.extremis.hub.domain.ToolType;
 import com.extremis.hub.repository.AiGenerationLogRepository;
 import java.util.List;
@@ -104,5 +105,58 @@ class AiUsageServiceTest {
         AiUsageSummaryResponse summary = service.getTodaySummary();
 
         assertThat(summary.dailyCallCeiling()).isEqualTo(200);
+    }
+
+    // ---- Phase 38: getSignalSummary() ----
+
+    private AiGenerationLog successfulRow(ToolType toolType, OutcomeSignal signal) {
+        AiGenerationLog entry = new AiGenerationLog();
+        entry.setToolType(toolType);
+        entry.setProviderName("openai-compatible");
+        entry.setSuccess(true);
+        entry.setOutcomeSignal(signal);
+        return entry;
+    }
+
+    @Test
+    void signalSummaryBreaksDownEachToolsSuccessfulGenerationsBySignal() {
+        when(logRepository.findBySuccessTrue()).thenReturn(List.of(
+            successfulRow(ToolType.TITLE_GENERATOR, OutcomeSignal.COPIED),
+            successfulRow(ToolType.TITLE_GENERATOR, OutcomeSignal.COPIED),
+            successfulRow(ToolType.TITLE_GENERATOR, OutcomeSignal.REFINED),
+            successfulRow(ToolType.TITLE_GENERATOR, OutcomeSignal.REGENERATED),
+            successfulRow(ToolType.TITLE_GENERATOR, null)));
+
+        AiSignalSummaryResponse summary = service.getSignalSummary();
+        ToolSignalBreakdown titles = summary.byTool().get("TITLE_GENERATOR");
+
+        assertThat(titles.successfulGenerations()).isEqualTo(5);
+        assertThat(titles.copied()).isEqualTo(2);
+        assertThat(titles.refined()).isEqualTo(1);
+        assertThat(titles.regenerated()).isEqualTo(1);
+        assertThat(titles.noSignalYet()).isEqualTo(1);
+    }
+
+    @Test
+    void signalSummaryKeepsEachToolsBreakdownSeparate() {
+        when(logRepository.findBySuccessTrue()).thenReturn(List.of(
+            successfulRow(ToolType.TITLE_GENERATOR, OutcomeSignal.COPIED),
+            successfulRow(ToolType.DESCRIPTION_GENERATOR, OutcomeSignal.REFINED),
+            successfulRow(ToolType.DESCRIPTION_GENERATOR, OutcomeSignal.REFINED)));
+
+        AiSignalSummaryResponse summary = service.getSignalSummary();
+
+        assertThat(summary.byTool().get("TITLE_GENERATOR").successfulGenerations()).isEqualTo(1);
+        assertThat(summary.byTool().get("DESCRIPTION_GENERATOR").successfulGenerations()).isEqualTo(2);
+        assertThat(summary.byTool().get("DESCRIPTION_GENERATOR").refined()).isEqualTo(2);
+    }
+
+    @Test
+    void signalSummaryOmitsToolsWithNoSuccessfulGenerationsRatherThanZeroingThem() {
+        when(logRepository.findBySuccessTrue()).thenReturn(List.of());
+
+        AiSignalSummaryResponse summary = service.getSignalSummary();
+
+        assertThat(summary.byTool()).isEmpty();
     }
 }
