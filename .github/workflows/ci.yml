@@ -106,9 +106,7 @@ jobs:
             canceled) ICON="⚠️" ;;
             *) ICON="⏳" ;;
           esac
-          TEXT="${ICON} *EXTREMIS Creator Hub* backend deploy: *${STATUS:-unknown}*
-Commit \`${SHA_SHORT}\`: ${COMMIT_MSG}
-<${DEPLOY_URL}|View deploy on Render>"
+          TEXT=$(printf '%s *EXTREMIS Creator Hub* backend deploy: *%s*\nCommit `%s`: %s\n<%s|View deploy on Render>' "$ICON" "${STATUS:-unknown}" "$SHA_SHORT" "$COMMIT_MSG" "$DEPLOY_URL")
           curl -sf -X POST -H "Content-Type: application/json; charset=UTF-8" \
             -d "$(jq -n --arg t "$TEXT" '{text: $t}')" \
             "${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}" || true
