@@ -50,3 +50,65 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npx tsc --noEmit
+
+  # Deploys the backend to Render, but only after both test jobs above have
+  # passed, and only on an actual push to main (never on a PR) -- Render's
+  # own "autoDeploy: yes" setting exists on the service but has never
+  # actually fired a deploy in this project's history (every prior deploy
+  # was a manual API/dashboard trigger), so this replaces relying on that
+  # with an explicit step. Triggers the deploy hook, polls the deploy's own
+  # status until it reaches a terminal state, then posts a Google Chat
+  # notification either way so a silent failure isn't missed.
+  deploy:
+    name: Deploy to Render
+    needs: [backend, frontend]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deploy
+        id: trigger
+        run: |
+          RESPONSE=$(curl -sf -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}")
+          DEPLOY_ID=$(echo "$RESPONSE" | jq -r '.deploy.id // empty')
+          if [ -z "$DEPLOY_ID" ]; then
+            echo "Deploy hook did not return a deploy id. Response: $RESPONSE"
+            exit 1
+          fi
+          echo "deploy_id=$DEPLOY_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for deploy to reach a terminal state
+        id: wait
+        run: |
+          DEPLOY_ID="${{ steps.trigger.outputs.deploy_id }}"
+          STATUS="unknown"
+          for i in $(seq 1 40); do
+            STATUS=$(curl -sf -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+              "https://api.render.com/v1/services/${{ vars.RENDER_SERVICE_ID }}/deploys/$DEPLOY_ID" \
+              | jq -r '.status')
+            echo "poll $i: $STATUS"
+            case "$STATUS" in
+              live|build_failed|update_failed|canceled|pre_deploy_failed) break ;;
+            esac
+            sleep 15
+          done
+          echo "final_status=$STATUS" >> "$GITHUB_OUTPUT"
+
+      - name: Notify Google Chat
+        if: always() && steps.trigger.outputs.deploy_id != ''
+        run: |
+          STATUS="${{ steps.wait.outputs.final_status }}"
+          SHA_SHORT=$(echo "${{ github.sha }}" | cut -c1-7)
+          COMMIT_MSG=$(echo "${{ github.event.head_commit.message }}" | head -n1)
+          DEPLOY_URL="https://dashboard.render.com/web/${{ vars.RENDER_SERVICE_ID }}/deploys/${{ steps.trigger.outputs.deploy_id }}"
+          case "$STATUS" in
+            live) ICON="✅" ;;
+            build_failed|update_failed|pre_deploy_failed) ICON="❌" ;;
+            canceled) ICON="⚠️" ;;
+            *) ICON="⏳" ;;
+          esac
+          TEXT="${ICON} *EXTREMIS Creator Hub* backend deploy: *${STATUS:-unknown}*
+Commit \`${SHA_SHORT}\`: ${COMMIT_MSG}
+<${DEPLOY_URL}|View deploy on Render>"
+          curl -sf -X POST -H "Content-Type: application/json; charset=UTF-8" \
+            -d "$(jq -n --arg t "$TEXT" '{text: $t}')" \
+            "${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}" || true
