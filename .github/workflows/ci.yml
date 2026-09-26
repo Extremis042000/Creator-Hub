@@ -110,3 +110,54 @@ jobs:
           curl -sf -X POST -H "Content-Type: application/json; charset=UTF-8" \
             -d "$(jq -n --arg t "$TEXT" '{text: $t}')" \
             "${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}" || true
+
+  # Deploys the frontend to Cloudflare Workers, gated only on its own test
+  # job (frontend and backend are independently deployable services, so
+  # this doesn't wait on backend). wrangler deploy is synchronous -- no
+  # polling needed, just check the step's own exit code.
+  deploy-frontend:
+    name: Deploy frontend (Cloudflare Workers)
+    needs: [frontend]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      # NEXT_PUBLIC_* values are baked into the client bundle and shipped
+      # to every visitor's browser regardless -- not secret, so written
+      # directly rather than stored as GitHub secrets. Mirrors the real
+      # frontend/.env.production.local (gitignored, not in the repo).
+      - name: Write production env
+        run: |
+          cat > .env.production.local <<'ENVEOF'
+          NEXT_PUBLIC_API_BASE_URL=https://api.creator-hub.co.in
+          NEXT_PUBLIC_SITE_URL=https://creator-hub.co.in
+          NEXT_PUBLIC_GOOGLE_CLIENT_ID=280873540951-fnh614aj7dgq9qc1nmuhu58pshpa9l5m.apps.googleusercontent.com
+          ENVEOF
+      - name: Build and deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npm run deploy
+
+      - name: Notify Google Chat
+        if: always()
+        run: |
+          case "${{ job.status }}" in
+            success) ICON="✅"; STATUS="succeeded" ;;
+            *) ICON="❌"; STATUS="failed" ;;
+          esac
+          SHA_SHORT=$(echo "${{ github.sha }}" | cut -c1-7)
+          COMMIT_MSG=$(echo "${{ github.event.head_commit.message }}" | head -n1)
+          TEXT=$(printf '%s *EXTREMIS Creator Hub* frontend deploy: *%s*\nCommit `%s`: %s' "$ICON" "$STATUS" "$SHA_SHORT" "$COMMIT_MSG")
+          curl -sf -X POST -H "Content-Type: application/json; charset=UTF-8" \
+            -d "$(jq -n --arg t "$TEXT" '{text: $t}')" \
+            "${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}" || true
