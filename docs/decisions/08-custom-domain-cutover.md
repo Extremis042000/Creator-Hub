@@ -1,13 +1,11 @@
 # Custom Domain Cutover — Ideation & Phases
 
-Status: **Phases 30-33 done and live-verified; Phase 34 (optional cleanup)
-not started.** Founder purchased `creator-hub.co.in` via GoDaddy
-(2026-09-22) — the one non-$0 item on the founder action checklist
-(`decisions/05-founder-action-checklist.md`) — then completed the Cloudflare
-zone move, the GoDaddy nameserver switch, and the Render custom domain
-binding independently. This doc's remaining open item is `www.creator-hub.co.in`
-(§5, Phase 31) — blocked on a pre-existing DNS record, not yet on this
-assistant's Cloudflare API token permissions.
+Status: **Phases 30-33 fully done and live-verified, including `www`; Phase
+34 (optional cleanup) not started.** Founder purchased `creator-hub.co.in`
+via GoDaddy (2026-09-22) — the one non-$0 item on the founder action
+checklist (`decisions/05-founder-action-checklist.md`) — then completed the
+Cloudflare zone move, the GoDaddy nameserver switch, and the Render custom
+domain binding independently.
 
 ## 1. Where this starts from
 
@@ -85,33 +83,25 @@ than expected, not breakage).
 4. ✅ **Render custom domain** (`api.creator-hub.co.in`) — also done by the
    founder, ahead of being asked; confirmed `verificationStatus: verified`
    and live via `/actuator/health`.
-5. **Still open — remove the pre-existing `www` DNS record.** Cloudflare
-   rejected binding `www.creator-hub.co.in` to the Worker (error 100117):
-   a DNS record for `www` already exists in the zone (likely an artifact
-   of GoDaddy's default parking-page setup, carried over when the zone was
-   imported). This assistant's Cloudflare API token has zone-settings and
-   Worker-deploy permissions but not DNS-record permissions, so it can't
-   remove this itself. **To unblock:** in the Cloudflare dashboard → this
-   zone → DNS → Records, delete whatever record exists for `www` → say so
-   here and the Worker binding for `www.creator-hub.co.in` can be added
-   immediately after. Low priority — the bare domain is the canonical URL
-   either way, and `www` isn't linked from anywhere in the app yet.
-6. **Google OAuth Authorized JavaScript origins** — not independently
-   confirmed. Add `https://creator-hub.co.in` in Google Cloud Console (the
-   existing OAuth client used for sign-in) if not already done — see
-   `GOOGLE_SERVICES_SETUP.md` §1. Live-checking `/login` on the new domain
-   showed the Google sign-in button rendering normally with no
-   origin-mismatch console error, which suggests this may already be
-   configured — but that wasn't confirmed by completing an actual sign-in
-   (this assistant doesn't do that). Worth a real sign-in test on your end
-   to be certain.
+5. ✅ **`www` DNS record removed** — done by the founder. `www.creator-hub.co.in`
+   is now bound to the Worker too and confirmed live: `curl -I` returns
+   `301 Moved Permanently` → `https://creator-hub.co.in/`. Note: this
+   redirect's status code (301) doesn't match what `frontend/middleware.ts`
+   requests (308), so the redirect appears to be happening at Cloudflare's
+   own custom-domain layer, before the Worker ever runs — the middleware is
+   harmless either way (it'd produce the same correct outcome if it ever
+   did run) but isn't confirmed to be what's actually firing.
+6. ✅ **Google OAuth Authorized JavaScript origins** — confirmed working via
+   a real sign-in the founder completed. (Two real bugs surfaced by that
+   test and fixed separately — see the roadmap's "Post-domain-cutover
+   fixes" entry: the post-login redirect and a stale header.)
 
 ## 5. Phases
 
 | Phase | Task | Depends on | Complexity | Status |
 |---|---|---|---|---|
 | 30 | DNS cutover to Cloudflare | Domain purchased (done) | Low | ✅ done, confirmed live via the Cloudflare API. |
-| 31 | Frontend custom domain (Cloudflare Workers) | Phase 30 | Low | ✅ bare domain done and live-verified (real cert, real SSR data). `www` still blocked on a pre-existing DNS record — see §4 item 5. |
+| 31 | Frontend custom domain (Cloudflare Workers) | Phase 30 | Low | ✅ done and live-verified, both hostnames. Bare domain serves the live site over a valid cert with real SSR data; `www` 301s to the bare domain. |
 | 32 | Backend custom domain (Render) | Phase 30 | Low-Medium | ✅ done by the founder, confirmed live (`verificationStatus: verified`, real `/actuator/health` response over a valid cert). |
 | 33 | Application cutover (env vars, CORS, redeploy, live verification) | Phases 31-32 | Medium | ✅ done and live-verified: new bundle contains the new backend hostname (3 occurrences, 0 of the old one); backend redeployed with the new CORS origin (130 tests green); `https://creator-hub.co.in` serves real backend-fetched content; `/login` renders cleanly with no origin-mismatch error. Full sign-in not independently completed — see §4 item 6. |
 | 34 *(cleanup, optional)* | SEO/doc polish + old-URL decision | Phase 33 | Low | — not started. README/`DEPLOYMENT.md`/`ARCHITECTURE.md` primary-URL references still point at the old URLs; sitemap.xml/robots.txt/canonical/OG tags not yet re-checked against the new domain in the deployed HTML. No redirect from the old `.workers.dev` URL is planned — it costs nothing to leave it live, and the site's search-engine footprint under that URL is negligible given how young the site is. |
@@ -132,14 +122,6 @@ than expected, not breakage).
 
 ## 7. What's left
 
-Phases 30-33 are done and live-verified. Two small open items remain,
-both in §4:
-
-1. Delete the pre-existing `www` DNS record in the Cloudflare dashboard so
-   `www.creator-hub.co.in` can be bound to the Worker too (low priority).
-2. Do a real sign-in test on `https://creator-hub.co.in`, and if it fails
-   with an origin-mismatch error, add the domain to Google OAuth's
-   Authorized JavaScript origins (`GOOGLE_SERVICES_SETUP.md` §1).
-
-Phase 34 (SEO/doc polish) is optional cleanup, not blocking anything —
-pick it up whenever convenient.
+Phases 30-33 are fully done and live-verified, including `www`. Only
+Phase 34 (SEO/doc polish) remains, and it's optional cleanup that doesn't
+block anything — pick it up whenever convenient.
