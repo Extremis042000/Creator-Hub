@@ -176,7 +176,18 @@ PR) that passes its tests, two more jobs deploy automatically:
 Both post a Google Chat message either way (success or failure) via
 an incoming webhook (`GOOGLE_CHAT_WEBHOOK_URL` secret) — status icon,
 short commit SHA + subject line, and (backend) a link to the deploy on
-Render's dashboard.
+Render's dashboard. As of 2026-09-26 that secret isn't set yet, so the
+notify step runs and no-ops rather than failing the job (`|| true`).
+
+**On hold: WhatsApp notifications via CallMeBot.** The founder's
+original choice, deferred because the CallMeBot API key's delivery
+(sent by messaging their bot number on WhatsApp) got delayed —
+Google Chat's webhook needed no such wait and was already a real
+option, so it became the active mechanism instead. Not abandoned: if
+the CallMeBot key arrives, adding it is a second notify call in the
+same two steps (`CALLMEBOT_PHONE`/`CALLMEBOT_APIKEY` secrets, a
+`curl -G https://api.callmebot.com/whatsapp.php` call) alongside the
+existing Google Chat one, not a replacement for it.
 
 All backend app secrets are one combined GitHub secret,
 `CREATOR_HUB_SECRETS` (dotenv-style, one `KEY=value` per line), parsed
