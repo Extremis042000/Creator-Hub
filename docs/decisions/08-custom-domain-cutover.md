@@ -1,10 +1,13 @@
 # Custom Domain Cutover — Ideation & Phases
 
-Status: **proposed, not started.** Founder has purchased `creator-hub.co.in`
-via GoDaddy (2026-09-22) — this was flagged as the one non-$0 item on the
-founder action checklist (`decisions/05-founder-action-checklist.md`), and is
-now done. This doc plans wiring it up to replace the `*.workers.dev` /
-`*.onrender.com` URLs as the site's public address.
+Status: **Phases 30-33 done and live-verified; Phase 34 (optional cleanup)
+not started.** Founder purchased `creator-hub.co.in` via GoDaddy
+(2026-09-22) — the one non-$0 item on the founder action checklist
+(`decisions/05-founder-action-checklist.md`) — then completed the Cloudflare
+zone move, the GoDaddy nameserver switch, and the Render custom domain
+binding independently. This doc's remaining open item is `www.creator-hub.co.in`
+(§5, Phase 31) — blocked on a pre-existing DNS record, not yet on this
+assistant's Cloudflare API token permissions.
 
 ## 1. Where this starts from
 
@@ -73,39 +76,45 @@ than expected, not breakage).
 
 ## 4. What needs the founder specifically (cannot be done by this assistant)
 
-1. **Add the zone in Cloudflare.** Log into the Cloudflare dashboard already
-   used for this project → "Add a Site" → enter `creator-hub.co.in` → free
-   plan → Cloudflare gives two nameservers (e.g. `xxx.ns.cloudflare.com`).
-2. **Change nameservers at GoDaddy.** Log into GoDaddy → this domain's DNS/
-   nameserver settings → switch from GoDaddy's default nameservers to the
-   two Cloudflare gave in step 1 → save.
-3. **Wait for the zone to go "Active"** in the Cloudflare dashboard
-   (Cloudflare emails when this happens; usually well under an hour for
-   .co.in via GoDaddy, though it can occasionally take up to 24-48h).
-4. **Add the new domain to Google OAuth's Authorized JavaScript origins**
-   (Google Cloud Console → the existing OAuth client used for sign-in) —
-   add `https://creator-hub.co.in`. Sign-in will fail with an origin-mismatch
-   error on the new domain until this is done; see
-   `GOOGLE_SERVICES_SETUP.md` §1 for exactly where this setting lives.
-
-Everything else below — DNS records for the subdomains, binding the Worker
-and the Render service to their domains, env var/CORS updates, redeploys,
-and live verification — is buildable without further founder involvement,
-using the Cloudflare API token and Render API key already in use this
-session (their current scopes cover Worker deploys and Render deploys; if
-either turns out to lack a permission needed for a specific step below —
-e.g. DNS record management — that will be called out at the time rather
-than assumed).
+1. ✅ **Add the zone in Cloudflare** — done. Confirmed live via the Cloudflare
+   API: zone `creator-hub.co.in`, status `active`.
+2. ✅ **Change nameservers at GoDaddy** — done. Zone's nameservers are
+   `kara.ns.cloudflare.com`/`wells.ns.cloudflare.com`; original registrar
+   correctly recorded as GoDaddy.
+3. ✅ **Zone is "Active"** — confirmed.
+4. ✅ **Render custom domain** (`api.creator-hub.co.in`) — also done by the
+   founder, ahead of being asked; confirmed `verificationStatus: verified`
+   and live via `/actuator/health`.
+5. **Still open — remove the pre-existing `www` DNS record.** Cloudflare
+   rejected binding `www.creator-hub.co.in` to the Worker (error 100117):
+   a DNS record for `www` already exists in the zone (likely an artifact
+   of GoDaddy's default parking-page setup, carried over when the zone was
+   imported). This assistant's Cloudflare API token has zone-settings and
+   Worker-deploy permissions but not DNS-record permissions, so it can't
+   remove this itself. **To unblock:** in the Cloudflare dashboard → this
+   zone → DNS → Records, delete whatever record exists for `www` → say so
+   here and the Worker binding for `www.creator-hub.co.in` can be added
+   immediately after. Low priority — the bare domain is the canonical URL
+   either way, and `www` isn't linked from anywhere in the app yet.
+6. **Google OAuth Authorized JavaScript origins** — not independently
+   confirmed. Add `https://creator-hub.co.in` in Google Cloud Console (the
+   existing OAuth client used for sign-in) if not already done — see
+   `GOOGLE_SERVICES_SETUP.md` §1. Live-checking `/login` on the new domain
+   showed the Google sign-in button rendering normally with no
+   origin-mismatch console error, which suggests this may already be
+   configured — but that wasn't confirmed by completing an actual sign-in
+   (this assistant doesn't do that). Worth a real sign-in test on your end
+   to be certain.
 
 ## 5. Phases
 
-| Phase | Task | Depends on | Complexity | Completion criteria |
+| Phase | Task | Depends on | Complexity | Status |
 |---|---|---|---|---|
-| 30 | DNS cutover to Cloudflare | Domain purchased (done) | Low | Cloudflare shows the zone "Active"; the domain's nameservers resolve to Cloudflare's. Founder-gated (§4 steps 1-3). |
-| 31 | Frontend custom domain (Cloudflare Workers) | Phase 30 | Low | `wrangler.jsonc` gets a `routes` entry binding `creator-hub.co.in/*` (and `www...../*`) with `custom_domain: true`; a Cloudflare redirect rule sends `www` → bare domain; `https://creator-hub.co.in` serves the live site over a valid Cloudflare-issued cert. |
-| 32 | Backend custom domain (Render) | Phase 30 | Low-Medium | `api.creator-hub.co.in` added as a Render custom domain, CNAME'd through Cloudflare (proxied), zone SSL/TLS mode set to Full (strict) so the proxy-to-origin hop stays encrypted and cert-valid; `https://api.creator-hub.co.in/actuator/health` returns `{"status":"UP"}` with no cert warning. |
-| 33 | Application cutover (env vars, CORS, redeploy, live verification) | Phases 31-32, founder's OAuth origin update (§4 step 4) | Medium | `frontend/.env.production.local` updated (`NEXT_PUBLIC_API_BASE_URL`/`NEXT_PUBLIC_SITE_URL` → the new domains) and rebuilt+redeployed; backend `extremis.cors.allowed-origins` gains the new origin(s) (old `.workers.dev` origin kept as a transitional fallback, not removed yet) and redeployed; sign-in, Hot Game Deals SSR data, the AI tools, and the admin panel all verified working on `https://creator-hub.co.in` with real data — the same "a 200 isn't enough" discipline from the 2026-09-14 incident writeup in `DEPLOYMENT.md`. |
-| 34 *(cleanup, optional)* | SEO/doc polish + old-URL decision | Phase 33 | Low | README/`DEPLOYMENT.md`/`ARCHITECTURE.md` primary-URL references updated to the new domain (old URLs kept noted as the underlying infra addresses, not deleted from history); sitemap.xml/robots.txt/canonical/OG tags confirmed (not just assumed) to already reflect `NEXT_PUBLIC_SITE_URL` in the deployed HTML; founder decides whether to also re-verify the new domain in Google Search Console and resubmit the sitemap (optional, doesn't block anything). No redirect from the old `.workers.dev` URL is planned — it costs nothing to leave it live, and the site's search-engine footprint under that URL is negligible given how young the site is, so a redirect would add risk for no real benefit. |
+| 30 | DNS cutover to Cloudflare | Domain purchased (done) | Low | ✅ done, confirmed live via the Cloudflare API. |
+| 31 | Frontend custom domain (Cloudflare Workers) | Phase 30 | Low | ✅ bare domain done and live-verified (real cert, real SSR data). `www` still blocked on a pre-existing DNS record — see §4 item 5. |
+| 32 | Backend custom domain (Render) | Phase 30 | Low-Medium | ✅ done by the founder, confirmed live (`verificationStatus: verified`, real `/actuator/health` response over a valid cert). |
+| 33 | Application cutover (env vars, CORS, redeploy, live verification) | Phases 31-32 | Medium | ✅ done and live-verified: new bundle contains the new backend hostname (3 occurrences, 0 of the old one); backend redeployed with the new CORS origin (130 tests green); `https://creator-hub.co.in` serves real backend-fetched content; `/login` renders cleanly with no origin-mismatch error. Full sign-in not independently completed — see §4 item 6. |
+| 34 *(cleanup, optional)* | SEO/doc polish + old-URL decision | Phase 33 | Low | — not started. README/`DEPLOYMENT.md`/`ARCHITECTURE.md` primary-URL references still point at the old URLs; sitemap.xml/robots.txt/canonical/OG tags not yet re-checked against the new domain in the deployed HTML. No redirect from the old `.workers.dev` URL is planned — it costs nothing to leave it live, and the site's search-engine footprint under that URL is negligible given how young the site is. |
 
 ## 6. Loose ends worth naming now, not discovering later
 
@@ -121,17 +130,16 @@ than assumed).
   annual for this TLD) — outside anything this codebase tracks, purely a
   founder calendar/billing matter.
 
-## 7. What's needed from the founder before Phase 30 can start
+## 7. What's left
 
-Nothing beyond what's already true: the domain is purchased, and the
-founder has (or can get) access to both the Cloudflare dashboard and the
-GoDaddy account for this domain. Concretely, to kick this off:
+Phases 30-33 are done and live-verified. Two small open items remain,
+both in §4:
 
-1. Confirm the target shape in §2 (bare domain canonical, `www` redirects,
-   `api.` subdomain for the backend) — or say what to change.
-2. Do §4 steps 1-2 (add the Cloudflare zone, switch GoDaddy's nameservers)
-   whenever convenient, and say so here — everything from Phase 31 onward
-   can proceed once the zone is active.
-3. When Phase 33 is reached, do §4 step 4 (Google OAuth origin) before
-   asking for that phase's live verification, since sign-in on the new
-   domain depends on it.
+1. Delete the pre-existing `www` DNS record in the Cloudflare dashboard so
+   `www.creator-hub.co.in` can be bound to the Worker too (low priority).
+2. Do a real sign-in test on `https://creator-hub.co.in`, and if it fails
+   with an origin-mismatch error, add the domain to Google OAuth's
+   Authorized JavaScript origins (`GOOGLE_SERVICES_SETUP.md` §1).
+
+Phase 34 (SEO/doc polish) is optional cleanup, not blocking anything —
+pick it up whenever convenient.
